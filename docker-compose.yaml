@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  mysql:
+    container_name: campfinder_db
+    image: mysql:5.7
+    platform: linux/amd64
+    ports:
+      - 3306:3306
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "campfinder"
+
+  back:
+    container_name: campfinder_back
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8083:8083"
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+
+  nginx:
+    container_name: campfinder_nginx
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - back
+
+volumes:
+  db-data:
+    driver: local
