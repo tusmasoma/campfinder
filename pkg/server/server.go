@@ -2,22 +2,33 @@ package server
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/tusmasoma/campfinder/db"
+	"github.com/tusmasoma/campfinder/pkg/server/handler"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func Serve(addr string) {
 	var err error
 
+	DB, err := sql.Open("mysql", "root:campfinder@tcp(mysql:3306)/campfinderdb")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	spotRepo := db.NewSpotRepository(DB)
+	spotHandler := handler.NewSpotHandler(spotRepo)
+
 	/* ===== URLマッピングを行う ===== */
-	http.HandleFunc("/", get(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Hello")
-	}))
+	http.HandleFunc("/api/spot/create", post(spotHandler.HandleSpotCreate))
 
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{

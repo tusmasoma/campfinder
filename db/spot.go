@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
 package db
 
 import (
@@ -102,17 +103,17 @@ func (sr *spotRepository) Create(ctx context.Context, spot Spot, opts ...QueryOp
 	}
 
 	query := `
-	    INSERT INTO spot (
-		category, name, address, lat, lng,
+	    INSERT INTO Spot (
+		id, category, name, address, lat, lng,
 		period, phone, price, description, iconpath
 		)
-		VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		RETURNING id
+		VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`
 
-	err = executor.QueryRowContext(
+	_, err = executor.ExecContext(
 		ctx,
 		query,
+		uuid.New(),
 		spot.Category,
 		spot.Name,
 		spot.Address,
@@ -123,7 +124,7 @@ func (sr *spotRepository) Create(ctx context.Context, spot Spot, opts ...QueryOp
 		spot.Price,
 		spot.Description,
 		spot.IconPath,
-	).Scan(&spot.ID)
+	)
 
 	return
 }

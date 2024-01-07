@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
 package db
 
 import (
@@ -68,17 +69,17 @@ func (ir *imageRepository) Create(ctx context.Context, img Image, opts ...QueryO
 
 	query := `
 	INSERT INTO Image (
-		spot_id, url
+		id, spot_id, url
 		)
 		VALUES (?, ?)
-		RETURNING id;
 		`
-	err = executor.QueryRowContext(
+	_, err = executor.ExecContext(
 		ctx,
 		query,
+		uuid.New(),
 		img.SpotID,
 		img.URL,
-	).Scan(&img.ID)
+	)
 
 	return
 }

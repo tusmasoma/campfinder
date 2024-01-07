@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
 package db
 
 import (
@@ -100,19 +101,19 @@ func (cr *commentRepository) Create(ctx context.Context, comment Comment, opts .
 
 	query := `
 	INSERT INTO Comment (
-		spot_id, user_id, star_rate, text
+		id, spot_id, user_id, star_rate, text
 		)
-		VALUES (?, ?, ?, ?)
-		RETURNING id;
+		VALUES (?, ?, ?, ?, ?)
 		`
-	err = executor.QueryRowContext(
+	_, err = executor.ExecContext(
 		ctx,
 		query,
+		uuid.New(),
 		comment.SpotID,
 		comment.UserID,
 		comment.StarRate,
 		comment.Text,
-	).Scan(&comment.ID)
+	)
 
 	return
 }
