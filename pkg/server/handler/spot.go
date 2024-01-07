@@ -25,8 +25,13 @@ type SpotCreateRequest struct {
 	IconPath    string  `json:"iconpath"`
 }
 
+type SpotGetResponse struct {
+	Spots []db.Spot
+}
+
 type SpotHandler interface {
 	HandleSpotCreate(w http.ResponseWriter, r *http.Request)
+	HandleSpotGet(w http.ResponseWriter, r *http.Request)
 }
 
 type spotHandler struct {
@@ -97,4 +102,28 @@ func (sh *spotHandler) SpotCreate(ctx context.Context, requestBody SpotCreateReq
 		return err
 	}
 	return nil
+}
+
+func (sh *spotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var allSpots []db.Spot
+	categories := r.URL.Query()["category"]
+
+	for _, category := range categories {
+		spots, err := sh.sr.GetSpotByCategory(ctx, category)
+		if err != nil {
+			log.Printf("Failed to get spot of %v: %v", category, err)
+			continue
+		}
+		allSpots = append(allSpots, spots...)
+	}
+	response := SpotGetResponse{Spots: allSpots}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode spots to JSON", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

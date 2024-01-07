@@ -28,6 +28,7 @@ func Serve(addr string) {
 	spotHandler := handler.NewSpotHandler(spotRepo)
 
 	/* ===== URLマッピングを行う ===== */
+	http.HandleFunc("/api/spot", get(spotHandler.HandleSpotGet))
 	http.HandleFunc("/api/spot/create", post(spotHandler.HandleSpotCreate))
 
 	/* ===== サーバの設定 ===== */

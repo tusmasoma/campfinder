@@ -45,3 +45,15 @@ func (mr *MockSpotHandlerMockRecorder) HandleSpotCreate(w, r interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSpotCreate", reflect.TypeOf((*MockSpotHandler)(nil).HandleSpotCreate), w, r)
 }
+
+// HandleSpotGet mocks base method.
+func (m *MockSpotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "HandleSpotGet", w, r)
+}
+
+// HandleSpotGet indicates an expected call of HandleSpotGet.
+func (mr *MockSpotHandlerMockRecorder) HandleSpotGet(w, r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSpotGet", reflect.TypeOf((*MockSpotHandler)(nil).HandleSpotGet), w, r)
+}
