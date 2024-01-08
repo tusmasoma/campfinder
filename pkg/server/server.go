@@ -31,11 +31,13 @@ func Serve(addr string) {
 
 	userRepo := db.NewUserRepository(DB)
 	spotRepo := db.NewSpotRepository(DB)
+	commentRepo := db.NewCommentRepository(DB)
 	redisRepo := cache.NewRedisRepository(client)
 	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
 	authHandler := auth.NewAuthHandler(userRepo)
 	userHandler := handler.NewUserHandler(userRepo, redisRepo, authHandler)
 	spotHandler := handler.NewSpotHandler(spotRepo)
+	commentHandler := handler.NewCommentHandler(commentRepo, authHandler)
 
 	/* ===== URLマッピングを行う ===== */
 	http.HandleFunc("/api/user/create", middleware.Logging(post(userHandler.HandleUserCreate)))
@@ -43,6 +45,10 @@ func Serve(addr string) {
 	http.HandleFunc("/api/user/logout", middleware.Logging(get(authMiddleware.Authenticate(userHandler.HandleUserLogout))))
 	http.HandleFunc("/api/spot", middleware.Logging(get(spotHandler.HandleSpotGet)))
 	http.HandleFunc("/api/spot/create", middleware.Logging(post(spotHandler.HandleSpotCreate)))
+	http.HandleFunc("/api/comment", middleware.Logging(get(commentHandler.HandleCommentGet)))
+	http.HandleFunc("/api/comment/create", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentCreate))))
+	http.HandleFunc("/api/comment/update", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentUpdate))))
+	http.HandleFunc("/api/comment/delete", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentDelete))))
 
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{

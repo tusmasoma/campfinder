@@ -10,11 +10,11 @@ import (
 )
 
 type CommentRepository interface {
-	GetCommentBySpotID(ctx context.Context, spotID uuid.UUID, opts ...QueryOptions) (comments []Comment, err error)
-	GetCommentByID(ctx context.Context, id uuid.UUID, opts ...QueryOptions) (comment Comment, err error)
+	GetCommentBySpotID(ctx context.Context, spotID string, opts ...QueryOptions) (comments []Comment, err error)
+	GetCommentByID(ctx context.Context, id string, opts ...QueryOptions) (comment Comment, err error)
 	Create(ctx context.Context, comment Comment, opts ...QueryOptions) (err error)
 	Update(ctx context.Context, comment Comment, opts ...QueryOptions) (err error)
-	Delete(ctx context.Context, id uuid.UUID, opts ...QueryOptions) (err error)
+	Delete(ctx context.Context, id string, opts ...QueryOptions) (err error)
 }
 
 type commentRepository struct {
@@ -36,7 +36,7 @@ type Comment struct {
 	Created  time.Time
 }
 
-func (cr *commentRepository) GetCommentBySpotID(ctx context.Context, spotID uuid.UUID, opts ...QueryOptions) (comments []Comment, err error) {
+func (cr *commentRepository) GetCommentBySpotID(ctx context.Context, spotID string, opts ...QueryOptions) (comments []Comment, err error) {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -71,7 +71,7 @@ func (cr *commentRepository) GetCommentBySpotID(ctx context.Context, spotID uuid
 	return
 }
 
-func (cr *commentRepository) GetCommentByID(ctx context.Context, id uuid.UUID, opts ...QueryOptions) (comment Comment, err error) {
+func (cr *commentRepository) GetCommentByID(ctx context.Context, id string, opts ...QueryOptions) (comment Comment, err error) {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -133,7 +133,7 @@ func (cr *commentRepository) Update(ctx context.Context, comment Comment, opts .
 	return
 }
 
-func (cr *commentRepository) Delete(ctx context.Context, id uuid.UUID, opts ...QueryOptions) (err error) {
+func (cr *commentRepository) Delete(ctx context.Context, id string, opts ...QueryOptions) (err error) {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
