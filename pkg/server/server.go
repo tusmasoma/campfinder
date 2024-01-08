@@ -38,11 +38,11 @@ func Serve(addr string) {
 	spotHandler := handler.NewSpotHandler(spotRepo)
 
 	/* ===== URLマッピングを行う ===== */
-	http.HandleFunc("/api/user/create", post(userHandler.HandleUserCreate))
-	http.HandleFunc("/api/user/login", post(userHandler.HandleUserLogin))
-	http.HandleFunc("/api/user/logout", get(authMiddleware.Authenticate(userHandler.HandleUserLogout)))
-	http.HandleFunc("/api/spot", get(spotHandler.HandleSpotGet))
-	http.HandleFunc("/api/spot/create", post(spotHandler.HandleSpotCreate))
+	http.HandleFunc("/api/user/create", middleware.Logging(post(userHandler.HandleUserCreate)))
+	http.HandleFunc("/api/user/login", middleware.Logging(post(userHandler.HandleUserLogin)))
+	http.HandleFunc("/api/user/logout", middleware.Logging(get(authMiddleware.Authenticate(userHandler.HandleUserLogout))))
+	http.HandleFunc("/api/spot", middleware.Logging(get(spotHandler.HandleSpotGet)))
+	http.HandleFunc("/api/spot/create", middleware.Logging(post(spotHandler.HandleSpotCreate)))
 
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{
