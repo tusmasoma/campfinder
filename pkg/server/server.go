@@ -13,6 +13,8 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/tusmasoma/campfinder/cache"
 	"github.com/tusmasoma/campfinder/db"
+	"github.com/tusmasoma/campfinder/internal/auth"
+	"github.com/tusmasoma/campfinder/pkg/http/middleware"
 	"github.com/tusmasoma/campfinder/pkg/server/handler"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -30,12 +32,15 @@ func Serve(addr string) {
 	userRepo := db.NewUserRepository(DB)
 	spotRepo := db.NewSpotRepository(DB)
 	redisRepo := cache.NewRedisRepository(client)
-	userHandler := handler.NewUserHandler(userRepo, redisRepo)
+	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
+	authHandler := auth.NewAuthHandler(userRepo)
+	userHandler := handler.NewUserHandler(userRepo, redisRepo, authHandler)
 	spotHandler := handler.NewSpotHandler(spotRepo)
 
 	/* ===== URLマッピングを行う ===== */
 	http.HandleFunc("/api/user/create", post(userHandler.HandleUserCreate))
 	http.HandleFunc("/api/user/login", post(userHandler.HandleUserLogin))
+	http.HandleFunc("/api/user/logout", get(authMiddleware.Authenticate(userHandler.HandleUserLogout)))
 	http.HandleFunc("/api/spot", get(spotHandler.HandleSpotGet))
 	http.HandleFunc("/api/spot/create", post(spotHandler.HandleSpotCreate))
 

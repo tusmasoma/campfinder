@@ -94,6 +94,26 @@ func (mr *MockUserRepositoryMockRecorder) GetUserByEmail(ctx, name interface{}, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockUserRepository)(nil).GetUserByEmail), varargs...)
 }
 
+// GetUserByID mocks base method.
+func (m *MockUserRepository) GetUserByID(ctx context.Context, id string, opts ...db.QueryOptions) (db.User, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, id}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetUserByID", varargs...)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByID indicates an expected call of GetUserByID.
+func (mr *MockUserRepositoryMockRecorder) GetUserByID(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, id}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockUserRepository)(nil).GetUserByID), varargs...)
+}
+
 // Update mocks base method.
 func (m *MockUserRepository) Update(ctx context.Context, user db.User, opts ...db.QueryOptions) error {
 	m.ctrl.T.Helper()

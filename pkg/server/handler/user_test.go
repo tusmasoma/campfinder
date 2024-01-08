@@ -13,6 +13,7 @@ import (
 	cachemock "github.com/tusmasoma/campfinder/cache/mock"
 	"github.com/tusmasoma/campfinder/db"
 	dbmock "github.com/tusmasoma/campfinder/db/mock"
+	authmock "github.com/tusmasoma/campfinder/internal/auth/mock"
 	"github.com/tusmasoma/campfinder/pkg/server/handler/mock"
 )
 
@@ -84,12 +85,13 @@ func TestUserHandler_HandleUserCreate(t *testing.T) {
 			repo := mock.NewMockUserHandler(ctrl)
 			mockUserRepo := dbmock.NewMockUserRepository(ctrl)
 			mockRedisRepo := cachemock.NewMockRedisRepository(ctrl)
+			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo, mockUserRepo, mockRedisRepo)
 			}
 
-			handler := NewUserHandler(mockUserRepo, mockRedisRepo)
+			handler := NewUserHandler(mockUserRepo, mockRedisRepo, mockAuthHandler)
 			recorder := httptest.NewRecorder()
 			handler.HandleUserCreate(recorder, tt.in())
 
@@ -214,12 +216,13 @@ func TestUserHandler_HandleUserLogin(t *testing.T) {
 			repo := mock.NewMockUserHandler(ctrl)
 			mockUserRepo := dbmock.NewMockUserRepository(ctrl)
 			mockRedisRepo := cachemock.NewMockRedisRepository(ctrl)
+			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo, mockUserRepo, mockRedisRepo)
 			}
 
-			handler := NewUserHandler(mockUserRepo, mockRedisRepo)
+			handler := NewUserHandler(mockUserRepo, mockRedisRepo, mockAuthHandler)
 			recorder := httptest.NewRecorder()
 			handler.HandleUserLogin(recorder, tt.in())
 

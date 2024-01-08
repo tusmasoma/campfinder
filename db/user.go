@@ -11,6 +11,7 @@ import (
 
 type UserRepository interface {
 	CheckIfUserExists(ctx context.Context, name string, opts ...QueryOptions) (bool, error)
+	GetUserByID(ctx context.Context, id string, opts ...QueryOptions) (User, error)
 	GetUserByEmail(ctx context.Context, name string, opts ...QueryOptions) (User, error)
 	Create(ctx context.Context, user *User, opts ...QueryOptions) error
 	Update(ctx context.Context, user User, opts ...QueryOptions) error
@@ -58,6 +59,29 @@ func (ur *userRepository) CheckIfUserExists(ctx context.Context, email string, o
 		return false, err
 	}
 	return exists, nil
+}
+
+func (ur *userRepository) GetUserByID(ctx context.Context, id string, opts ...QueryOptions) (User, error) {
+	var executor SQLExecutor = ur.db
+	if len(opts) > 0 && opts[0].Executor != nil {
+		executor = opts[0].Executor
+	}
+
+	query := `
+	SELECT *
+	FROM User
+	WHERE id = ?
+	`
+
+	var user User
+	err := executor.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.IsAdmin,
+	)
+	return user, err
 }
 
 func (ur *userRepository) GetUserByEmail(ctx context.Context, email string, opts ...QueryOptions) (User, error) {

@@ -28,17 +28,20 @@ type UserLoginRequest struct {
 type UserHandler interface {
 	HandleUserCreate(w http.ResponseWriter, r *http.Request)
 	HandleUserLogin(w http.ResponseWriter, r *http.Request)
+	HandleUserLogout(w http.ResponseWriter, r *http.Request)
 }
 
 type userHandler struct {
 	ur db.UserRepository
 	rr cache.RedisRepository
+	ah auth.AuthHandler
 }
 
-func NewUserHandler(ur db.UserRepository, rr cache.RedisRepository) UserHandler {
+func NewUserHandler(ur db.UserRepository, rr cache.RedisRepository, ah auth.AuthHandler) UserHandler {
 	return &userHandler{
 		ur: ur,
 		rr: rr,
+		ah: ah,
 	}
 }
 
@@ -191,4 +194,22 @@ func isValidUserLoginRequest(body io.ReadCloser, requestBody *UserLoginRequest) 
 		return false
 	}
 	return true
+}
+
+func (uh *userHandler) HandleUserLogout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	// ユーザー情報取得
+	user, err := uh.ah.FetchUserFromContext(ctx)
+	if err != nil {
+		http.Error(w, "Failed to get UserInfo from context", http.StatusInternalServerError)
+		return
+	}
+
+	// Redisに該当のuserIDの削除問い合わせ
+	if err = uh.rr.Delete(ctx, user.ID.String()); err != nil {
+		http.Error(w, "Failed to delete userID from redis", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
