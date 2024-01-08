@@ -35,6 +35,7 @@ func Serve(addr string) {
 
 	/* ===== URLマッピングを行う ===== */
 	http.HandleFunc("/api/user/create", post(userHandler.HandleUserCreate))
+	http.HandleFunc("/api/user/login", post(userHandler.HandleUserLogin))
 	http.HandleFunc("/api/spot", get(spotHandler.HandleSpotGet))
 	http.HandleFunc("/api/spot/create", post(spotHandler.HandleSpotCreate))
 

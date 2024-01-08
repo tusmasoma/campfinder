@@ -14,7 +14,7 @@ type RedisRepository interface {
 	Set(ctx context.Context, key string, value interface{}) error
 	Get(ctx context.Context, key string) (interface{}, error)
 	Delete(ctx context.Context, key string) error
-	Exitsts(ctx context.Context, key string) bool
+	Exists(ctx context.Context, key string) bool
 }
 
 type redisRepository struct {
@@ -52,7 +52,7 @@ func (rr *redisRepository) Delete(ctx context.Context, key string) error {
 	return nil
 }
 
-func (rr *redisRepository) Exitsts(ctx context.Context, key string) bool {
+func (rr *redisRepository) Exists(ctx context.Context, key string) bool {
 	val := rr.client.Exists(ctx, key).Val()
 	return val > 0
 }

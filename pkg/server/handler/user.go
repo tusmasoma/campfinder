@@ -20,8 +20,14 @@ type UserCreateRequest struct {
 	Password string `json:"password"`
 }
 
+type UserLoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type UserHandler interface {
 	HandleUserCreate(w http.ResponseWriter, r *http.Request)
+	HandleUserLogin(w http.ResponseWriter, r *http.Request)
 }
 
 type userHandler struct {
@@ -130,4 +136,59 @@ func (uh *userHandler) GenerateAndStoreToken(ctx context.Context, user db.User) 
 		return "", err
 	}
 	return jwt, nil
+}
+
+func (uh *userHandler) HandleUserLogin(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	// リクエストの検証
+	var requestBody UserLoginRequest
+	if ok := isValidUserLoginRequest(r.Body, &requestBody); !ok {
+		http.Error(w, "Invalid user create request", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// emailでMySQLにユーザー情報問い合わせ
+	user, err := uh.ur.GetUserByEmail(ctx, requestBody.Email)
+	if err != nil {
+		http.Error(w, "Error retrieving user by email", http.StatusInternalServerError)
+		return
+	}
+
+	// 既にログイン済みかどうか確認する
+	is_authenticate := uh.rr.Exists(ctx, user.ID.String())
+	if is_authenticate {
+		http.Error(w, "Already logged in", http.StatusInternalServerError)
+		return
+	}
+
+	// Clientから送られてきたpasswordをハッシュ化したものとMySQLから返されたハッシュ化されたpasswordを比較する
+	if err = db.CompareHashAndPassword(user.Password, requestBody.Password); err != nil {
+		http.Error(w, "password does not match", http.StatusInternalServerError)
+		return
+	}
+
+	// アクセストークンの生成とキャッシュへの保存
+	jwt, err := uh.GenerateAndStoreToken(ctx, user)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Authorization", "Bearer "+jwt)
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func isValidUserLoginRequest(body io.ReadCloser, requestBody *UserLoginRequest) bool {
+	// リクエストボディのJSONを構造体にデコード
+	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
+		log.Printf("Invalid request body: %v", err)
+		return false
+	}
+	if requestBody.Email == "" || requestBody.Password == "" {
+		log.Printf("Missing required fields: Name or Password")
+		return false
+	}
+	return true
 }

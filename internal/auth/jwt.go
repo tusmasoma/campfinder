@@ -108,9 +108,9 @@ func GenerateToken(user db.User) (jwt string, jti string) {
 	// ペイロードの作成
 	jti = uuid.New().String()
 	payload := map[string]string{
-		"jti":      jti,
-		"userId":   user.ID.String(),
-		"userName": user.Name,
+		"jti":    jti,
+		"userId": user.ID.String(),
+		"Email":  user.Email,
 	}
 	payloadBytes, _ := json.Marshal(payload)
 	encodedPayload := base64UrlEncode(payloadBytes)

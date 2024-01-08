@@ -48,18 +48,18 @@ func (mr *MockRedisRepositoryMockRecorder) Delete(ctx, key interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRedisRepository)(nil).Delete), ctx, key)
 }
 
-// Exitsts mocks base method.
-func (m *MockRedisRepository) Exitsts(ctx context.Context, key string) bool {
+// Exists mocks base method.
+func (m *MockRedisRepository) Exists(ctx context.Context, key string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exitsts", ctx, key)
+	ret := m.ctrl.Call(m, "Exists", ctx, key)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// Exitsts indicates an expected call of Exitsts.
-func (mr *MockRedisRepositoryMockRecorder) Exitsts(ctx, key interface{}) *gomock.Call {
+// Exists indicates an expected call of Exists.
+func (mr *MockRedisRepositoryMockRecorder) Exists(ctx, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exitsts", reflect.TypeOf((*MockRedisRepository)(nil).Exitsts), ctx, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockRedisRepository)(nil).Exists), ctx, key)
 }
 
 // Get mocks base method.
