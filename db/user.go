@@ -12,7 +12,7 @@ import (
 type UserRepository interface {
 	CheckIfUserExists(ctx context.Context, name string, opts ...QueryOptions) (bool, error)
 	GetUserByEmail(ctx context.Context, name string, opts ...QueryOptions) (User, error)
-	Create(ctx context.Context, user User, opts ...QueryOptions) error
+	Create(ctx context.Context, user *User, opts ...QueryOptions) error
 	Update(ctx context.Context, user User, opts ...QueryOptions) error
 }
 
@@ -45,15 +45,15 @@ func CompareHashAndPassword(hash, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-func (ur *userRepository) CheckIfUserExists(ctx context.Context, name string, opts ...QueryOptions) (bool, error) {
+func (ur *userRepository) CheckIfUserExists(ctx context.Context, email string, opts ...QueryOptions) (bool, error) {
 	var exists bool
 	var executor SQLExecutor = ur.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
 	}
 
-	query := `SELECT EXISTS(SELECT 1 FROM Users WHERE name = ?)`
-	err := executor.QueryRowContext(ctx, query, name).Scan(&exists)
+	query := `SELECT EXISTS(SELECT 1 FROM User WHERE email = ?)`
+	err := executor.QueryRowContext(ctx, query, email).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
@@ -83,7 +83,7 @@ func (ur *userRepository) GetUserByEmail(ctx context.Context, email string, opts
 	return user, err
 }
 
-func (ur *userRepository) Create(ctx context.Context, user User, opts ...QueryOptions) error {
+func (ur *userRepository) Create(ctx context.Context, user *User, opts ...QueryOptions) error {
 	var executor SQLExecutor = ur.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -96,10 +96,12 @@ func (ur *userRepository) Create(ctx context.Context, user User, opts ...QueryOp
     VALUES (?, ?, ?, ?)
     `
 
+	user.ID = uuid.New()
+
 	_, err := executor.ExecContext(
 		ctx,
 		query,
-		uuid.New(),
+		user.ID,
 		user.Name,
 		user.Email,
 		user.Password,

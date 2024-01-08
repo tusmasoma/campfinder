@@ -56,7 +56,7 @@ func (mr *MockUserRepositoryMockRecorder) CheckIfUserExists(ctx, name interface{
 }
 
 // Create mocks base method.
-func (m *MockUserRepository) Create(ctx context.Context, user db.User, opts ...db.QueryOptions) error {
+func (m *MockUserRepository) Create(ctx context.Context, user *db.User, opts ...db.QueryOptions) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, user}
 	for _, a := range opts {

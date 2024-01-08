@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/tusmasoma/campfinder/cache"
 	"github.com/tusmasoma/campfinder/db"
 	"github.com/tusmasoma/campfinder/pkg/server/handler"
 
@@ -23,11 +25,16 @@ func Serve(addr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	client := redis.NewClient(&redis.Options{Addr: "redis:6379", Password: "", DB: 0})
 
+	userRepo := db.NewUserRepository(DB)
 	spotRepo := db.NewSpotRepository(DB)
+	redisRepo := cache.NewRedisRepository(client)
+	userHandler := handler.NewUserHandler(userRepo, redisRepo)
 	spotHandler := handler.NewSpotHandler(spotRepo)
 
 	/* ===== URLマッピングを行う ===== */
+	http.HandleFunc("/api/user/create", post(userHandler.HandleUserCreate))
 	http.HandleFunc("/api/spot", get(spotHandler.HandleSpotGet))
 	http.HandleFunc("/api/spot/create", post(spotHandler.HandleSpotCreate))
 

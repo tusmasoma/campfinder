@@ -1,0 +1,133 @@
+//go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
+package handler
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"strings"
+
+	"github.com/tusmasoma/campfinder/cache"
+	"github.com/tusmasoma/campfinder/db"
+	"github.com/tusmasoma/campfinder/internal/auth"
+)
+
+type UserCreateRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserHandler interface {
+	HandleUserCreate(w http.ResponseWriter, r *http.Request)
+}
+
+type userHandler struct {
+	ur db.UserRepository
+	rr cache.RedisRepository
+}
+
+func NewUserHandler(ur db.UserRepository, rr cache.RedisRepository) UserHandler {
+	return &userHandler{
+		ur: ur,
+		rr: rr,
+	}
+}
+
+func (uh *userHandler) HandleUserCreate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	// リクエストの検証
+	var requestBody UserCreateRequest
+	if ok := isValidUserCreateRequest(r.Body, &requestBody); !ok {
+		http.Error(w, "Invalid user create request", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// ユーザー登録
+	user, err := uh.CreateUser(ctx, requestBody)
+	if err != nil {
+		http.Error(w, "Internal server error while creating user", http.StatusInternalServerError)
+		return
+	}
+
+	// アクセストークンの生成とキャッシュへの保存
+	jwt, err := uh.GenerateAndStoreToken(ctx, user)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// ヘッダーにアクセストークンをセット
+	w.Header().Set("Authorization", "Bearer "+jwt)
+
+	// レスポンスボディやその他のヘッダーをセットして、レスポンスを送信する
+	w.WriteHeader(http.StatusOK)
+}
+
+func isValidUserCreateRequest(body io.ReadCloser, requestBody *UserCreateRequest) bool {
+	// リクエストボディのJSONを構造体にデコード
+	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
+		log.Printf("Invalid request body: %v", err)
+		return false
+	}
+	if requestBody.Email == "" || requestBody.Password == "" {
+		log.Printf("Missing required fields: Name or Password")
+		return false
+	}
+	return true
+}
+
+func (uh *userHandler) CreateUser(ctx context.Context, requestBody UserCreateRequest) (db.User, error) {
+	// usernameが登録済みかどうかMySQLに問い合わせ
+	exists, err := uh.ur.CheckIfUserExists(ctx, requestBody.Email)
+	if err != nil {
+		log.Printf("Internal server error: %v", err)
+		return db.User{}, err
+	}
+	if exists {
+		// ユーザーがすでに存在している場合、409 Conflictを返す
+		log.Printf("User with this name already exists - status: %d", http.StatusConflict)
+		return db.User{}, fmt.Errorf("user with this name already exists")
+	}
+
+	// ユーザ情報登録
+	var user db.User
+	user.Email = requestBody.Email
+	user.Name = ExtractUsernameFromEmail(requestBody.Email)
+	password, err := db.PasswordEncrypt(requestBody.Password)
+	if err != nil { // paswordのハッシュ化
+		log.Printf("Internal server error: %v", err)
+		return db.User{}, err
+	}
+	user.Password = password
+
+	if err = uh.ur.Create(ctx, &user); err != nil {
+		log.Printf("Failed to create user: %v", err)
+		return db.User{}, err
+	}
+	fmt.Println(user.ID)
+	return user, nil
+}
+
+func ExtractUsernameFromEmail(email string) string {
+	parts := strings.Split(email, "@")
+	if len(parts) > 0 {
+		return parts[0]
+	}
+	return ""
+}
+
+func (uh *userHandler) GenerateAndStoreToken(ctx context.Context, user db.User) (string, error) {
+	// アクセストークンを生成
+	jwt, jti := auth.GenerateToken(user)
+
+	// Cacheに保存
+	if err := uh.rr.Set(ctx, user.ID.String(), jti); err != nil {
+		log.Print("Failed to set access token in cache")
+		return "", err
+	}
+	return jwt, nil
+}
