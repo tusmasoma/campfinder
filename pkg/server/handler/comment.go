@@ -102,7 +102,7 @@ func isValidateCommentCreateRequest(body io.ReadCloser, requestBody *CommentCrea
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.SpotID.String() == "" || requestBody.StarRate == 0 || requestBody.Text == "" {
+	if requestBody.SpotID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.StarRate == 0 || requestBody.Text == "" {
 		log.Printf("Missing required fields")
 		return false
 	}
@@ -141,8 +141,8 @@ func (ch *commentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Req
 	}
 	defer r.Body.Close()
 
-	if user.ID != requestBody.UserID {
-		http.Error(w, "User ID mismatch", http.StatusBadRequest)
+	if !user.IsAdmin && user.ID != requestBody.UserID {
+		http.Error(w, "User ID mismatch", http.StatusInternalServerError)
 		return
 	}
 
@@ -159,7 +159,7 @@ func isValidateCommentUpdateRequest(body io.ReadCloser, requestBody *CommentUpda
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.ID.String() == "" || requestBody.SpotID.String() == "" || requestBody.UserID.String() == "" || requestBody.StarRate == 0 || requestBody.Text == "" {
+	if requestBody.ID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.SpotID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.UserID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.StarRate == 0 || requestBody.Text == "" {
 		log.Printf("Missing required fields")
 		return false
 	}
@@ -197,8 +197,8 @@ func (ch *commentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Req
 	}
 	defer r.Body.Close()
 
-	if user.ID != requestBody.UserID {
-		http.Error(w, "User ID mismatch", http.StatusBadRequest)
+	if !user.IsAdmin && user.ID != requestBody.UserID {
+		http.Error(w, "User ID mismatch", http.StatusInternalServerError)
 		return
 	}
 
@@ -215,7 +215,7 @@ func isValidateCommentDeleteRequest(body io.ReadCloser, requestBody *CommentDele
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.ID.String() == "" || requestBody.UserID.String() == "" {
+	if requestBody.ID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.UserID.String() == "00000000-0000-0000-0000-000000000000" {
 		log.Printf("Missing required fields")
 		return false
 	}

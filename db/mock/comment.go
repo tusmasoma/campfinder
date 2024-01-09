@@ -9,7 +9,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	uuid "github.com/google/uuid"
 	db "github.com/tusmasoma/campfinder/db"
 )
 
@@ -56,7 +55,7 @@ func (mr *MockCommentRepositoryMockRecorder) Create(ctx, comment interface{}, op
 }
 
 // Delete mocks base method.
-func (m *MockCommentRepository) Delete(ctx context.Context, id uuid.UUID, opts ...db.QueryOptions) error {
+func (m *MockCommentRepository) Delete(ctx context.Context, id string, opts ...db.QueryOptions) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, id}
 	for _, a := range opts {
@@ -75,7 +74,7 @@ func (mr *MockCommentRepositoryMockRecorder) Delete(ctx, id interface{}, opts ..
 }
 
 // GetCommentByID mocks base method.
-func (m *MockCommentRepository) GetCommentByID(ctx context.Context, id uuid.UUID, opts ...db.QueryOptions) (db.Comment, error) {
+func (m *MockCommentRepository) GetCommentByID(ctx context.Context, id string, opts ...db.QueryOptions) (db.Comment, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, id}
 	for _, a := range opts {
@@ -95,7 +94,7 @@ func (mr *MockCommentRepositoryMockRecorder) GetCommentByID(ctx, id interface{},
 }
 
 // GetCommentBySpotID mocks base method.
-func (m *MockCommentRepository) GetCommentBySpotID(ctx context.Context, spotID uuid.UUID, opts ...db.QueryOptions) ([]db.Comment, error) {
+func (m *MockCommentRepository) GetCommentBySpotID(ctx context.Context, spotID string, opts ...db.QueryOptions) ([]db.Comment, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, spotID}
 	for _, a := range opts {
