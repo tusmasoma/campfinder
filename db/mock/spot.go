@@ -113,6 +113,26 @@ func (mr *MockSpotRepositoryMockRecorder) GetSpotByCategory(ctx, category interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotByCategory", reflect.TypeOf((*MockSpotRepository)(nil).GetSpotByCategory), varargs...)
 }
 
+// GetSpotByID mocks base method.
+func (m *MockSpotRepository) GetSpotByID(ctx context.Context, id string, opts ...db.QueryOptions) (db.Spot, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, id}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetSpotByID", varargs...)
+	ret0, _ := ret[0].(db.Spot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSpotByID indicates an expected call of GetSpotByID.
+func (mr *MockSpotRepositoryMockRecorder) GetSpotByID(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, id}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotByID", reflect.TypeOf((*MockSpotRepository)(nil).GetSpotByID), varargs...)
+}
+
 // Update mocks base method.
 func (m *MockSpotRepository) Update(ctx context.Context, spot db.Spot, opts ...db.QueryOptions) error {
 	m.ctrl.T.Helper()

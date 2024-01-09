@@ -10,6 +10,7 @@ import (
 
 type SpotRepository interface {
 	CheckIfSpotExists(ctx context.Context, lat float64, lng float64, opts ...QueryOptions) (bool, error)
+	GetSpotByID(ctx context.Context, id string, opts ...QueryOptions) (Spot, error)
 	GetSpotByCategory(ctx context.Context, category string, opts ...QueryOptions) (spots []Spot, err error)
 	Create(ctx context.Context, spot Spot, opts ...QueryOptions) (err error)
 	Update(ctx context.Context, spot Spot, opts ...QueryOptions) (err error)
@@ -54,6 +55,35 @@ func (sr *spotRepository) CheckIfSpotExists(ctx context.Context, lat float64, ln
 		return false, err
 	}
 	return exists, nil
+}
+
+func (sr *spotRepository) GetSpotByID(ctx context.Context, id string, opts ...QueryOptions) (Spot, error) {
+	var executor SQLExecutor = sr.db
+	if len(opts) > 0 && opts[0].Executor != nil {
+		executor = opts[0].Executor
+	}
+
+	query := `
+	SELECT *
+	FROM Spot
+	WHERE id = ?
+	`
+
+	var spot Spot
+	err := executor.QueryRowContext(ctx, query, id).Scan(
+		&spot.ID,
+		&spot.Category,
+		&spot.Name,
+		&spot.Address,
+		&spot.Lat,
+		&spot.Lng,
+		&spot.Period,
+		&spot.Phone,
+		&spot.Price,
+		&spot.Description,
+		&spot.IconPath,
+	)
+	return spot, err
 }
 
 func (sr *spotRepository) GetSpotByCategory(ctx context.Context, category string, opts ...QueryOptions) (spots []Spot, err error) {

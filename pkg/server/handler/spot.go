@@ -109,6 +109,7 @@ func (sh *spotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
 
 	var allSpots []db.Spot
 	categories := r.URL.Query()["category"]
+	spotID := r.URL.Query().Get("spot_id")
 
 	for _, category := range categories {
 		spots, err := sh.sr.GetSpotByCategory(ctx, category)
@@ -118,6 +119,15 @@ func (sh *spotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
 		}
 		allSpots = append(allSpots, spots...)
 	}
+
+	if spotID != "" {
+		spot, err := sh.sr.GetSpotByID(ctx, spotID)
+		if err != nil {
+			log.Printf("Failed to get spot of %v: %v", spotID, err)
+		}
+		allSpots = append(allSpots, spot)
+	}
+
 	response := SpotGetResponse{Spots: allSpots}
 
 	w.Header().Set("Content-Type", "application/json")
