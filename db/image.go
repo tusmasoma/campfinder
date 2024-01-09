@@ -9,7 +9,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type ImageRepository interface{}
+type ImageRepository interface {
+	GetSpotImgURLBySpotId(ctx context.Context, spotId string, opts ...QueryOptions) (imgs []Image, err error)
+	Create(ctx context.Context, img Image, opts ...QueryOptions) (err error)
+	Delete(ctx context.Context, id string, opts ...QueryOptions) (err error)
+}
 
 type imageRepository struct {
 	db *sql.DB
@@ -24,11 +28,12 @@ func NewImageRepository(db *sql.DB) ImageRepository {
 type Image struct {
 	ID      uuid.UUID
 	SpotID  uuid.UUID
+	UserID  uuid.UUID
 	URL     string
 	Created time.Time
 }
 
-func (ir *imageRepository) GetSpotImgURLBySpotId(ctx context.Context, spotId uuid.UUID, opts ...QueryOptions) (imgs []Image, err error) {
+func (ir *imageRepository) GetSpotImgURLBySpotId(ctx context.Context, spotId string, opts ...QueryOptions) (imgs []Image, err error) {
 	var executor SQLExecutor = ir.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -50,6 +55,7 @@ func (ir *imageRepository) GetSpotImgURLBySpotId(ctx context.Context, spotId uui
 		err = rows.Scan(
 			&img.ID,
 			&img.SpotID,
+			&img.UserID,
 			&img.URL,
 			&img.Created,
 		)
@@ -69,22 +75,23 @@ func (ir *imageRepository) Create(ctx context.Context, img Image, opts ...QueryO
 
 	query := `
 	INSERT INTO Image (
-		id, spot_id, url
+		id, spot_id, user_id, url
 		)
-		VALUES (?, ?)
+		VALUES (?, ?, ?, ?)
 		`
 	_, err = executor.ExecContext(
 		ctx,
 		query,
 		uuid.New(),
 		img.SpotID,
+		img.UserID,
 		img.URL,
 	)
 
 	return
 }
 
-func (ir *imageRepository) Delete(ctx context.Context, id uuid.UUID, opts ...QueryOptions) (err error) {
+func (ir *imageRepository) Delete(ctx context.Context, id string, opts ...QueryOptions) (err error) {
 	var executor SQLExecutor = ir.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor

@@ -32,12 +32,14 @@ func Serve(addr string) {
 	userRepo := db.NewUserRepository(DB)
 	spotRepo := db.NewSpotRepository(DB)
 	commentRepo := db.NewCommentRepository(DB)
+	imgRepo := db.NewImageRepository(DB)
 	redisRepo := cache.NewRedisRepository(client)
 	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
 	authHandler := auth.NewAuthHandler(userRepo)
 	userHandler := handler.NewUserHandler(userRepo, redisRepo, authHandler)
 	spotHandler := handler.NewSpotHandler(spotRepo)
 	commentHandler := handler.NewCommentHandler(commentRepo, authHandler)
+	imgHandler := handler.NewImageHandler(imgRepo, authHandler)
 
 	/* ===== URLマッピングを行う ===== */
 	http.HandleFunc("/api/user/create", middleware.Logging(post(userHandler.HandleUserCreate)))
@@ -49,7 +51,9 @@ func Serve(addr string) {
 	http.HandleFunc("/api/comment/create", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentCreate))))
 	http.HandleFunc("/api/comment/update", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentUpdate))))
 	http.HandleFunc("/api/comment/delete", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentDelete))))
-
+	http.HandleFunc("/api/img", middleware.Logging(get(imgHandler.HandleImageGet)))
+	http.HandleFunc("/api/img/create", middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageCreate))))
+	http.HandleFunc("/api/img/delete", middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageDelete))))
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{
 		Addr:         addr,

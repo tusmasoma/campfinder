@@ -5,7 +5,11 @@
 package mock
 
 import (
+	context "context"
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
+	db "github.com/tusmasoma/campfinder/db"
 )
 
 // MockImageRepository is a mock of ImageRepository interface.
@@ -29,4 +33,62 @@ func NewMockImageRepository(ctrl *gomock.Controller) *MockImageRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockImageRepository) EXPECT() *MockImageRepositoryMockRecorder {
 	return m.recorder
+}
+
+// Create mocks base method.
+func (m *MockImageRepository) Create(ctx context.Context, img db.Image, opts ...db.QueryOptions) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, img}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Create", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockImageRepositoryMockRecorder) Create(ctx, img interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, img}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockImageRepository)(nil).Create), varargs...)
+}
+
+// Delete mocks base method.
+func (m *MockImageRepository) Delete(ctx context.Context, id string, opts ...db.QueryOptions) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, id}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Delete", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockImageRepositoryMockRecorder) Delete(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, id}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockImageRepository)(nil).Delete), varargs...)
+}
+
+// GetSpotImgURLBySpotId mocks base method.
+func (m *MockImageRepository) GetSpotImgURLBySpotId(ctx context.Context, spotId string, opts ...db.QueryOptions) ([]db.Image, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, spotId}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetSpotImgURLBySpotId", varargs...)
+	ret0, _ := ret[0].([]db.Image)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSpotImgURLBySpotId indicates an expected call of GetSpotImgURLBySpotId.
+func (mr *MockImageRepositoryMockRecorder) GetSpotImgURLBySpotId(ctx, spotId interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, spotId}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotImgURLBySpotId", reflect.TypeOf((*MockImageRepository)(nil).GetSpotImgURLBySpotId), varargs...)
 }
