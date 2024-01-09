@@ -45,3 +45,27 @@ func (mr *MockUserHandlerMockRecorder) HandleUserCreate(w, r interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleUserCreate", reflect.TypeOf((*MockUserHandler)(nil).HandleUserCreate), w, r)
 }
+
+// HandleUserLogin mocks base method.
+func (m *MockUserHandler) HandleUserLogin(w http.ResponseWriter, r *http.Request) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "HandleUserLogin", w, r)
+}
+
+// HandleUserLogin indicates an expected call of HandleUserLogin.
+func (mr *MockUserHandlerMockRecorder) HandleUserLogin(w, r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleUserLogin", reflect.TypeOf((*MockUserHandler)(nil).HandleUserLogin), w, r)
+}
+
+// HandleUserLogout mocks base method.
+func (m *MockUserHandler) HandleUserLogout(w http.ResponseWriter, r *http.Request) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "HandleUserLogout", w, r)
+}
+
+// HandleUserLogout indicates an expected call of HandleUserLogout.
+func (mr *MockUserHandlerMockRecorder) HandleUserLogout(w, r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleUserLogout", reflect.TypeOf((*MockUserHandler)(nil).HandleUserLogout), w, r)
+}
