@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -33,7 +32,7 @@ const expectedTokenParts = 3
 
 func loadPrivateKeyFromFile(filename string) (*rsa.PrivateKey, error) {
 	// ファイルから秘密鍵をバイトスライスとして読み込む
-	keyBytes, err := ioutil.ReadFile(filename)
+	keyBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("error reading the key file: %w", err)
 	}
@@ -60,7 +59,7 @@ func loadPrivateKeyFromFile(filename string) (*rsa.PrivateKey, error) {
 
 func loadPublicKeyFromFile(filename string) (*rsa.PublicKey, error) {
 	// ファイルから公開鍵をバイトスライスとして読み込む
-	keyBytes, err := ioutil.ReadFile(filename)
+	keyBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("error reading the key file: %w", err)
 	}
