@@ -17,11 +17,6 @@ import (
 	"github.com/tusmasoma/campfinder/db"
 )
 
-var (
-	privateKeyPath = os.Getenv("PRIVATE_KEY_PATH")
-	publicKeyPath  = os.Getenv("PUBLIC_KEY_PATH")
-)
-
 type Payload struct {
 	JTI    string `json:"jti"`
 	UserID string `json:"userId"`
@@ -120,7 +115,7 @@ func GenerateToken(user db.User) (string, string) {
 	hashed := sha256.Sum256([]byte(jwtWithoutSignature))
 
 	// 署名作成
-
+	privateKeyPath := os.Getenv("PRIVATE_KEY_PATH")
 	privKey, err := loadPrivateKeyFromFile(privateKeyPath)
 	if err != nil {
 		panic(err)
@@ -155,6 +150,7 @@ func ValidateAccessToken(jwt string) error {
 	}
 
 	// 検証
+	publicKeyPath := os.Getenv("PUBLIC_KEY_PATH")
 	pubKey, err := loadPublicKeyFromFile(publicKeyPath)
 	if err != nil {
 		return err
