@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -17,22 +18,29 @@ import (
 	"github.com/tusmasoma/campfinder/pkg/http/middleware"
 	"github.com/tusmasoma/campfinder/pkg/server/handler"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // This blank import is used for its init function
+)
+
+const (
+	readTimeout             = 5 * time.Second
+	writeTimeout            = 10 * time.Second
+	idleTimeout             = 15 * time.Second
+	gracefulShutdownTimeout = 5 * time.Second
 )
 
 func Serve(addr string) {
 	var err error
 
-	DB, err := sql.Open("mysql", "root:campfinder@tcp(mysql:3306)/campfinderdb")
+	database, err := sql.Open("mysql", "root:campfinder@tcp(mysql:3306)/campfinderdb")
 	if err != nil {
 		log.Fatal(err)
 	}
 	client := redis.NewClient(&redis.Options{Addr: "redis:6379", Password: "", DB: 0})
 
-	userRepo := db.NewUserRepository(DB)
-	spotRepo := db.NewSpotRepository(DB)
-	commentRepo := db.NewCommentRepository(DB)
-	imgRepo := db.NewImageRepository(DB)
+	userRepo := db.NewUserRepository(database)
+	spotRepo := db.NewSpotRepository(database)
+	commentRepo := db.NewCommentRepository(database)
+	imgRepo := db.NewImageRepository(database)
 	redisRepo := cache.NewRedisRepository(client)
 	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
 	authHandler := auth.NewAuthHandler(userRepo)
@@ -42,25 +50,37 @@ func Serve(addr string) {
 	imgHandler := handler.NewImageHandler(imgRepo, authHandler)
 
 	/* ===== URLマッピングを行う ===== */
-	http.HandleFunc("/api/user/create", middleware.Logging(post(userHandler.HandleUserCreate)))
-	http.HandleFunc("/api/user/login", middleware.Logging(post(userHandler.HandleUserLogin)))
-	http.HandleFunc("/api/user/logout", middleware.Logging(get(authMiddleware.Authenticate(userHandler.HandleUserLogout))))
-	http.HandleFunc("/api/spot", middleware.Logging(get(spotHandler.HandleSpotGet)))
-	http.HandleFunc("/api/spot/create", middleware.Logging(post(spotHandler.HandleSpotCreate)))
-	http.HandleFunc("/api/comment", middleware.Logging(get(commentHandler.HandleCommentGet)))
-	http.HandleFunc("/api/comment/create", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentCreate))))
-	http.HandleFunc("/api/comment/update", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentUpdate))))
-	http.HandleFunc("/api/comment/delete", middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentDelete))))
-	http.HandleFunc("/api/img", middleware.Logging(get(imgHandler.HandleImageGet)))
-	http.HandleFunc("/api/img/create", middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageCreate))))
-	http.HandleFunc("/api/img/delete", middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageDelete))))
+	http.HandleFunc("/api/user/create",
+		middleware.Logging(post(userHandler.HandleUserCreate)))
+	http.HandleFunc("/api/user/login",
+		middleware.Logging(post(userHandler.HandleUserLogin)))
+	http.HandleFunc("/api/user/logout",
+		middleware.Logging(get(authMiddleware.Authenticate(userHandler.HandleUserLogout))))
+	http.HandleFunc("/api/spot",
+		middleware.Logging(get(spotHandler.HandleSpotGet)))
+	http.HandleFunc("/api/spot/create",
+		middleware.Logging(post(spotHandler.HandleSpotCreate)))
+	http.HandleFunc("/api/comment",
+		middleware.Logging(get(commentHandler.HandleCommentGet)))
+	http.HandleFunc("/api/comment/create",
+		middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentCreate))))
+	http.HandleFunc("/api/comment/update",
+		middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentUpdate))))
+	http.HandleFunc("/api/comment/delete",
+		middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentDelete))))
+	http.HandleFunc("/api/img",
+		middleware.Logging(get(imgHandler.HandleImageGet)))
+	http.HandleFunc("/api/img/create",
+		middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageCreate))))
+	http.HandleFunc("/api/img/delete",
+		middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageDelete))))
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{
 		Addr:         addr,
 		Handler:      nil,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  15 * time.Second,
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
+		IdleTimeout:  idleTimeout,
 	}
 
 	/* ===== サーバの起動 ===== */
@@ -71,7 +91,7 @@ func Serve(addr string) {
 	defer stop()
 
 	go func() {
-		if err = srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err = srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Server failed: %v", err)
 		}
 	}()
@@ -79,14 +99,13 @@ func Serve(addr string) {
 	<-ctx.Done()
 	log.Println("Server stopping...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	tctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
 	defer cancel()
 
-	if err = srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server shutdown failed: %v", err)
+	if err = srv.Shutdown(tctx); err != nil {
+		log.Println("failed to shutdown http server", err)
 	}
 	log.Println("Server exited")
-
 }
 
 // get GETリクエストを処理する

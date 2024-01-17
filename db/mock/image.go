@@ -73,22 +73,22 @@ func (mr *MockImageRepositoryMockRecorder) Delete(ctx, id interface{}, opts ...i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockImageRepository)(nil).Delete), varargs...)
 }
 
-// GetSpotImgURLBySpotId mocks base method.
-func (m *MockImageRepository) GetSpotImgURLBySpotId(ctx context.Context, spotId string, opts ...db.QueryOptions) ([]db.Image, error) {
+// GetSpotImgURLBySpotID mocks base method.
+func (m *MockImageRepository) GetSpotImgURLBySpotID(ctx context.Context, spotID string, opts ...db.QueryOptions) ([]db.Image, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spotId}
+	varargs := []interface{}{ctx, spotID}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "GetSpotImgURLBySpotId", varargs...)
+	ret := m.ctrl.Call(m, "GetSpotImgURLBySpotID", varargs...)
 	ret0, _ := ret[0].([]db.Image)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetSpotImgURLBySpotId indicates an expected call of GetSpotImgURLBySpotId.
-func (mr *MockImageRepositoryMockRecorder) GetSpotImgURLBySpotId(ctx, spotId interface{}, opts ...interface{}) *gomock.Call {
+// GetSpotImgURLBySpotID indicates an expected call of GetSpotImgURLBySpotID.
+func (mr *MockImageRepositoryMockRecorder) GetSpotImgURLBySpotID(ctx, spotID interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spotId}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotImgURLBySpotId", reflect.TypeOf((*MockImageRepository)(nil).GetSpotImgURLBySpotId), varargs...)
+	varargs := append([]interface{}{ctx, spotID}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotImgURLBySpotID", reflect.TypeOf((*MockImageRepository)(nil).GetSpotImgURLBySpotID), varargs...)
 }

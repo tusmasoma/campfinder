@@ -42,7 +42,12 @@ type Spot struct {
 	IconPath    string  `json:"iconpath"`
 }
 
-func (sr *spotRepository) CheckIfSpotExists(ctx context.Context, lat float64, lng float64, opts ...QueryOptions) (bool, error) {
+func (sr *spotRepository) CheckIfSpotExists(
+	ctx context.Context,
+	lat float64,
+	lng float64,
+	opts ...QueryOptions,
+) (bool, error) {
 	var exists bool
 	var executor SQLExecutor = sr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
@@ -86,7 +91,11 @@ func (sr *spotRepository) GetSpotByID(ctx context.Context, id string, opts ...Qu
 	return spot, err
 }
 
-func (sr *spotRepository) GetSpotByCategory(ctx context.Context, category string, opts ...QueryOptions) (spots []Spot, err error) {
+func (sr *spotRepository) GetSpotByCategory(
+	ctx context.Context,
+	category string,
+	opts ...QueryOptions,
+) ([]Spot, error) {
 	var executor SQLExecutor = sr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -99,13 +108,14 @@ func (sr *spotRepository) GetSpotByCategory(ctx context.Context, category string
 	`
 	rows, err := executor.QueryContext(ctx, query, category)
 	if err != nil {
-		return
+		return nil, err
 	}
 	defer rows.Close()
 
+	var spots []Spot
 	for rows.Next() {
 		var spot Spot
-		err = rows.Scan(
+		if err = rows.Scan(
 			&spot.ID,
 			&spot.Category,
 			&spot.Name,
@@ -117,16 +127,18 @@ func (sr *spotRepository) GetSpotByCategory(ctx context.Context, category string
 			&spot.Price,
 			&spot.Description,
 			&spot.IconPath,
-		)
+		); err != nil {
+			return nil, err
+		}
 		spots = append(spots, spot)
 	}
 	if err = rows.Err(); err != nil {
-		return
+		return nil, err
 	}
-	return
+	return spots, nil
 }
 
-func (sr *spotRepository) Create(ctx context.Context, spot Spot, opts ...QueryOptions) (err error) {
+func (sr *spotRepository) Create(ctx context.Context, spot Spot, opts ...QueryOptions) error {
 	var executor SQLExecutor = sr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -140,7 +152,7 @@ func (sr *spotRepository) Create(ctx context.Context, spot Spot, opts ...QueryOp
 		VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`
 
-	_, err = executor.ExecContext(
+	_, err := executor.ExecContext(
 		ctx,
 		query,
 		uuid.New(),
@@ -156,10 +168,10 @@ func (sr *spotRepository) Create(ctx context.Context, spot Spot, opts ...QueryOp
 		spot.IconPath,
 	)
 
-	return
+	return err
 }
 
-func (sr *spotRepository) Update(ctx context.Context, spot Spot, opts ...QueryOptions) (err error) {
+func (sr *spotRepository) Update(ctx context.Context, spot Spot, opts ...QueryOptions) error {
 	var executor SQLExecutor = sr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -170,22 +182,21 @@ func (sr *spotRepository) Update(ctx context.Context, spot Spot, opts ...QueryOp
 	name=?, period=?, phone=?, price=?, description=?
 	WHERE id = ?
 	`
-	_, err = executor.ExecContext(ctx, query, spot.Name, spot.Period, spot.Phone, spot.Price, spot.Description, spot.ID)
-	return
+	_, err := executor.ExecContext(ctx, query, spot.Name, spot.Period, spot.Phone, spot.Price, spot.Description, spot.ID)
+	return err
 }
 
-func (sr *spotRepository) Delete(ctx context.Context, spot Spot, opts ...QueryOptions) (err error) {
+func (sr *spotRepository) Delete(ctx context.Context, spot Spot, opts ...QueryOptions) error {
 	var executor SQLExecutor = sr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
 	}
 
-	_, err = executor.ExecContext(ctx, "DELETE FROM Spot WHERE id = ?", spot.ID)
-	return
+	_, err := executor.ExecContext(ctx, "DELETE FROM Spot WHERE id = ?", spot.ID)
+	return err
 }
 
 func (sr *spotRepository) UpdateOrCreate(ctx context.Context, spot Spot, opts ...QueryOptions) error {
-
 	exists, err := sr.CheckIfSpotExists(ctx, spot.Lat, spot.Lng, opts...)
 	if err != nil {
 		return err

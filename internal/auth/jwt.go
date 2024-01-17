@@ -18,14 +18,13 @@ import (
 )
 
 var (
-	PRIVATE_KEY_PATH = os.Getenv("PRIVATE_KEY_PATH")
-	PUBLIC_KEY_PATH  = os.Getenv("PUBLIC_KEY_PATH")
+	privateKeyPath = os.Getenv("PRIVATE_KEY_PATH")
+	publicKeyPath  = os.Getenv("PUBLIC_KEY_PATH")
 )
 
 type Payload struct {
 	JTI    string `json:"jti"`
 	UserID string `json:"userId"`
-	//UserEmail string `json:"userEmail"`
 }
 
 const expectedTokenParts = 3
@@ -95,7 +94,7 @@ func base64UrlDecode(s string) ([]byte, error) {
 }
 
 // アクセストークン(JWT形式)の生成
-func GenerateToken(user db.User) (jwt string, jti string) {
+func GenerateToken(user db.User) (string, string) {
 	// ヘッダの作成
 	header := map[string]string{
 		"typ": "JWT",
@@ -105,7 +104,7 @@ func GenerateToken(user db.User) (jwt string, jti string) {
 	encodedHeader := base64UrlEncode(headerBytes)
 
 	// ペイロードの作成
-	jti = uuid.New().String()
+	jti := uuid.New().String()
 	payload := map[string]string{
 		"jti":    jti,
 		"userId": user.ID.String(),
@@ -122,7 +121,7 @@ func GenerateToken(user db.User) (jwt string, jti string) {
 
 	// 署名作成
 
-	privKey, err := loadPrivateKeyFromFile(PRIVATE_KEY_PATH)
+	privKey, err := loadPrivateKeyFromFile(privateKeyPath)
 	if err != nil {
 		panic(err)
 	}
@@ -133,7 +132,7 @@ func GenerateToken(user db.User) (jwt string, jti string) {
 	encodedSignature := base64UrlEncode(signature)
 
 	// JWTを完成
-	jwt = fmt.Sprintf("%s.%s", jwtWithoutSignature, encodedSignature)
+	jwt := fmt.Sprintf("%s.%s", jwtWithoutSignature, encodedSignature)
 
 	return jwt, jti
 }
@@ -156,7 +155,7 @@ func ValidateAccessToken(jwt string) error {
 	}
 
 	// 検証
-	pubKey, err := loadPublicKeyFromFile(PUBLIC_KEY_PATH)
+	pubKey, err := loadPublicKeyFromFile(publicKeyPath)
 	if err != nil {
 		return err
 	}

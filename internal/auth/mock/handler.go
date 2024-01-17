@@ -12,31 +12,31 @@ import (
 	db "github.com/tusmasoma/campfinder/db"
 )
 
-// MockAuthHandler is a mock of AuthHandler interface.
-type MockAuthHandler struct {
+// MockHandler is a mock of Handler interface.
+type MockHandler struct {
 	ctrl     *gomock.Controller
-	recorder *MockAuthHandlerMockRecorder
+	recorder *MockHandlerMockRecorder
 }
 
-// MockAuthHandlerMockRecorder is the mock recorder for MockAuthHandler.
-type MockAuthHandlerMockRecorder struct {
-	mock *MockAuthHandler
+// MockHandlerMockRecorder is the mock recorder for MockHandler.
+type MockHandlerMockRecorder struct {
+	mock *MockHandler
 }
 
-// NewMockAuthHandler creates a new mock instance.
-func NewMockAuthHandler(ctrl *gomock.Controller) *MockAuthHandler {
-	mock := &MockAuthHandler{ctrl: ctrl}
-	mock.recorder = &MockAuthHandlerMockRecorder{mock}
+// NewMockHandler creates a new mock instance.
+func NewMockHandler(ctrl *gomock.Controller) *MockHandler {
+	mock := &MockHandler{ctrl: ctrl}
+	mock.recorder = &MockHandlerMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockAuthHandler) EXPECT() *MockAuthHandlerMockRecorder {
+func (m *MockHandler) EXPECT() *MockHandlerMockRecorder {
 	return m.recorder
 }
 
 // FetchUserFromContext mocks base method.
-func (m *MockAuthHandler) FetchUserFromContext(ctx context.Context) (db.User, error) {
+func (m *MockHandler) FetchUserFromContext(ctx context.Context) (db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchUserFromContext", ctx)
 	ret0, _ := ret[0].(db.User)
@@ -45,7 +45,7 @@ func (m *MockAuthHandler) FetchUserFromContext(ctx context.Context) (db.User, er
 }
 
 // FetchUserFromContext indicates an expected call of FetchUserFromContext.
-func (mr *MockAuthHandlerMockRecorder) FetchUserFromContext(ctx interface{}) *gomock.Call {
+func (mr *MockHandlerMockRecorder) FetchUserFromContext(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchUserFromContext", reflect.TypeOf((*MockAuthHandler)(nil).FetchUserFromContext), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchUserFromContext", reflect.TypeOf((*MockHandler)(nil).FetchUserFromContext), ctx)
 }

@@ -79,7 +79,7 @@ func (am *authMiddleware) Authenticate(nextFunc http.HandlerFunc) http.HandlerFu
 		// 今後有効期限の確認も行う
 
 		// コンテキストに userID を保存
-		ctx = context.WithValue(ctx, "userID", payload.UserID)
+		ctx = context.WithValue(ctx, auth.ContextUserIDKey, payload.UserID)
 
 		nextFunc(w, r.WithContext(ctx))
 	}

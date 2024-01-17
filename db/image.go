@@ -10,7 +10,7 @@ import (
 )
 
 type ImageRepository interface {
-	GetSpotImgURLBySpotId(ctx context.Context, spotId string, opts ...QueryOptions) (imgs []Image, err error)
+	GetSpotImgURLBySpotID(ctx context.Context, spotID string, opts ...QueryOptions) (imgs []Image, err error)
 	Create(ctx context.Context, img Image, opts ...QueryOptions) (err error)
 	Delete(ctx context.Context, id string, opts ...QueryOptions) (err error)
 }
@@ -33,7 +33,11 @@ type Image struct {
 	Created time.Time
 }
 
-func (ir *imageRepository) GetSpotImgURLBySpotId(ctx context.Context, spotId string, opts ...QueryOptions) (imgs []Image, err error) {
+func (ir *imageRepository) GetSpotImgURLBySpotID(
+	ctx context.Context,
+	spotID string,
+	opts ...QueryOptions,
+) ([]Image, error) {
 	var executor SQLExecutor = ir.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -44,30 +48,33 @@ func (ir *imageRepository) GetSpotImgURLBySpotId(ctx context.Context, spotId str
 	FROM Image
 	WHERE spot_id = ?
 	`
-	rows, err := executor.QueryContext(ctx, query, spotId)
+	rows, err := executor.QueryContext(ctx, query, spotID)
 	if err != nil {
-		return
+		return nil, err
 	}
 	defer rows.Close()
 
+	var imgs []Image
 	for rows.Next() {
 		var img Image
-		err = rows.Scan(
+		if err = rows.Scan(
 			&img.ID,
 			&img.SpotID,
 			&img.UserID,
 			&img.URL,
 			&img.Created,
-		)
+		); err != nil {
+			return nil, err
+		}
 		imgs = append(imgs, img)
 	}
 	if err = rows.Err(); err != nil {
-		return
+		return nil, err
 	}
-	return
+	return imgs, nil
 }
 
-func (ir *imageRepository) Create(ctx context.Context, img Image, opts ...QueryOptions) (err error) {
+func (ir *imageRepository) Create(ctx context.Context, img Image, opts ...QueryOptions) error {
 	var executor SQLExecutor = ir.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -79,7 +86,7 @@ func (ir *imageRepository) Create(ctx context.Context, img Image, opts ...QueryO
 		)
 		VALUES (?, ?, ?, ?)
 		`
-	_, err = executor.ExecContext(
+	_, err := executor.ExecContext(
 		ctx,
 		query,
 		uuid.New(),
@@ -88,14 +95,14 @@ func (ir *imageRepository) Create(ctx context.Context, img Image, opts ...QueryO
 		img.URL,
 	)
 
-	return
+	return err
 }
 
-func (ir *imageRepository) Delete(ctx context.Context, id string, opts ...QueryOptions) (err error) {
+func (ir *imageRepository) Delete(ctx context.Context, id string, opts ...QueryOptions) error {
 	var executor SQLExecutor = ir.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
 	}
-	_, err = executor.ExecContext(ctx, "DELETE FROM Image WHERE id = ?", id)
-	return
+	_, err := executor.ExecContext(ctx, "DELETE FROM Image WHERE id = ?", id)
+	return err
 }

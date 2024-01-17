@@ -33,7 +33,7 @@ type CommentDeleteRequest struct {
 }
 
 type CommentGetResponse struct {
-	Comments []db.Comment
+	Comments []db.Comment `json:"comments"`
 }
 
 type CommentHandler interface {
@@ -45,10 +45,10 @@ type CommentHandler interface {
 
 type commentHandler struct {
 	cr db.CommentRepository
-	ah auth.AuthHandler
+	ah auth.Handler
 }
 
-func NewCommentHandler(cr db.CommentRepository, ah auth.AuthHandler) CommentHandler {
+func NewCommentHandler(cr db.CommentRepository, ah auth.Handler) CommentHandler {
 	return &commentHandler{
 		cr: cr,
 		ah: ah,
@@ -66,7 +66,7 @@ func (ch *commentHandler) HandleCommentGet(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(CommentGetResponse{Comments: comments}); err != nil {
+	if err = json.NewEncoder(w).Encode(CommentGetResponse{Comments: comments}); err != nil {
 		http.Error(w, "Failed to encode spots to JSON", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -90,7 +90,7 @@ func (ch *commentHandler) HandleCommentCreate(w http.ResponseWriter, r *http.Req
 	}
 	defer r.Body.Close()
 
-	if err := ch.CommentCreate(ctx, user, requestBody); err != nil {
+	if err = ch.CommentCreate(ctx, user, requestBody); err != nil {
 		http.Error(w, "Internal server error while creating comment", http.StatusInternalServerError)
 		return
 	}
@@ -103,7 +103,7 @@ func isValidateCommentCreateRequest(body io.ReadCloser, requestBody *CommentCrea
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.SpotID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.StarRate == 0 || requestBody.Text == "" {
+	if requestBody.SpotID.String() == DefaultUUID || requestBody.StarRate == 0 || requestBody.Text == "" {
 		log.Printf("Missing required fields")
 		return false
 	}
@@ -111,7 +111,6 @@ func isValidateCommentCreateRequest(body io.ReadCloser, requestBody *CommentCrea
 }
 
 func (ch *commentHandler) CommentCreate(ctx context.Context, user db.User, requestBody CommentCreateRequest) error {
-
 	var comment = db.Comment{
 		SpotID:   requestBody.SpotID,
 		UserID:   user.ID,
@@ -147,7 +146,7 @@ func (ch *commentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := ch.CommentUpdate(ctx, requestBody); err != nil {
+	if err = ch.CommentUpdate(ctx, requestBody); err != nil {
 		http.Error(w, "Internal server error while updating comment", http.StatusInternalServerError)
 		return
 	}
@@ -160,7 +159,11 @@ func isValidateCommentUpdateRequest(body io.ReadCloser, requestBody *CommentUpda
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.ID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.SpotID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.UserID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.StarRate == 0 || requestBody.Text == "" {
+	if requestBody.ID.String() == DefaultUUID ||
+		requestBody.SpotID.String() == DefaultUUID ||
+		requestBody.UserID.String() == DefaultUUID ||
+		requestBody.StarRate == 0 ||
+		requestBody.Text == "" {
 		log.Printf("Missing required fields")
 		return false
 	}
@@ -203,7 +206,7 @@ func (ch *commentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := ch.cr.Delete(ctx, requestBody.ID.String()); err != nil {
+	if err = ch.cr.Delete(ctx, requestBody.ID.String()); err != nil {
 		http.Error(w, "Internal server error while deleting comment", http.StatusInternalServerError)
 		return
 	}
@@ -216,7 +219,7 @@ func isValidateCommentDeleteRequest(body io.ReadCloser, requestBody *CommentDele
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.ID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.UserID.String() == "00000000-0000-0000-0000-000000000000" {
+	if requestBody.ID.String() == DefaultUUID || requestBody.UserID.String() == DefaultUUID {
 		log.Printf("Missing required fields")
 		return false
 	}

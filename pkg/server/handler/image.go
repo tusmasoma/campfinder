@@ -24,7 +24,7 @@ type ImageDeleteRequest struct {
 }
 
 type ImageGetResponse struct {
-	Images []db.Image
+	Images []db.Image `json:"images"`
 }
 
 type ImageHandler interface {
@@ -35,10 +35,10 @@ type ImageHandler interface {
 
 type imageHandler struct {
 	ir db.ImageRepository
-	ah auth.AuthHandler
+	ah auth.Handler
 }
 
-func NewImageHandler(ir db.ImageRepository, ah auth.AuthHandler) ImageHandler {
+func NewImageHandler(ir db.ImageRepository, ah auth.Handler) ImageHandler {
 	return &imageHandler{
 		ir: ir,
 		ah: ah,
@@ -50,13 +50,13 @@ func (ih *imageHandler) HandleImageGet(w http.ResponseWriter, r *http.Request) {
 
 	spotID := r.URL.Query().Get("spot_id")
 
-	imgs, err := ih.ir.GetSpotImgURLBySpotId(ctx, spotID)
+	imgs, err := ih.ir.GetSpotImgURLBySpotID(ctx, spotID)
 	if err != nil {
 		http.Error(w, "Failed to get images by spot id", http.StatusInternalServerError)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(ImageGetResponse{Images: imgs}); err != nil {
+	if err = json.NewEncoder(w).Encode(ImageGetResponse{Images: imgs}); err != nil {
 		http.Error(w, "Failed to encode spots to JSON", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -80,7 +80,7 @@ func (ih *imageHandler) HandleImageCreate(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 
-	if err := ih.ImageCreate(ctx, user, requestBody); err != nil {
+	if err = ih.ImageCreate(ctx, user, requestBody); err != nil {
 		http.Error(w, "Internal server error while creating image", http.StatusInternalServerError)
 		return
 	}
@@ -93,7 +93,7 @@ func isValidateImageCreateRequest(body io.ReadCloser, requestBody *ImageCreateRe
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.SpotID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.URL == "" {
+	if requestBody.SpotID.String() == DefaultUUID || requestBody.URL == "" {
 		log.Printf("Missing required fields")
 		return false
 	}
@@ -101,7 +101,6 @@ func isValidateImageCreateRequest(body io.ReadCloser, requestBody *ImageCreateRe
 }
 
 func (ih *imageHandler) ImageCreate(ctx context.Context, user db.User, requestBody ImageCreateRequest) error {
-
 	var img = db.Image{
 		SpotID: requestBody.SpotID,
 		UserID: user.ID,
@@ -135,7 +134,7 @@ func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := ih.ir.Delete(ctx, requestBody.ID.String()); err != nil {
+	if err = ih.ir.Delete(ctx, requestBody.ID.String()); err != nil {
 		http.Error(w, "Internal server error while deleting image", http.StatusInternalServerError)
 		return
 	}
@@ -148,7 +147,7 @@ func isValidateImageDeleteRequest(body io.ReadCloser, requestBody *ImageDeleteRe
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.ID.String() == "00000000-0000-0000-0000-000000000000" || requestBody.UserID.String() == "00000000-0000-0000-0000-000000000000" {
+	if requestBody.ID.String() == DefaultUUID || requestBody.UserID.String() == DefaultUUID {
 		log.Printf("Missing required fields")
 		return false
 	}

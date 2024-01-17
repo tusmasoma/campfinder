@@ -18,7 +18,6 @@ import (
 )
 
 func TestUserHandler_HandleUserCreate(t *testing.T) {
-
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -85,7 +84,7 @@ func TestUserHandler_HandleUserCreate(t *testing.T) {
 			repo := mock.NewMockUserHandler(ctrl)
 			mockUserRepo := dbmock.NewMockUserRepository(ctrl)
 			mockRedisRepo := cachemock.NewMockRedisRepository(ctrl)
-			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
+			mockAuthHandler := authmock.NewMockHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo, mockUserRepo, mockRedisRepo)
@@ -108,7 +107,6 @@ func TestUserHandler_HandleUserCreate(t *testing.T) {
 }
 
 func TestUserHandler_HandleUserLogin(t *testing.T) {
-
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -216,7 +214,7 @@ func TestUserHandler_HandleUserLogin(t *testing.T) {
 			repo := mock.NewMockUserHandler(ctrl)
 			mockUserRepo := dbmock.NewMockUserRepository(ctrl)
 			mockRedisRepo := cachemock.NewMockRedisRepository(ctrl)
-			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
+			mockAuthHandler := authmock.NewMockHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo, mockUserRepo, mockRedisRepo)

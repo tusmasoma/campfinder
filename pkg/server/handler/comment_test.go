@@ -58,7 +58,7 @@ func TestCommentHandler_HandleCommentGet(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			repo := dbmock.NewMockCommentRepository(ctrl)
-			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
+			mockAuthHandler := authmock.NewMockHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo)
@@ -82,7 +82,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 		name  string
 		setup func(
 			m *dbmock.MockCommentRepository,
-			m1 *authmock.MockAuthHandler,
+			m1 *authmock.MockHandler,
 		)
 		in         func() *http.Request
 		wantStatus int
@@ -91,7 +91,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 			name: "success",
 			setup: func(
 				m *dbmock.MockCommentRepository,
-				m1 *authmock.MockAuthHandler,
+				m1 *authmock.MockHandler,
 			) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
@@ -123,7 +123,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 		},
 		{
 			name: "Fail: invalid request",
-			setup: func(m *dbmock.MockCommentRepository, m1 *authmock.MockAuthHandler) {
+			setup: func(m *dbmock.MockCommentRepository, m1 *authmock.MockHandler) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
 					ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
@@ -152,7 +152,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			repo := dbmock.NewMockCommentRepository(ctrl)
-			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
+			mockAuthHandler := authmock.NewMockHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo, mockAuthHandler)
@@ -176,7 +176,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 		name  string
 		setup func(
 			m *dbmock.MockCommentRepository,
-			m1 *authmock.MockAuthHandler,
+			m1 *authmock.MockHandler,
 		)
 		in         func() *http.Request
 		wantStatus int
@@ -185,7 +185,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 			name: "success",
 			setup: func(
 				m *dbmock.MockCommentRepository,
-				m1 *authmock.MockAuthHandler,
+				m1 *authmock.MockHandler,
 			) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
@@ -222,7 +222,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 			name: "success: Super User",
 			setup: func(
 				m *dbmock.MockCommentRepository,
-				m1 *authmock.MockAuthHandler,
+				m1 *authmock.MockHandler,
 			) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
@@ -257,7 +257,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 		},
 		{
 			name: "Fail: invalid request",
-			setup: func(m *dbmock.MockCommentRepository, m1 *authmock.MockAuthHandler) {
+			setup: func(m *dbmock.MockCommentRepository, m1 *authmock.MockHandler) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
 					ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
@@ -285,7 +285,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 			name: "Fail: Not authorized to update",
 			setup: func(
 				m *dbmock.MockCommentRepository,
-				m1 *authmock.MockAuthHandler,
+				m1 *authmock.MockHandler,
 			) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
@@ -318,7 +318,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			repo := dbmock.NewMockCommentRepository(ctrl)
-			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
+			mockAuthHandler := authmock.NewMockHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo, mockAuthHandler)
@@ -342,7 +342,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 		name  string
 		setup func(
 			m *dbmock.MockCommentRepository,
-			m1 *authmock.MockAuthHandler,
+			m1 *authmock.MockHandler,
 		)
 		in         func() *http.Request
 		wantStatus int
@@ -351,7 +351,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 			name: "success",
 			setup: func(
 				m *dbmock.MockCommentRepository,
-				m1 *authmock.MockAuthHandler,
+				m1 *authmock.MockHandler,
 			) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
@@ -379,7 +379,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 			name: "success: Super User",
 			setup: func(
 				m *dbmock.MockCommentRepository,
-				m1 *authmock.MockAuthHandler,
+				m1 *authmock.MockHandler,
 			) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
@@ -405,7 +405,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 		},
 		{
 			name: "Fail: invalid request",
-			setup: func(m *dbmock.MockCommentRepository, m1 *authmock.MockAuthHandler) {
+			setup: func(m *dbmock.MockCommentRepository, m1 *authmock.MockHandler) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
 					ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
@@ -430,7 +430,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 			name: "Fail: Not authorized to update",
 			setup: func(
 				m *dbmock.MockCommentRepository,
-				m1 *authmock.MockAuthHandler,
+				m1 *authmock.MockHandler,
 			) {
 				passward, _ := db.PasswordEncrypt("password123")
 				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(db.User{
@@ -460,7 +460,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			repo := dbmock.NewMockCommentRepository(ctrl)
-			mockAuthHandler := authmock.NewMockAuthHandler(ctrl)
+			mockAuthHandler := authmock.NewMockHandler(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo, mockAuthHandler)

@@ -9,23 +9,27 @@ import (
 	"github.com/tusmasoma/campfinder/db"
 )
 
-type AuthHandler interface {
+type ContextKey string
+
+const ContextUserIDKey ContextKey = "userID"
+
+type Handler interface {
 	FetchUserFromContext(ctx context.Context) (db.User, error)
 }
 
-type authHandler struct {
+type handler struct {
 	ur db.UserRepository
 }
 
-func NewAuthHandler(ur db.UserRepository) AuthHandler {
-	return &authHandler{
+func NewAuthHandler(ur db.UserRepository) Handler {
+	return &handler{
 		ur: ur,
 	}
 }
 
-func (ah *authHandler) FetchUserFromContext(ctx context.Context) (db.User, error) {
+func (ah *handler) FetchUserFromContext(ctx context.Context) (db.User, error) {
 	// リクエストのコンテキストからユーザー名を取得し、そのユーザー名を用いてデータベースからユーザー情報を返す
-	userID, ok := ctx.Value("userID").(string)
+	userID, ok := ctx.Value(ContextUserIDKey).(string)
 	if !ok {
 		log.Printf("Failed to retrieve userId from context")
 		return db.User{}, fmt.Errorf("user name not found in request context")

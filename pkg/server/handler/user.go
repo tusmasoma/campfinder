@@ -34,10 +34,10 @@ type UserHandler interface {
 type userHandler struct {
 	ur db.UserRepository
 	rr cache.RedisRepository
-	ah auth.AuthHandler
+	ah auth.Handler
 }
 
-func NewUserHandler(ur db.UserRepository, rr cache.RedisRepository, ah auth.AuthHandler) UserHandler {
+func NewUserHandler(ur db.UserRepository, rr cache.RedisRepository, ah auth.Handler) UserHandler {
 	return &userHandler{
 		ur: ur,
 		rr: rr,
@@ -117,7 +117,6 @@ func (uh *userHandler) CreateUser(ctx context.Context, requestBody UserCreateReq
 		log.Printf("Failed to create user: %v", err)
 		return db.User{}, err
 	}
-	fmt.Println(user.ID)
 	return user, nil
 }
 
@@ -159,8 +158,8 @@ func (uh *userHandler) HandleUserLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 既にログイン済みかどうか確認する
-	is_authenticate := uh.rr.Exists(ctx, user.ID.String())
-	if is_authenticate {
+	isAuthenticate := uh.rr.Exists(ctx, user.ID.String())
+	if isAuthenticate {
 		http.Error(w, "Already logged in", http.StatusInternalServerError)
 		return
 	}

@@ -1,3 +1,4 @@
+//lint:ignore testpackage
 package handler
 
 import (

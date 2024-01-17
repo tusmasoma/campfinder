@@ -26,7 +26,7 @@ type SpotCreateRequest struct {
 }
 
 type SpotGetResponse struct {
-	Spots []db.Spot
+	Spots []db.Spot `json:"spots"`
 }
 
 type SpotHandler interface {
@@ -66,7 +66,11 @@ func isValidateSpotCreateRequest(body io.ReadCloser, requestBody *SpotCreateRequ
 		log.Printf("Invalid request body: %v", err)
 		return false
 	}
-	if requestBody.Category == "" || requestBody.Name == "" || requestBody.Address == "" || requestBody.Lat == 0 || requestBody.Lng == 0 {
+	if requestBody.Category == "" ||
+		requestBody.Name == "" ||
+		requestBody.Address == "" ||
+		requestBody.Lat == 0 ||
+		requestBody.Lng == 0 {
 		log.Printf("Missing required fields")
 		return false
 	}

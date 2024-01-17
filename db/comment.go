@@ -36,7 +36,11 @@ type Comment struct {
 	Created  time.Time
 }
 
-func (cr *commentRepository) GetCommentBySpotID(ctx context.Context, spotID string, opts ...QueryOptions) (comments []Comment, err error) {
+func (cr *commentRepository) GetCommentBySpotID(
+	ctx context.Context,
+	spotID string,
+	opts ...QueryOptions,
+) ([]Comment, error) {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -49,29 +53,32 @@ func (cr *commentRepository) GetCommentBySpotID(ctx context.Context, spotID stri
 	`
 	rows, err := executor.QueryContext(ctx, query, spotID)
 	if err != nil {
-		return
+		return nil, err
 	}
 	defer rows.Close()
 
+	var comments []Comment
 	for rows.Next() {
 		var comment Comment
-		err = rows.Scan(
+		if err = rows.Scan(
 			&comment.ID,
 			&comment.SpotID,
 			&comment.UserID,
 			&comment.StarRate,
 			&comment.Text,
 			&comment.Created,
-		)
+		); err != nil {
+			return nil, err
+		}
 		comments = append(comments, comment)
 	}
 	if err = rows.Err(); err != nil {
-		return
+		return nil, err
 	}
-	return
+	return comments, nil
 }
 
-func (cr *commentRepository) GetCommentByID(ctx context.Context, id string, opts ...QueryOptions) (comment Comment, err error) {
+func (cr *commentRepository) GetCommentByID(ctx context.Context, id string, opts ...QueryOptions) (Comment, error) {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -82,7 +89,8 @@ func (cr *commentRepository) GetCommentByID(ctx context.Context, id string, opts
 	FROM Comment
 	WHERE id=?
 	`
-	err = executor.QueryRowContext(ctx, query, id).Scan(
+	var comment Comment
+	err := executor.QueryRowContext(ctx, query, id).Scan(
 		&comment.ID,
 		&comment.SpotID,
 		&comment.UserID,
@@ -90,10 +98,10 @@ func (cr *commentRepository) GetCommentByID(ctx context.Context, id string, opts
 		&comment.Text,
 		&comment.Created,
 	)
-	return
+	return comment, err
 }
 
-func (cr *commentRepository) Create(ctx context.Context, comment Comment, opts ...QueryOptions) (err error) {
+func (cr *commentRepository) Create(ctx context.Context, comment Comment, opts ...QueryOptions) error {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -105,7 +113,7 @@ func (cr *commentRepository) Create(ctx context.Context, comment Comment, opts .
 		)
 		VALUES (?, ?, ?, ?, ?)
 		`
-	_, err = executor.ExecContext(
+	_, err := executor.ExecContext(
 		ctx,
 		query,
 		uuid.New(),
@@ -115,10 +123,10 @@ func (cr *commentRepository) Create(ctx context.Context, comment Comment, opts .
 		comment.Text,
 	)
 
-	return
+	return err
 }
 
-func (cr *commentRepository) Update(ctx context.Context, comment Comment, opts ...QueryOptions) (err error) {
+func (cr *commentRepository) Update(ctx context.Context, comment Comment, opts ...QueryOptions) error {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
@@ -129,15 +137,15 @@ func (cr *commentRepository) Update(ctx context.Context, comment Comment, opts .
 	star_rate=?,text=?
 	WHERE id=?
 	`
-	_, err = executor.ExecContext(ctx, query, comment.StarRate, comment.Text, comment.ID)
-	return
+	_, err := executor.ExecContext(ctx, query, comment.StarRate, comment.Text, comment.ID)
+	return err
 }
 
-func (cr *commentRepository) Delete(ctx context.Context, id string, opts ...QueryOptions) (err error) {
+func (cr *commentRepository) Delete(ctx context.Context, id string, opts ...QueryOptions) error {
 	var executor SQLExecutor = cr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
 	}
-	_, err = executor.ExecContext(ctx, "DELETE FROM Comment WHERE id = ?", id)
-	return
+	_, err := executor.ExecContext(ctx, "DELETE FROM Comment WHERE id = ?", id)
+	return err
 }
