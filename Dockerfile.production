@@ -28,6 +28,7 @@ WORKDIR /root/
 COPY --from=build /app/server .
 # プログラム以外に必要なファイルやディレクトリも最終ステージにコピーする
 COPY --from=build /app/.certificate/ .certificate/
+COPY --from=build /app/.env .
 
 # コンテナが起動するときに実行されるコマンド (バイナリにしたgolangのファイルを実行)
 CMD ["./server"]
