@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  back:
+    container_name: campfinder_back
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.production
+    ports:
+      - "8083:8083"
+    env_file:
+      - .env
+
+  nginx:
+    container_name: campfinder_nginx
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - back

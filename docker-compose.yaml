@@ -18,7 +18,7 @@ services:
       - ./db/init:/docker-entrypoint-initdb.d
       - db-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "campfinder"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
   back:
     container_name: campfinder_back

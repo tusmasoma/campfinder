@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -28,14 +30,25 @@ const (
 	gracefulShutdownTimeout = 5 * time.Second
 )
 
+var (
+	dbUser        = os.Getenv("MYSQL_ROOT_USER")
+	dbPassword    = os.Getenv("MYSQL_ROOT_PASSWORD")
+	dbHost        = os.Getenv("MYSQL_HOST")
+	dbPort        = os.Getenv("MYSQL_PORT")
+	dbName        = os.Getenv("MYSQL_DB_NAME")
+	redisAddr     = os.Getenv("REDIS_ADDR")
+	redisPassword = os.Getenv("REDIS_PASSWORD")
+	redisDB, _    = strconv.Atoi(os.Getenv("REDIS_DB"))
+)
+
 func Serve(addr string) {
 	var err error
 
-	database, err := sql.Open("mysql", "root:campfinder@tcp(mysql:3306)/campfinderdb")
+	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName))
 	if err != nil {
 		log.Fatal(err)
 	}
-	client := redis.NewClient(&redis.Options{Addr: "redis:6379", Password: "", DB: 0})
+	client := redis.NewClient(&redis.Options{Addr: redisAddr, Password: redisPassword, DB: redisDB})
 
 	userRepo := db.NewUserRepository(database)
 	spotRepo := db.NewSpotRepository(database)
