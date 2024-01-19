@@ -18,6 +18,7 @@ import (
 )
 
 func TestUserHandler_HandleUserCreate(t *testing.T) {
+	t.Error("テストが失敗しました。GitHub Actionsの特定のジョブが失敗した場合に、mainブランチへのマージを禁止する機能をテスト")
 	patterns := []struct {
 		name  string
 		setup func(
