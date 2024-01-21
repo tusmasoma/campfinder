@@ -364,12 +364,10 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 				m.EXPECT().Delete(gomock.Any(), "31894386-3e60-45a8-bc67-f46b72b42554").Return(nil)
 			},
 			in: func() *http.Request {
-				commentDeleteReq := CommentDeleteRequest{
-					ID:     uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
-					UserID: uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-				}
-				reqBody, _ := json.Marshal(commentDeleteReq)
-				req, _ := http.NewRequest(http.MethodPost, "/api/comment/delete", bytes.NewBuffer(reqBody))
+				req, _ := http.NewRequest(
+					http.MethodDelete,
+					"/api/comment/delete?id=31894386-3e60-45a8-bc67-f46b72b42554&user_id=f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
+					nil)
 				req.Header.Set("Content-Type", "application/json")
 				return req
 			},
@@ -392,12 +390,10 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 				m.EXPECT().Delete(gomock.Any(), "31894386-3e60-45a8-bc67-f46b72b42554").Return(nil)
 			},
 			in: func() *http.Request {
-				commentDeleteReq := CommentDeleteRequest{
-					ID:     uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
-					UserID: uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-				}
-				reqBody, _ := json.Marshal(commentDeleteReq)
-				req, _ := http.NewRequest(http.MethodPost, "/api/comment/delete", bytes.NewBuffer(reqBody))
+				req, _ := http.NewRequest(
+					http.MethodDelete,
+					"/api/comment/delete?id=31894386-3e60-45a8-bc67-f46b72b42554&user_id=f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
+					nil)
 				req.Header.Set("Content-Type", "application/json")
 				return req
 			},
@@ -416,11 +412,10 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 				}, nil)
 			},
 			in: func() *http.Request {
-				commentDeleteReq := CommentDeleteRequest{
-					ID: uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
-				}
-				reqBody, _ := json.Marshal(commentDeleteReq)
-				req, _ := http.NewRequest(http.MethodPost, "/api/comment/delete", bytes.NewBuffer(reqBody))
+				req, _ := http.NewRequest(
+					http.MethodDelete,
+					"/api/comment/delete?id=31894386-3e60-45a8-bc67-f46b72b42554",
+					nil)
 				req.Header.Set("Content-Type", "application/json")
 				return req
 			},
@@ -442,12 +437,10 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 				}, nil)
 			},
 			in: func() *http.Request {
-				commentDeleteReq := CommentDeleteRequest{
-					ID:     uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
-					UserID: uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-				}
-				reqBody, _ := json.Marshal(commentDeleteReq)
-				req, _ := http.NewRequest(http.MethodPost, "/api/comment/delete", bytes.NewBuffer(reqBody))
+				req, _ := http.NewRequest(
+					http.MethodDelete,
+					"/api/comment/delete?id=31894386-3e60-45a8-bc67-f46b72b42554&user_id=f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
+					nil)
 				req.Header.Set("Content-Type", "application/json")
 				return req
 			},

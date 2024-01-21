@@ -80,13 +80,14 @@ func Serve(addr string) {
 	http.HandleFunc("/api/comment/update",
 		middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentUpdate))))
 	http.HandleFunc("/api/comment/delete",
-		middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentDelete))))
+		middleware.Logging(del(authMiddleware.Authenticate(commentHandler.HandleCommentDelete))))
 	http.HandleFunc("/api/img",
 		middleware.Logging(get(imgHandler.HandleImageGet)))
 	http.HandleFunc("/api/img/create",
 		middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageCreate))))
 	http.HandleFunc("/api/img/delete",
-		middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageDelete))))
+		middleware.Logging(del(authMiddleware.Authenticate(imgHandler.HandleImageDelete))))
+
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{
 		Addr:         addr,
@@ -129,6 +130,11 @@ func get(apiFunc http.HandlerFunc) http.HandlerFunc {
 // post POSTリクエストを処理する
 func post(apiFunc http.HandlerFunc) http.HandlerFunc {
 	return httpMethod(apiFunc, http.MethodPost)
+}
+
+// delete DELETEリクエストを処理する
+func del(apiFunc http.HandlerFunc) http.HandlerFunc {
+	return httpMethod(apiFunc, http.MethodDelete)
 }
 
 func httpMethod(apiFunc http.HandlerFunc, method string) http.HandlerFunc {

@@ -18,11 +18,6 @@ type ImageCreateRequest struct {
 	URL    string    `json:"url"`
 }
 
-type ImageDeleteRequest struct {
-	ID     uuid.UUID `json:"id"`
-	UserID uuid.UUID `json:"userID"`
-}
-
 type ImageGetResponse struct {
 	Images []db.Image `json:"images"`
 }
@@ -122,19 +117,18 @@ func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var requestBody ImageDeleteRequest
-	if ok := isValidateImageDeleteRequest(r.Body, &requestBody); !ok {
+	ok, id, userID := isValidateImageDeleteRequest(r)
+	if !ok {
 		http.Error(w, "Invalid image delete request", http.StatusBadRequest)
 		return
 	}
-	defer r.Body.Close()
 
-	if !user.IsAdmin && user.ID != requestBody.UserID {
+	if !user.IsAdmin && user.ID.String() != userID {
 		http.Error(w, "User ID mismatch", http.StatusInternalServerError)
 		return
 	}
 
-	if err = ih.ir.Delete(ctx, requestBody.ID.String()); err != nil {
+	if err = ih.ir.Delete(ctx, id); err != nil {
 		http.Error(w, "Internal server error while deleting image", http.StatusInternalServerError)
 		return
 	}
@@ -142,14 +136,13 @@ func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidateImageDeleteRequest(body io.ReadCloser, requestBody *ImageDeleteRequest) bool {
-	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
-		log.Printf("Invalid request body: %v", err)
-		return false
-	}
-	if requestBody.ID.String() == DefaultUUID || requestBody.UserID.String() == DefaultUUID {
+func isValidateImageDeleteRequest(r *http.Request) (bool, string, string) {
+	id := r.URL.Query().Get("id")
+	userID := r.URL.Query().Get("user_id")
+
+	if id == "" || userID == "" {
 		log.Printf("Missing required fields")
-		return false
+		return false, "", ""
 	}
-	return true
+	return true, id, userID
 }
