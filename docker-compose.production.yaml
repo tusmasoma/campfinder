@@ -18,5 +18,5 @@ services:
       dockerfile: ./Dockerfile.nginx
     ports:
       - "80:80"
-    depends_on:
-      - back
+    #depends_on:
+    #  - back
