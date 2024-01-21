@@ -1,5 +1,5 @@
 # ビルドステージ
-FROM golang:1.21.3 AS build
+FROM --platform=linux/amd64 golang:1.21.3 AS build
 
 # 作業ディレクトリの設定
 WORKDIR /app
