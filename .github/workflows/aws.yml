@@ -56,16 +56,17 @@ jobs:
         docker compose -f docker-compose.production.yaml build
 
         docker image ls
-        cat $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
 
-        docker tag campfinder-nginx:latest $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
-        docker tag campfinder-back:latest $ECR_REGISTRY/$ECR_REPOSITORY_BACK:$IMAGE_TAG
+        docker tag campfinder-nginx:latest $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
+        docker tag campfinder-back:latest $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
 
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACK:$IMAGE_TAG
+        docker image ls
 
-        echo "nginx-image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_ENV
-        echo "back-image=$ECR_REGISTRY/$ECR_REPOSITORY_BACK:$IMAGE_TAG" >> $GITHUB_ENV
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
+
+        echo "nginx-image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest" >> $GITHUB_ENV
+        echo "back-image=$ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest" >> $GITHUB_ENV
 
     - name: Fill in the new nginx image ID in the Amazon ECS task definition
       id: task-def-nginx
