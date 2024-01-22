@@ -26,6 +26,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Setup .env file
+      run: echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
+
+    - name: Setup .certificate directory
+      run: mkdir -p .certificate
+
+    - name: Create Private Key
+      run: echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+      env:
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -76,3 +87,9 @@ jobs:
         service: ${{ env.ECS_SERVICE }}
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
+
+    - name: Cleanup
+        if: always()
+        run: |
+          rm .env
+          rm -rf .certificate
