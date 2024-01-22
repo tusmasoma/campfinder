@@ -1,0 +1,72 @@
+
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY_NGINX: campfinder-nginx
+  ECR_REPOSITORY_BACK: campfinder-back
+  ECS_SERVICE: campfinder-ecs-service
+  ECS_CLUSTER: campfinderjp-ecs-cluster
+  ECS_TASK_DEFINITION: .github/workflows/aws/task-definition.json
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and push images to Amazon ECR using docker-compose
+      run: |
+        ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG=${{ github.sha }}
+
+        docker compose -f docker-compose.production.yaml build
+
+        docker tag campfinder-nginx:latest $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
+        docker tag campfinder-back:latest $ECR_REGISTRY/$ECR_REPOSITORY_BACK:$IMAGE_TAG
+
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACK:$IMAGE_TAG
+
+        echo "nginx-image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_ENV
+        echo "back-image=$ECR_REGISTRY/$ECR_REPOSITORY_BACK:$IMAGE_TAG" >> $GITHUB_ENV
+
+    - name: Fill in the new image IDs in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+        container-name: nginx
+        image: ${{ env.nginx-image }}
+        container-name: back
+        image: ${{ env.back-image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
