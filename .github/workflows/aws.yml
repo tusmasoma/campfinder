@@ -12,6 +12,7 @@ env:
   ECS_SERVICE: campfinder-ecs-service
   ECS_CLUSTER: campfinderjp-ecs-cluster
   ECS_TASK_DEFINITION: .github/workflows/aws/task-definition.json
+  ECR_REGISTRY: public.ecr.aws/x4o0n4b7/
 
 permissions:
   contents: read
@@ -50,7 +51,7 @@ jobs:
 
     - name: Build and push images to Amazon ECR using docker-compose
       run: |
-        ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+        # ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG=${{ github.sha }}
 
         docker compose -f docker-compose.production.yaml build
