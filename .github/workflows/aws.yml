@@ -53,20 +53,26 @@ jobs:
         echo "nginx-image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_ENV
         echo "back-image=$ECR_REGISTRY/$ECR_REPOSITORY_BACK:$IMAGE_TAG" >> $GITHUB_ENV
 
-    - name: Fill in the new image IDs in the Amazon ECS task definition
-      id: task-def
+    - name: Fill in the new nginx image ID in the Amazon ECS task definition
+      id: task-def-nginx
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ${{ env.ECS_TASK_DEFINITION }}
         container-name: nginx
         image: ${{ env.nginx-image }}
+
+    - name: Fill in the new back image ID in the Amazon ECS task definition
+      id: task-def-back
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def-nginx.outputs.task-definition }}
         container-name: back
         image: ${{ env.back-image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        task-definition: ${{ steps.task-def-back.outputs.task-definition }}
         service: ${{ env.ECS_SERVICE }}
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
