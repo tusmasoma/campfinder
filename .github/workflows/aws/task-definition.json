@@ -1,5 +1,4 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-1:853414836607:task-definition/campfinder-ecs-task:6",
     "containerDefinitions": [
         {
             "name": "nginx",
@@ -7,25 +6,18 @@
             "cpu": 0,
             "portMappings": [
                 {
-                    "name": "nginx-80-tcp",
                     "containerPort": 80,
                     "hostPort": 80,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
+                    "protocol": "tcp"
                 }
             ],
             "essential": true,
-            "environment": [],
-            "environmentFiles": [],
-            "mountPoints": [],
-            "volumesFrom": [],
             "dependsOn": [
                 {
                     "containerName": "back",
                     "condition": "START"
                 }
             ],
-            "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
@@ -33,8 +25,7 @@
                     "awslogs-group": "/ecs/campfinder-ecs-task",
                     "awslogs-region": "ap-northeast-1",
                     "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
+                }
             }
         },
         {
@@ -43,18 +34,12 @@
             "cpu": 0,
             "portMappings": [
                 {
-                    "name": "back-8083-tcp",
                     "containerPort": 8083,
                     "hostPort": 8083,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
+                    "protocol": "tcp"
                 }
             ],
             "essential": true,
-            "environment": [],
-            "environmentFiles": [],
-            "mountPoints": [],
-            "volumesFrom": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
@@ -62,8 +47,7 @@
                     "awslogs-group": "/ecs/campfinder-ecs-task",
                     "awslogs-region": "ap-northeast-1",
                     "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
+                }
             }
         }
     ],
@@ -71,40 +55,7 @@
     "taskRoleArn": "arn:aws:iam::853414836607:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::853414836607:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 6,
     "volumes": [],
-    "status": "ACTIVE",
-    "requiresAttributes": [
-        {
-            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-        },
-        {
-            "name": "ecs.capability.execution-role-awslogs"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.task-iam-role"
-        },
-        {
-            "name": "ecs.capability.container-ordering"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-        },
-        {
-            "name": "ecs.capability.task-eni"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-        }
-    ],
-    "placementConstraints": [],
-    "compatibilities": [
-        "EC2",
-        "FARGATE"
-    ],
     "requiresCompatibilities": [
         "FARGATE"
     ],
@@ -114,7 +65,5 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2024-01-21T14:42:12.847Z",
-    "registeredBy": "arn:aws:iam::853414836607:root",
     "tags": []
 }

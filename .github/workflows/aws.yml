@@ -57,12 +57,8 @@ jobs:
 
         docker compose -f docker-compose.production.yaml build
 
-        docker image ls
-
         docker tag campfinder-nginx:latest $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
         docker tag campfinder-back:latest $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
-
-        docker image ls
 
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
