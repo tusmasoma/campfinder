@@ -12,7 +12,7 @@ env:
   ECS_SERVICE: campfinder-ecs-service
   ECS_CLUSTER: campfinderjp-ecs-cluster
   ECS_TASK_DEFINITION: .github/workflows/aws/task-definition.json
-  ECR_REGISTRY: public.ecr.aws/x4o0n4b7/
+  ECR_REGISTRY: public.ecr.aws/x4o0n4b7
 
 permissions:
   contents: read
