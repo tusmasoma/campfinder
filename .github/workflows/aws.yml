@@ -89,7 +89,7 @@ jobs:
         wait-for-service-stability: true
 
     - name: Cleanup
-        if: always()
-        run: |
-          rm .env
-          rm -rf .certificate
+      if: always()
+      run: |
+        rm .env
+        rm -rf .certificate
