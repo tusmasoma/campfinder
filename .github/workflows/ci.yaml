@@ -7,7 +7,6 @@ on:
       - '**/*.md'
     branches-ignore:
       - main
-    branches: [ "develop" ]
   pull_request:
     branches: [ "develop" ]
   workflow_call:
