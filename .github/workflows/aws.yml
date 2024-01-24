@@ -20,6 +20,9 @@ permissions:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yaml
+    secrets:
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
   deploy:
     name: Deploy
     needs: ci
