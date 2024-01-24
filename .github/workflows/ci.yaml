@@ -10,10 +10,6 @@ on:
   pull_request:
     branches: [ "develop" ]
   workflow_call:
-    inputs:
-      config-path:
-        required: true
-        type: string
     secrets:
       PRIVATE_KEY:
         required: true
