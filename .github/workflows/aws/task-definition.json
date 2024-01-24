@@ -39,46 +39,10 @@
                     "protocol": "tcp"
                 }
             ],
-            "environment": [
+            "environmentFiles": [
                 {
-                    "name": "PRIVATE_KEY_PATH",
-                    "value": ".certificate/private_key.pem"
-                },
-                {
-                    "name": "PUBLIC_KEY_PATH",
-                    "value": ".certificate/public_key.pem"
-                },
-                {
-                    "name": "MYSQL_ROOT_USER",
-                    "value": "admin"
-                },
-                {
-                    "name": "MYSQL_ROOT_PASSWORD",
-                    "value": "campfinder"
-                },
-                {
-                    "name": "MYSQL_HOST",
-                    "value": "campfinder-db.ctojrecnas5o.ap-northeast-1.rds.amazonaws.com"
-                },
-                {
-                    "name": "MYSQL_PORT",
-                    "value": "3306"
-                },
-                {
-                    "name": "MYSQL_DB_NAME",
-                    "value": "campfinderdb"
-                },
-                {
-                    "name": "REDIS_ADDR",
-                    "value": "campfinder-redis-1rff6b.serverless.apne1.cache.amazonaws.com:6379"
-                },
-                {
-                    "name": "REDIS_PASSWORD",
-                    "value": ""
-                },
-                {
-                    "name": "REDIS_DB",
-                    "value": "0"
+                    "value": "arn:aws:s3:::campfinder/production.env",
+                    "type": "s3"
                 }
             ],
             "essential": true,
@@ -95,7 +59,7 @@
     ],
     "family": "campfinder-ecs-task",
     "taskRoleArn": "arn:aws:iam::853414836607:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::853414836607:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::853414836607:role/ecsTaskCustomRole",
     "networkMode": "awsvpc",
     "volumes": [],
     "requiresCompatibilities": [
