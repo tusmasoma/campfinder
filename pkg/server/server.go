@@ -44,6 +44,8 @@ var (
 func Serve(addr string) {
 	var err error
 
+	c := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
+	log.Println(c)
 	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName))
 	if err != nil {
 		log.Printf("Database connection failed: %s\n", err)
