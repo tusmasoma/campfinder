@@ -3,6 +3,8 @@ name: Deploy to Amazon ECS
 
 on:
   push:
+    paths-ignore:
+      - '**/*.md'
     branches: [ "main" ]
 
 env:
