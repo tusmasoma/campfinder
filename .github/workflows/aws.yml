@@ -18,6 +18,8 @@ permissions:
   contents: read
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yaml
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
