@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
 package usecase
 
 import (
@@ -15,10 +16,13 @@ import (
 
 type UserUseCase interface {
 	CreateUserAndGenerateToken(ctx context.Context, email string, passward string) (string, error)
+	LoginAndGenerateToken(ctx context.Context, email string, passward string) (string, error)
+	LogoutUser(ctx context.Context, userID string) error
 }
 
 type userUseCase struct {
 	ur repository.UserRepository
+	cr repository.CacheRepository
 }
 
 func NewUserUseCase(ur repository.UserRepository) UserUseCase {
@@ -28,14 +32,18 @@ func NewUserUseCase(ur repository.UserRepository) UserUseCase {
 }
 
 func (uuc *userUseCase) CreateUserAndGenerateToken(ctx context.Context, email string, passward string) (string, error) {
-	// ユーザー登録
 	user, err := uuc.CreateUser(ctx, email, passward)
 	if err != nil {
 		log.Printf("Internal server error while creating user")
 		return "", err
 	}
 
-	jwt, _ := auth.GenerateToken(user.ID.String(), user.Email)
+	jwt, jti := auth.GenerateToken(user.ID.String(), user.Email)
+	if err := uuc.cr.Set(ctx, user.ID.String(), jti); err != nil {
+		log.Print("Failed to set access token in cache")
+		return "", err
+	}
+
 	return jwt, nil
 }
 
@@ -78,4 +86,45 @@ func ExtractUsernameFromEmail(email string) string {
 		return parts[0]
 	}
 	return ""
+}
+
+func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string, passward string) (string, error) {
+	// emailでMySQLにユーザー情報問い合わせ
+	user, err := uuc.ur.GetUserByEmail(ctx, email)
+	if err != nil {
+		log.Printf("Error retrieving user by email")
+		return "", err
+	}
+
+	// 既にログイン済みかどうか確認する
+	isAuthenticate := uuc.cr.Exists(ctx, user.ID.String())
+	if isAuthenticate {
+		log.Printf("Already logged in")
+		return "", fmt.Errorf("user id not in cache")
+	}
+
+	// Clientから送られてきたpasswordをハッシュ化したものとMySQLから返されたハッシュ化されたpasswordを比較する
+	if err = CompareHashAndPassword(user.Password, passward); err != nil {
+		log.Printf("password does not match")
+		return "", err
+	}
+
+	jwt, jti := auth.GenerateToken(user.ID.String(), email)
+	if err = uuc.cr.Set(ctx, user.ID.String(), jti); err != nil {
+		log.Print("Failed to set access token in cache")
+		return "", err
+	}
+	return jwt, nil
+}
+
+func CompareHashAndPassword(hash, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+}
+
+func (uuc *userUseCase) LogoutUser(ctx context.Context, userID string) error {
+	if err := uuc.cr.Delete(ctx, userID); err != nil {
+		log.Panicf("Failed to delete userID from cache")
+		return err
+	}
+	return nil
 }

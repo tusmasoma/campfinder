@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
 package infra
 
 import (
@@ -7,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type userRepository struct {
@@ -18,12 +18,6 @@ func NewUserRepository(db *sql.DB) repository.UserRepository {
 	return &userRepository{
 		db: db,
 	}
-}
-
-// 以下のパスワードのハッシュ化に関しての処理はinfraレイヤではない気がする
-// 暗号(Hash)と入力された平パスワードの比較
-func CompareHashAndPassword(hash, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 func (ur *userRepository) CheckIfUserExists(
