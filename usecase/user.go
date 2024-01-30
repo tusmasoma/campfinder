@@ -39,7 +39,7 @@ func (uuc *userUseCase) CreateUserAndGenerateToken(ctx context.Context, email st
 	}
 
 	jwt, jti := auth.GenerateToken(user.ID.String(), user.Email)
-	if err := uuc.cr.Set(ctx, user.ID.String(), jti); err != nil {
+	if err = uuc.cr.Set(ctx, user.ID.String(), jti); err != nil {
 		log.Print("Failed to set access token in cache")
 		return "", err
 	}

@@ -14,6 +14,7 @@ import (
 type UserHandler interface {
 	HandleUserCreate(w http.ResponseWriter, r *http.Request)
 	HandleUserLogin(w http.ResponseWriter, r *http.Request)
+	HandleUserLogout(w http.ResponseWriter, r *http.Request)
 }
 
 type userHandler struct {
