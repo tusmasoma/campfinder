@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/go-redis/redis/v8"
 	"github.com/tusmasoma/campfinder/cache"
 	"github.com/tusmasoma/campfinder/db"
@@ -90,6 +91,17 @@ func Serve(addr string) {
 		middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageCreate))))
 	http.HandleFunc("/api/img/delete",
 		middleware.Logging(del(authMiddleware.Authenticate(imgHandler.HandleImageDelete))))
+
+	http.Handle("/api/test",
+		middleware.EnsureValidToken()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+
+			token := r.Context().Value(jwtmiddleware.ContextKey{})
+			tokenStr, _ := token.(string)
+			log.Print(tokenStr)
+
+			w.WriteHeader(http.StatusOK)
+		})))
 
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{
