@@ -130,7 +130,7 @@ func ExtractUsernameFromEmail(email string) string {
 
 func (uh *userHandler) GenerateAndStoreToken(ctx context.Context, user db.User) (string, error) {
 	// アクセストークンを生成
-	jwt, jti := auth.GenerateToken(user)
+	jwt, jti := auth.GenerateToken(user.ID.String(), user.Email)
 
 	// Cacheに保存
 	if err := uh.rr.Set(ctx, user.ID.String(), jti); err != nil {
