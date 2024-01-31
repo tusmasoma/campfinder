@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/tusmasoma/campfinder/internal/auth"
 	"github.com/tusmasoma/campfinder/usecase"
 )
 
@@ -19,13 +18,13 @@ type UserHandler interface {
 
 type userHandler struct {
 	uur usecase.UserUseCase
-	ah  auth.Handler
+	auc usecase.AuthUseCase
 }
 
-func NewUserHandler(uur usecase.UserUseCase, ah auth.Handler) UserHandler {
+func NewUserHandler(uur usecase.UserUseCase, auc usecase.AuthUseCase) UserHandler {
 	return &userHandler{
 		uur: uur,
-		ah:  ah,
+		auc: auc,
 	}
 }
 
@@ -106,7 +105,7 @@ func isValidUserLoginRequest(body io.ReadCloser, requestBody *UserLoginRequest) 
 
 func (uh *userHandler) HandleUserLogout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := uh.ah.FetchUserFromContext(ctx)
+	user, err := uh.auc.FetchUserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "Failed to get UserInfo from context", http.StatusInternalServerError)
 		return

@@ -25,9 +25,10 @@ type userUseCase struct {
 	cr repository.CacheRepository
 }
 
-func NewUserUseCase(ur repository.UserRepository) UserUseCase {
+func NewUserUseCase(ur repository.UserRepository, cr repository.CacheRepository) UserUseCase {
 	return &userUseCase{
 		ur: ur,
+		cr: cr,
 	}
 }
 
@@ -55,7 +56,7 @@ func (uuc *userUseCase) CreateUser(ctx context.Context, email string, passward s
 	}
 	if exists {
 		log.Printf("User with this name already exists - status: %d", http.StatusConflict)
-		return nil, fmt.Errorf("user with this name already exists")
+		return nil, fmt.Errorf("user with this email already exists")
 	}
 
 	var user model.User
@@ -100,7 +101,7 @@ func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string,
 	isAuthenticate := uuc.cr.Exists(ctx, user.ID.String())
 	if isAuthenticate {
 		log.Printf("Already logged in")
-		return "", fmt.Errorf("user id not in cache")
+		return "", fmt.Errorf("user id in cache")
 	}
 
 	// Clientから送られてきたpasswordをハッシュ化したものとMySQLから返されたハッシュ化されたpasswordを比較する
