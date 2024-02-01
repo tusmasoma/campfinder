@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
 package middlerware
 
 import (
@@ -7,10 +8,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/tusmasoma/campfinder/cache"
 	"github.com/tusmasoma/campfinder/domain/repository"
 	"github.com/tusmasoma/campfinder/internal/auth"
 )
+
+var ErrCacheMiss = errors.New("cache: key not found")
 
 type AuthMiddleware interface {
 	Authenticate(nextFunc http.HandlerFunc) http.HandlerFunc
@@ -63,7 +65,7 @@ func (am *authMiddleware) Authenticate(nextFunc http.HandlerFunc) http.HandlerFu
 
 		// 該当のuserIdが存在するかキャッシュに問い合わせ
 		jti, err := am.rr.Get(ctx, payload.UserID)
-		if errors.Is(err, cache.ErrCacheMiss) {
+		if errors.Is(err, ErrCacheMiss) {
 			http.Error(w, "Authentication failed: userId is not exit on cache", http.StatusUnauthorized)
 			return
 		} else if err != nil {
