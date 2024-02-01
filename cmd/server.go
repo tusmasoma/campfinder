@@ -1,69 +1,52 @@
-package server
+package main
 
 import (
 	"context"
-	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
-	"time"
 
-	"github.com/go-redis/redis/v8"
-	"github.com/tusmasoma/campfinder/cache"
-	"github.com/tusmasoma/campfinder/db"
-	"github.com/tusmasoma/campfinder/internal/auth"
-	"github.com/tusmasoma/campfinder/pkg/http/middleware"
-	"github.com/tusmasoma/campfinder/pkg/server/handler"
+	"github.com/tusmasoma/campfinder/config"
+	"github.com/tusmasoma/campfinder/infra"
+	"github.com/tusmasoma/campfinder/interfaces/handler"
+	"github.com/tusmasoma/campfinder/interfaces/middleware"
+	"github.com/tusmasoma/campfinder/usecase"
 
 	_ "github.com/go-sql-driver/mysql" // This blank import is used for its init function
-)
-
-const (
-	readTimeout             = 5 * time.Second
-	writeTimeout            = 10 * time.Second
-	idleTimeout             = 15 * time.Second
-	gracefulShutdownTimeout = 5 * time.Second
-)
-
-var (
-	dbUser        = os.Getenv("MYSQL_ROOT_USER")
-	dbPassword    = os.Getenv("MYSQL_ROOT_PASSWORD")
-	dbHost        = os.Getenv("MYSQL_HOST")
-	dbPort        = os.Getenv("MYSQL_PORT")
-	dbName        = os.Getenv("MYSQL_DB_NAME")
-	redisAddr     = os.Getenv("REDIS_ADDR")
-	redisPassword = os.Getenv("REDIS_PASSWORD")
-	redisDB, _    = strconv.Atoi(os.Getenv("REDIS_DB"))
 )
 
 func Serve(addr string) {
 	var err error
 
-	c := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
-	log.Println(c)
-	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName))
+	db, err := config.NewDB()
 	if err != nil {
 		log.Printf("Database connection failed: %s\n", err)
 		return
 	}
-	client := redis.NewClient(&redis.Options{Addr: redisAddr, Password: redisPassword, DB: redisDB})
 
-	userRepo := db.NewUserRepository(database)
-	spotRepo := db.NewSpotRepository(database)
-	commentRepo := db.NewCommentRepository(database)
-	imgRepo := db.NewImageRepository(database)
-	redisRepo := cache.NewRedisRepository(client)
+	client := config.NewClient()
+
+	userRepo := infra.NewUserRepository(db)
+	spotRepo := infra.NewSpotRepository(db)
+	commentRepo := infra.NewCommentRepository(db)
+	imgRepo := infra.NewImageRepository(db)
+	redisRepo := infra.NewRedisRepository(client)
+
+	userUseCase := usecase.NewUserUseCase(userRepo, redisRepo)
+	spotUseCase := usecase.NewSpotUseCase(spotRepo)
+	commentUseCase := usecase.NewCommentUseCase(commentRepo)
+	imgUseCase := usecase.NewImageUseCase(imgRepo)
+	authUseCase := usecase.NewAuthUseCase(userRepo)
+
+	userHandler := handler.NewUserHandler(userUseCase, authUseCase)
+	spotHandler := handler.NewSpotHandler(spotUseCase)
+	commentHandler := handler.NewCommentHandler(commentUseCase, authUseCase)
+	imgHandler := handler.NewImageHandler(imgUseCase, authUseCase)
+
 	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
-	authHandler := auth.NewAuthHandler(userRepo)
-	userHandler := handler.NewUserHandler(userRepo, redisRepo, authHandler)
-	spotHandler := handler.NewSpotHandler(spotRepo)
-	commentHandler := handler.NewCommentHandler(commentRepo, authHandler)
-	imgHandler := handler.NewImageHandler(imgRepo, authHandler)
 
 	/* ===== URLマッピングを行う ===== */
 	http.HandleFunc("/api/user/create",
@@ -95,9 +78,9 @@ func Serve(addr string) {
 	srv := &http.Server{
 		Addr:         addr,
 		Handler:      nil,
-		ReadTimeout:  readTimeout,
-		WriteTimeout: writeTimeout,
-		IdleTimeout:  idleTimeout,
+		ReadTimeout:  config.ReadTimeout,
+		WriteTimeout: config.WriteTimeout,
+		IdleTimeout:  config.IdleTimeout,
 	}
 
 	/* ===== サーバの起動 ===== */
@@ -116,7 +99,7 @@ func Serve(addr string) {
 	<-ctx.Done()
 	log.Println("Server stopping...")
 
-	tctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
+	tctx, cancel := context.WithTimeout(context.Background(), config.GracefulShutdownTimeout)
 	defer cancel()
 
 	if err = srv.Shutdown(tctx); err != nil {

@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
-	"github.com/tusmasoma/campfinder/pkg/server"
 )
 
 func main() {
@@ -17,5 +16,5 @@ func main() {
 	flag.StringVar(&addr, "addr", ":8083", "tcp host:port to connect")
 	flag.Parse()
 
-	server.Serve(addr)
+	Serve(addr)
 }

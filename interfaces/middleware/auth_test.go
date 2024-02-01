@@ -1,4 +1,4 @@
-package middlerware
+package middleware
 
 import (
 	"net/http"
@@ -7,12 +7,13 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/tusmasoma/campfinder/config"
 	"github.com/tusmasoma/campfinder/domain/repository/mock"
 	"github.com/tusmasoma/campfinder/internal/auth"
 )
 
 func dummyTestHandler(w http.ResponseWriter, r *http.Request) {
-	if userID, _ := r.Context().Value(auth.ContextUserIDKey).(string); userID == "" {
+	if userID, _ := r.Context().Value(config.ContextUserIDKey).(string); userID == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 	w.WriteHeader(http.StatusOK)

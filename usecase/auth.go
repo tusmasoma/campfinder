@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/tusmasoma/campfinder/config"
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository"
 )
@@ -24,12 +25,8 @@ func NewAuthUseCase(ur repository.UserRepository) AuthUseCase {
 	}
 }
 
-type ContextKey string
-
-const ContextUserIDKey ContextKey = "userID"
-
 func (auc *authUseCase) FetchUserFromContext(ctx context.Context) (*model.User, error) {
-	userID, ok := ctx.Value(ContextUserIDKey).(string)
+	userID, ok := ctx.Value(config.ContextUserIDKey).(string)
 	if !ok {
 		log.Printf("Failed to retrieve userId from context")
 		return nil, fmt.Errorf("user name not found in request context")

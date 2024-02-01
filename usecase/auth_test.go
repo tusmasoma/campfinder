@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/tusmasoma/campfinder/config"
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository/mock"
 )
@@ -44,7 +45,7 @@ func TestAuthUseCase_FetchUserFromContext(t *testing.T) {
 			in: func() context.Context {
 				ctx := context.WithValue(
 					context.Background(),
-					ContextUserIDKey,
+					config.ContextUserIDKey,
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed")
 				return ctx
 			},
