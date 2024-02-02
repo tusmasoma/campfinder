@@ -5,12 +5,27 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"testing"
 
 	"github.com/ory/dockertest"
 	"github.com/ory/dockertest/docker"
 
 	_ "github.com/go-sql-driver/mysql" // This blank import is used for its init function
 )
+
+var db *sql.DB
+
+func TestMain(m *testing.M) {
+	var closeDB func()
+	var err error
+	db, closeDB, err = Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closeDB()
+
+	m.Run()
+}
 
 // Start はDockerを使用してMySQLコンテナを起動し、データベース接続を確立する関数です。
 func Start() (*sql.DB, func(), error) {
@@ -43,6 +58,10 @@ func Start() (*sql.DB, func(), error) {
 			"MYSQL_ROOT_PASSWORD=campfinder",
 			"MYSQL_DATABASE=campfinderdb",
 		},
+		Cmd: []string{
+			"--character-set-server=utf8",
+			"--collation-server=utf8_unicode_ci",
+		},
 	}
 
 	// runOptions設定を適用してDockerコンテナを起動します。成功するとresourceは、起動したコンテナを表す。
@@ -58,6 +77,11 @@ func Start() (*sql.DB, func(), error) {
 					Source: pwd + "/init/ddl.sql",
 					Target: "/docker-entrypoint-initdb.d/ddl.sql",
 				},
+				{
+					Type:   "bind",
+					Source: pwd + "/init/dml.test.sql",
+					Target: "/docker-entrypoint-initdb.d/dml.test.sql",
+				},
 			}
 		},
 	)
@@ -69,9 +93,8 @@ func Start() (*sql.DB, func(), error) {
 	port := resource.GetPort("3306/tcp")
 
 	// データベース接続が成功するまで定期的に接続試行を行うことを試みる(待機)
-	var db *sql.DB
 	err = pool.Retry(func() error {
-		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/campfinderdb?timeout=30s", port)
+		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/campfinderdb?charset=utf8", port)
 		db, err = sql.Open("mysql", dsn)
 		if err != nil {
 			return err

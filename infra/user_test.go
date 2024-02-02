@@ -3,7 +3,6 @@ package infra
 import (
 	"context"
 	"database/sql"
-	"log"
 	"reflect"
 	"testing"
 
@@ -12,40 +11,6 @@ import (
 	"github.com/tusmasoma/campfinder/domain/model"
 	"gotest.tools/assert"
 )
-
-var db *sql.DB
-
-func TestMain(m *testing.M) {
-	var closeDB func()
-	var err error
-	db, closeDB, err = Start()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer closeDB()
-
-	err = setUpUserData(db)
-	if err != nil {
-		return
-	}
-
-	m.Run()
-}
-
-func setUpUserData(db *sql.DB) error {
-	query := `INSERT INTO User (id, name, email, password) VALUES (?, ?, ?, ?)`
-	_, err := db.Exec(
-		query,
-		uuid.MustParse("5fe0e237-6b49-11ee-b686-0242c0a87001"),
-		"test",
-		"test@gmail.com",
-		"password123",
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 type CheckIfUserExistsArg struct {
 	ctx   context.Context
