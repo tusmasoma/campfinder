@@ -13,6 +13,6 @@ type SpotRepository interface {
 	GetSpotByCategory(ctx context.Context, category string, opts ...QueryOptions) (spots []model.Spot, err error)
 	Create(ctx context.Context, spot model.Spot, opts ...QueryOptions) (err error)
 	Update(ctx context.Context, spot model.Spot, opts ...QueryOptions) (err error)
-	Delete(ctx context.Context, spot model.Spot, opts ...QueryOptions) (err error)
+	Delete(ctx context.Context, id string, opts ...QueryOptions) (err error)
 	UpdateOrCreate(ctx context.Context, spot model.Spot, opts ...QueryOptions) error
 }

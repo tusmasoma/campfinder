@@ -76,9 +76,9 @@ func (mr *MockSpotRepositoryMockRecorder) Create(ctx, spot interface{}, opts ...
 }
 
 // Delete mocks base method.
-func (m *MockSpotRepository) Delete(ctx context.Context, spot model.Spot, opts ...repository.QueryOptions) error {
+func (m *MockSpotRepository) Delete(ctx context.Context, id string, opts ...repository.QueryOptions) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spot}
+	varargs := []interface{}{ctx, id}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
@@ -88,9 +88,9 @@ func (m *MockSpotRepository) Delete(ctx context.Context, spot model.Spot, opts .
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockSpotRepositoryMockRecorder) Delete(ctx, spot interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockSpotRepositoryMockRecorder) Delete(ctx, id interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spot}, opts...)
+	varargs := append([]interface{}{ctx, id}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSpotRepository)(nil).Delete), varargs...)
 }
 

@@ -168,13 +168,13 @@ func (sr *spotRepository) Update(ctx context.Context, spot model.Spot, opts ...r
 	return err
 }
 
-func (sr *spotRepository) Delete(ctx context.Context, spot model.Spot, opts ...repository.QueryOptions) error {
+func (sr *spotRepository) Delete(ctx context.Context, id string, opts ...repository.QueryOptions) error {
 	var executor repository.SQLExecutor = sr.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
 	}
 
-	_, err := executor.ExecContext(ctx, "DELETE FROM Spot WHERE id = ?", spot.ID)
+	_, err := executor.ExecContext(ctx, "DELETE FROM Spot WHERE id = ?", id)
 	return err
 }
 
