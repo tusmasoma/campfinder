@@ -14,8 +14,6 @@ import (
 	"github.com/tusmasoma/campfinder/interfaces/handler"
 	"github.com/tusmasoma/campfinder/interfaces/middleware"
 	"github.com/tusmasoma/campfinder/usecase"
-
-	_ "github.com/go-sql-driver/mysql" // This blank import is used for its init function
 )
 
 func Serve(addr string) {
