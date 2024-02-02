@@ -1,4 +1,5 @@
 -- dml.test.sql
+USE `campfinderdb`;
 
 -- Userデータのセットアップ
 INSERT INTO User (id, name, email, password) VALUES

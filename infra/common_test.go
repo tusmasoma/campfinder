@@ -59,8 +59,8 @@ func Start() (*sql.DB, func(), error) {
 			"MYSQL_DATABASE=campfinderdb",
 		},
 		Cmd: []string{
-			"--character-set-server=utf8",
-			"--collation-server=utf8_unicode_ci",
+			"--character-set-server=utf8mb4",
+			"--collation-server=utf8mb4_unicode_ci",
 		},
 	}
 
@@ -82,6 +82,11 @@ func Start() (*sql.DB, func(), error) {
 					Source: pwd + "/init/dml.test.sql",
 					Target: "/docker-entrypoint-initdb.d/dml.test.sql",
 				},
+				{
+					Type:   "bind",
+					Source: pwd + "/init/my.cnf",
+					Target: "/etc/mysql/my.cnf",
+				},
 			}
 		},
 	)
@@ -94,7 +99,7 @@ func Start() (*sql.DB, func(), error) {
 
 	// データベース接続が成功するまで定期的に接続試行を行うことを試みる(待機)
 	err = pool.Retry(func() error {
-		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/campfinderdb?charset=utf8", port)
+		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/campfinderdb?charset=utf8mb4", port)
 		db, err = sql.Open("mysql", dsn)
 		if err != nil {
 			return err
