@@ -132,3 +132,11 @@ func closeMySQL(db *sql.DB, pool *dockertest.Pool, resource *dockertest.Resource
 
 	log.Println("close MySQL container🐳")
 }
+
+func ValidateErr(t *testing.T, err error, wantErr error) {
+	if (err != nil) != (wantErr != nil) {
+		t.Errorf("error = %v, wantErr %v", err, wantErr)
+	} else if err != nil && wantErr != nil && err.Error() != wantErr.Error() {
+		t.Errorf("error = %v, wantErr %v", err, wantErr)
+	}
+}
