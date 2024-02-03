@@ -12,3 +12,7 @@ INSERT INTO Spot (id, category, name, address, lat, lng, period, phone, price, d
 -- Imageデータのセットアップ
 INSERT INTO Image (id, spot_id, user_id, url, created) VALUES
 ('31894386-3e60-45a8-bc67-f46b72b42554', '5c5323e9-c78f-4dac-94ef-d34ab5ea8fed', '5fe0e237-6b49-11ee-b686-0242c0a87001', 'https://lh3.googleusercontent.com/places/ABCD', CURRENT_TIMESTAMP);
+
+-- Commentデータのセットアップ
+INSERT INTO Comment (id, spot_id, user_id, star_rate, text, created) VALUES
+('31894386-3e60-45a8-bc67-f46b45524b27', '5c5323e9-c78f-4dac-94ef-d34ab5ea8fed', '5fe0e237-6b49-11ee-b686-0242c0a87001', 4.5, '素晴らしい場所でした！', CURRENT_TIMESTAMP);
