@@ -99,7 +99,7 @@ func Start() (*sql.DB, func(), error) {
 
 	// データベース接続が成功するまで定期的に接続試行を行うことを試みる(待機)
 	err = pool.Retry(func() error {
-		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/campfinderdb?charset=utf8mb4", port)
+		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/campfinderdb?charset=utf8mb4&parseTime=true", port)
 		db, err = sql.Open("mysql", dsn)
 		if err != nil {
 			return err
