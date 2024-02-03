@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tusmasoma/campfinder/domain/model"
+	"github.com/tusmasoma/campfinder/domain/repository"
 	"gotest.tools/assert"
 )
 
@@ -139,11 +140,7 @@ func TestUserRepo_GetUserByID(t *testing.T) {
 			var user model.User
 			user, err = repo.GetUserByID(tt.in.ctx, tt.in.id)
 
-			if (err != nil) != (tt.want.err != nil) {
-				t.Errorf("GetUserByID() error = %v, wantErr %v", err, tt.want.err)
-			} else if err != nil && tt.want.err != nil && err.Error() != tt.want.err.Error() {
-				t.Errorf("GetUserByID() error = %v, wantErr %v", err, tt.want.err)
-			}
+			ValidateErr(t, err, tt.want.err)
 
 			if !reflect.DeepEqual(user, tt.want.user) {
 				t.Errorf("GetUserByID() \n got = %v,\n want %v", user, tt.want.user)
@@ -211,11 +208,7 @@ func TestUserRepo_GetUserByEmail(t *testing.T) {
 			var user model.User
 			user, err = repo.GetUserByEmail(tt.in.ctx, tt.in.email)
 
-			if (err != nil) != (tt.want.err != nil) {
-				t.Errorf("GetUserByEmail() error = %v, wantErr %v", err, tt.want.err)
-			} else if err != nil && tt.want.err != nil && err.Error() != tt.want.err.Error() {
-				t.Errorf("GetUserByEmail() error = %v, wantErr %v", err, tt.want.err)
-			}
+			ValidateErr(t, err, tt.want.err)
 
 			if !reflect.DeepEqual(user, tt.want.user) {
 				t.Errorf("GetUserByEmail() \n got = %v,\n want %v", user, tt.want.user)
@@ -225,11 +218,9 @@ func TestUserRepo_GetUserByEmail(t *testing.T) {
 }
 
 func TestUserRepo_Create(t *testing.T) {
-	var err error
-
 	patterns := []struct {
 		name    string
-		setup   func(db *sql.DB)
+		setup   func(tx repository.SQLExecutor)
 		in      UserCreateArg
 		wantErr error
 	}{
@@ -249,37 +240,38 @@ func TestUserRepo_Create(t *testing.T) {
 
 	for _, tt := range patterns {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.setup != nil {
-				tt.setup(db)
-			}
-
-			repo := NewUserRepository(db)
-
-			err = repo.Create(tt.in.ctx, tt.in.user)
-
-			if (err != nil) != (tt.wantErr != nil) {
-				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
-			} else if err != nil && tt.wantErr != nil && err.Error() != tt.wantErr.Error() {
-				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
-			}
-
-			if err == nil {
-				var exists bool
-				exists, err = repo.CheckIfUserExists(tt.in.ctx, tt.in.user.Email)
-				if !exists {
-					t.Errorf("Create() is successful but there is not user in db:  err = %v", err)
+			txRepo := NewTransactionRepository(db)
+			err := txRepo.Transaction(func(tx repository.SQLExecutor) error {
+				if tt.setup != nil {
+					tt.setup(tx)
 				}
+
+				repo := NewUserRepository(db)
+
+				err := repo.Create(tt.in.ctx, tt.in.user, repository.QueryOptions{Executor: tx})
+
+				ValidateErr(t, err, tt.wantErr)
+
+				if err == nil {
+					var exists bool
+					exists, err = repo.CheckIfUserExists(tt.in.ctx, tt.in.user.Email, repository.QueryOptions{Executor: tx})
+					if !exists {
+						t.Errorf("Create() is successful but there is not user in db:  err = %v", err)
+					}
+				}
+				return nil
+			})
+			if err != nil {
+				t.Error("Transaction failed")
 			}
 		})
 	}
 }
 
 func TestUserRepo_Update(t *testing.T) {
-	var err error
-
 	patterns := []struct {
 		name  string
-		setup func(db *sql.DB)
+		setup func(tx repository.SQLExecutor)
 		in    UserUpdateArg
 		want  struct {
 			name string
@@ -309,27 +301,30 @@ func TestUserRepo_Update(t *testing.T) {
 
 	for _, tt := range patterns {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.setup != nil {
-				tt.setup(db)
-			}
+			txRepo := NewTransactionRepository(db)
+			err := txRepo.Transaction(func(tx repository.SQLExecutor) error {
+				if tt.setup != nil {
+					tt.setup(tx)
+				}
 
-			repo := NewUserRepository(db)
+				repo := NewUserRepository(db)
 
-			err = repo.Update(tt.in.ctx, tt.in.user)
+				err := repo.Update(tt.in.ctx, tt.in.user, repository.QueryOptions{Executor: tx})
 
-			if (err != nil) != (tt.want.err != nil) {
-				t.Fatalf("Update() error = %v, wantErr %v", err, tt.want.err)
-			} else if err != nil && tt.want.err != nil && err.Error() != tt.want.err.Error() {
-				t.Fatalf("Update() error = %v, wantErr %v", err, tt.want.err)
-			}
+				ValidateErr(t, err, tt.want.err)
 
-			var user model.User
-			user, err = repo.GetUserByID(tt.in.ctx, tt.in.user.ID.String())
+				var user model.User
+				user, err = repo.GetUserByID(tt.in.ctx, tt.in.user.ID.String(), repository.QueryOptions{Executor: tx})
+				if err != nil {
+					t.Errorf("After Update(), GetUserByID() error = %v, want no error", err)
+				}
+				if user.Name != tt.want.name {
+					t.Errorf("After Update(), GetUserByID() got name = %v, want name = %v", user.Name, tt.want.name)
+				}
+				return nil
+			})
 			if err != nil {
-				t.Errorf("After Update(), GetUserByID() error = %v, want no error", err)
-			}
-			if user.Name != tt.want.name {
-				t.Errorf("After Update(), GetUserByID() got name = %v, want name = %v", user.Name, tt.want.name)
+				t.Error("Transaction failed")
 			}
 		})
 	}
