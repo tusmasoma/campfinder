@@ -33,7 +33,6 @@ func Start() (*sql.DB, func(), error) {
 	if err != nil {
 		log.Fatalf("Failed to get current directory: %s", err)
 	}
-	log.Print(pwd)
 
 	// Dockerのデフォルト接続方法を使用（Windowsではtcp/http、Linux/OSXではsocket）
 	pool, err := dockertest.NewPool("")
@@ -84,7 +83,7 @@ func Start() (*sql.DB, func(), error) {
 				},
 				{
 					Type:   "bind",
-					Source: pwd + "/init/my.cnf",
+					Source: pwd + "/../config/mysql/my.cnf",
 					Target: "/etc/mysql/my.cnf",
 				},
 			}
