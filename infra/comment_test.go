@@ -276,7 +276,7 @@ func TestComentRepo_Delete(t *testing.T) {
 				err     error
 			}{
 				comment: model.Comment{},
-				err:     sql.ErrNoRows,
+				err:     nil,
 			},
 		},
 	}
@@ -296,9 +296,7 @@ func TestComentRepo_Delete(t *testing.T) {
 				ValidateErr(t, err, tt.want.err)
 
 				comment, err := repo.GetCommentByID(tt.in.ctx, tt.in.id, repository.QueryOptions{Executor: tx})
-				if err != nil {
-					t.Errorf("After Delete(), GetCommentByID() error = %v, want no error", err)
-				}
+				ValidateErr(t, err, sql.ErrNoRows)
 
 				if !reflect.DeepEqual(comment, tt.want.comment) {
 					t.Errorf("Delete() \n got = %v,\n want %v", comment, tt.want.comment)
