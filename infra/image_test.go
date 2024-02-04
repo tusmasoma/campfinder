@@ -3,10 +3,10 @@ package infra
 import (
 	"context"
 	"database/sql"
-	"reflect"
 	"testing"
-	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository"
@@ -49,11 +49,10 @@ func TestImageRepo_GetSpotImgURLBySpotID(t *testing.T) {
 			}{
 				imgs: []model.Image{
 					{
-						ID:      uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
-						SpotID:  uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
-						UserID:  uuid.MustParse("5fe0e237-6b49-11ee-b686-0242c0a87001"),
-						URL:     "https://lh3.googleusercontent.com/places/ABCD",
-						Created: time.Time{},
+						ID:     uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
+						SpotID: uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
+						UserID: uuid.MustParse("5fe0e237-6b49-11ee-b686-0242c0a87001"),
+						URL:    "https://lh3.googleusercontent.com/places/ABCD",
 					},
 				},
 				err: nil,
@@ -73,10 +72,8 @@ func TestImageRepo_GetSpotImgURLBySpotID(t *testing.T) {
 
 			ValidateErr(t, err, tt.want.err)
 
-			imgs[0].Created = time.Time{}
-
-			if !reflect.DeepEqual(imgs, tt.want.imgs) {
-				t.Errorf("GetSpotImgURLBySpotID() \n got = %v,\n want %v", imgs, tt.want.imgs)
+			if d := cmp.Diff(imgs, tt.want.imgs, cmpopts.IgnoreFields(model.Image{}, "Created")); len(d) != 0 {
+				t.Errorf("GetSpotImgURLBySpotID() differs: (-got +want)\n%s", d)
 			}
 		})
 	}

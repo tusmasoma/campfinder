@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository"
@@ -64,7 +66,6 @@ func TestCommentRepo_GetCommentBySpotID(t *testing.T) {
 						UserID:   uuid.MustParse("5fe0e237-6b49-11ee-b686-0242c0a87001"),
 						StarRate: 4.5,
 						Text:     "素晴らしい場所でした！",
-						Created:  time.Time{},
 					},
 				},
 				err: nil,
@@ -84,10 +85,8 @@ func TestCommentRepo_GetCommentBySpotID(t *testing.T) {
 
 			ValidateErr(t, err, tt.want.err)
 
-			comments[0].Created = time.Time{}
-
-			if !reflect.DeepEqual(comments, tt.want.comments) {
-				t.Errorf("GetCommentBySpotID() \n got = %v,\n want %v", comments, tt.want.comments)
+			if d := cmp.Diff(comments, tt.want.comments, cmpopts.IgnoreFields(model.Comment{}, "Created")); len(d) != 0 {
+				t.Errorf("GetCommentBySpotID()differs: (-got +want)\n%s", d)
 			}
 		})
 	}
@@ -119,7 +118,6 @@ func TestCommentRepo_GetCommentByID(t *testing.T) {
 					UserID:   uuid.MustParse("5fe0e237-6b49-11ee-b686-0242c0a87001"),
 					StarRate: 4.5,
 					Text:     "素晴らしい場所でした！",
-					Created:  time.Time{},
 				},
 				err: nil,
 			},
@@ -138,10 +136,8 @@ func TestCommentRepo_GetCommentByID(t *testing.T) {
 
 			ValidateErr(t, err, tt.want.err)
 
-			comment.Created = time.Time{}
-
-			if !reflect.DeepEqual(comment, tt.want.comment) {
-				t.Errorf("GetCommentByID() \n got = %v,\n want %v", comment, tt.want.comment)
+			if d := cmp.Diff(comment, tt.want.comment, cmpopts.IgnoreFields(model.Comment{}, "Created")); len(d) != 0 {
+				t.Errorf("GetCommentByID()differs: (-got +want)\n%s", d)
 			}
 		})
 	}
