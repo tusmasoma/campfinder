@@ -10,11 +10,11 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/tusmasoma/campfinder/db"
 )
 
 type Payload struct {
@@ -89,7 +89,7 @@ func base64UrlDecode(s string) ([]byte, error) {
 }
 
 // アクセストークン(JWT形式)の生成
-func GenerateToken(user db.User) (string, string) {
+func GenerateToken(userID, email string) (string, string) {
 	// ヘッダの作成
 	header := map[string]string{
 		"typ": "JWT",
@@ -102,8 +102,8 @@ func GenerateToken(user db.User) (string, string) {
 	jti := uuid.New().String()
 	payload := map[string]string{
 		"jti":    jti,
-		"userId": user.ID.String(),
-		"Email":  user.Email,
+		"userId": userID,
+		"Email":  email,
 	}
 	payloadBytes, _ := json.Marshal(payload)
 	encodedPayload := base64UrlEncode(payloadBytes)
@@ -157,6 +157,7 @@ func ValidateAccessToken(jwt string) error {
 	}
 
 	err = rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed[:], signature)
+	log.Print(err)
 	if err != nil {
 		return fmt.Errorf("signature verification failed: %w", err)
 	}

@@ -13,6 +13,8 @@ on:
     secrets:
       PRIVATE_KEY:
         required: true
+      PUBLIC_LEY:
+        required: true
   workflow_dispatch:
 
 jobs:
@@ -22,13 +24,14 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.2
 
-      - name: Setup .certificate directory
-        run: mkdir -p .certificate
-
-      - name: Create Private Key
-        run: echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+      - name: Create Private and Public Keys
+        run: |
+          mkdir -p .certificate
+          echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+          echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
 
       - name: Setup Go
         uses: actions/setup-go@v4.1.0

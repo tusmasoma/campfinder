@@ -24,6 +24,7 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     secrets:
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
 
   deploy:
     name: Deploy
@@ -38,13 +39,14 @@ jobs:
     - name: Setup .env file
       run: echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
 
-    - name: Setup .certificate directory
-      run: mkdir -p .certificate
-
-    - name: Create Private Key
-      run: echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+    - name: Create Private and Public Keys
+      run: |
+        mkdir -p .certificate
+        echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+        echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
       env:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
 
     - name: Configure AWS credentials
       run: |
