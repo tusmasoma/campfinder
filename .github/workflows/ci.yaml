@@ -13,7 +13,7 @@ on:
     secrets:
       PRIVATE_KEY:
         required: true
-      PUBLIC_LEY:
+      PUBLIC_KEY:
         required: true
   workflow_dispatch:
 

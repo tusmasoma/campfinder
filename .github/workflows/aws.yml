@@ -26,82 +26,83 @@ jobs:
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
       PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
 
-  deploy:
-    name: Deploy
-    needs: ci
-    runs-on: ubuntu-latest
-    environment: production
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Setup .env file
-      run: echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
-
-    - name: Create Private and Public Keys
-      run: |
-        mkdir -p .certificate
-        echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
-        echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
-      env:
-        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-
-    - name: Configure AWS credentials
-      run: |
-        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws configure set default.region ${{ env.AWS_REGION }}
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      run: |
-        aws ecr-public get-login-password --region us-east-1 |
-        docker login --username AWS --password-stdin $ECR_REGISTRY
-
-    - name: Build and push images to Amazon ECR using docker-compose
-      run: |
-        # ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG=${{ github.sha }}
-
-        docker compose -f docker-compose.production.yaml build
-
-        docker tag campfinder-nginx:latest $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
-        docker tag campfinder-back:latest $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
-
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
-
-        echo "nginx-image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest" >> $GITHUB_ENV
-        echo "back-image=$ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest" >> $GITHUB_ENV
-
-    - name: Fill in the new nginx image ID in the Amazon ECS task definition
-      id: task-def-nginx
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION }}
-        container-name: nginx
-        image: ${{ env.nginx-image }}
-
-    - name: Fill in the new back image ID in the Amazon ECS task definition
-      id: task-def-back
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def-nginx.outputs.task-definition }}
-        container-name: back
-        image: ${{ env.back-image }}
-
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def-back.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
-        wait-for-service-stability: true
-
-    - name: Cleanup
-      if: always()
-      run: |
-        rm .env
-        rm -rf .certificate
+# コスト面から、ECS停止中
+#  deploy:
+#    name: Deploy
+#    needs: ci
+#     runs-on: ubuntu-latest
+#     environment: production
+#
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v3
+#
+#    - name: Setup .env file
+#      run: echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
+#
+#    - name: Create Private and Public Keys
+#      run: |
+#        mkdir -p .certificate
+#        echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+#        echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
+#      env:
+#        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+#        PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+#
+#    - name: Configure AWS credentials
+#      run: |
+#        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        aws configure set default.region ${{ env.AWS_REGION }}
+#
+#    - name: Login to Amazon ECR
+#      id: login-ecr
+#      run: |
+#        aws ecr-public get-login-password --region us-east-1 |
+#        docker login --username AWS --password-stdin $ECR_REGISTRY
+#
+#    - name: Build and push images to Amazon ECR using docker-compose
+#      run: |
+#        # ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+#        IMAGE_TAG=${{ github.sha }}
+#
+#        docker compose -f docker-compose.production.yaml build
+#
+#        docker tag campfinder-nginx:latest $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
+#        docker tag campfinder-back:latest $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
+#
+#        docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
+#        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest
+#
+#        echo "nginx-image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest" >> $GITHUB_ENV
+#        echo "back-image=$ECR_REGISTRY/$ECR_REPOSITORY_BACK:latest" >> $GITHUB_ENV
+#
+#    - name: Fill in the new nginx image ID in the Amazon ECS task definition
+#      id: task-def-nginx
+#      uses: aws-actions/amazon-ecs-render-task-definition@v1
+#      with:
+#        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+#        container-name: nginx
+#        image: ${{ env.nginx-image }}
+#
+#    - name: Fill in the new back image ID in the Amazon ECS task definition
+#      id: task-def-back
+#      uses: aws-actions/amazon-ecs-render-task-definition@v1
+#      with:
+#        task-definition: ${{ steps.task-def-nginx.outputs.task-definition }}
+#        container-name: back
+#        image: ${{ env.back-image }}
+#
+#    - name: Deploy Amazon ECS task definition
+#      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#      with:
+#        task-definition: ${{ steps.task-def-back.outputs.task-definition }}
+#        service: ${{ env.ECS_SERVICE }}
+#        cluster: ${{ env.ECS_CLUSTER }}
+#        wait-for-service-stability: true
+#
+#    - name: Cleanup
+#      if: always()
+#      run: |
+#        rm .env
+#        rm -rf .certificate
