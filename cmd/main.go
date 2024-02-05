@@ -61,6 +61,19 @@ func Serve(addr string) {
 	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
 
 	/* ===== URLマッピングを行う ===== */
+	http.HandleFunc("/api/v1",
+		middleware.Logging(get(authMiddleware.Authenticate(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+
+				// Assuming jwtContextKey is the correct key for context value
+				token := r.Context().Value(config.ContextUserIDKey)
+				tokenStr, _ := token.(string)
+				log.Print(tokenStr)
+
+				w.WriteHeader(http.StatusOK)
+			}),
+		))))
 	http.HandleFunc("/api/user/create",
 		middleware.Logging(post(userHandler.HandleUserCreate)))
 	http.HandleFunc("/api/user/login",

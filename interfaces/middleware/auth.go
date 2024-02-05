@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
+	firebase "firebase.google.com/go"
 	"github.com/tusmasoma/campfinder/config"
 	"github.com/tusmasoma/campfinder/domain/repository"
-	"github.com/tusmasoma/campfinder/internal/auth"
+	"google.golang.org/api/option"
 )
 
 var ErrCacheMiss = errors.New("cache: key not found")
@@ -35,6 +37,19 @@ func (am *authMiddleware) Authenticate(nextFunc http.HandlerFunc) http.HandlerFu
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
+		// Firebase SDK のセットアップ
+		opt := option.WithCredentialsFile(os.Getenv("CREDENTIALS"))
+		app, err := firebase.NewApp(ctx, nil, opt)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error initializing Firebase app: %v\n", err), http.StatusInternalServerError)
+			return
+		}
+		auth, err := app.Auth(context.Background())
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error initializing Firebase Auth: %v\n", err), http.StatusInternalServerError)
+			return
+		}
+
 		// リクエストヘッダにAuthorizationが存在するか確認
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
@@ -52,40 +67,14 @@ func (am *authMiddleware) Authenticate(nextFunc http.HandlerFunc) http.HandlerFu
 
 		//　アクセストークンの検証
 		log.Print(jwt)
-		err := auth.ValidateAccessToken(jwt)
+		token, err := auth.VerifyIDToken(ctx, jwt)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Authentication failed 1: %v", err), http.StatusUnauthorized)
 			return
 		}
 
-		// JWTからペイロード取得
-		var payload auth.Payload
-		payload, err = auth.GetPayloadFromToken(jwt)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Authentication failed 2: %v", err), http.StatusUnauthorized)
-			return
-		}
-
-		// 該当のuserIdが存在するかキャッシュに問い合わせ
-		jti, err := am.rr.Get(ctx, payload.UserID)
-		if errors.Is(err, ErrCacheMiss) {
-			http.Error(w, "Authentication failed: userId is not exit on cache", http.StatusUnauthorized)
-			return
-		} else if err != nil {
-			http.Error(w, "Authentication failed: missing userId on cache", http.StatusUnauthorized)
-			return
-		}
-
-		// Redisから取得したjtiとJWTのjtiを比較
-		if payload.JTI != jti {
-			http.Error(w, "Authentication failed: jwt does not match", http.StatusUnauthorized)
-			return
-		}
-
-		// 今後有効期限の確認も行う
-
 		// コンテキストに userID を保存
-		ctx = context.WithValue(ctx, config.ContextUserIDKey, payload.UserID)
+		ctx = context.WithValue(ctx, config.ContextUserIDKey, token.UID)
 
 		nextFunc(w, r.WithContext(ctx))
 	}
