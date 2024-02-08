@@ -34,14 +34,11 @@ func main() {
 }
 
 func Serve(addr string) {
-	var err error
-
 	db, err := config.NewDB()
 	if err != nil {
 		log.Printf("Database connection failed: %s\n", err)
 		return
 	}
-
 	client := config.NewClient()
 
 	userRepo := infra.NewUserRepository(db)
@@ -60,11 +57,9 @@ func Serve(addr string) {
 	spotHandler := handler.NewSpotHandler(spotUseCase)
 	commentHandler := handler.NewCommentHandler(commentUseCase, authUseCase)
 	imgHandler := handler.NewImageHandler(imgUseCase, authUseCase)
-
 	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
 
 	/* ===== URLマッピングを行う ===== */
-
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -77,26 +72,40 @@ func Serve(addr string) {
 
 	r.Use(middleware.Logging)
 
-	r.Group(func(r chi.Router) {
-		// r.Use(authMiddleware.Authenticate)
-		r.Post("/api/user/create", userHandler.HandleUserCreate)
-		r.Post("/api/user/login", userHandler.HandleUserLogin)
-		r.Get("/api/spot", spotHandler.HandleSpotGet)
-		r.Post("/api/spot/create", spotHandler.HandleSpotCreate)
-		r.Get("/api/comment", commentHandler.HandleCommentGet)
-		r.Get("/api/img", imgHandler.HandleImageGet)
-	})
+	r.Route("/api", func(r chi.Router) {
+		r.Route("/user", func(r chi.Router) {
+			r.Post("/create", userHandler.HandleUserCreate)
+			r.Post("/login", userHandler.HandleUserLogin)
+			r.Group(func(r chi.Router) {
+				r.Use(authMiddleware.Authenticate)
+				r.Get("/api/user/logout", userHandler.HandleUserLogout)
+			})
+		})
 
-	r.Group(func(r chi.Router) {
-		r.Use(authMiddleware.Authenticate)
-		r.Get("/api/user/logout", userHandler.HandleUserLogout)
-		r.Post("/api/comment/create", commentHandler.HandleCommentCreate)
-		r.Post("/api/comment/update", commentHandler.HandleCommentUpdate)
-		r.Delete("/api/comment/delete", commentHandler.HandleCommentDelete)
-		r.Post("/api/img/create", imgHandler.HandleImageCreate)
-		r.Post("/api/img/delete", imgHandler.HandleImageDelete)
-	})
+		r.Route("/spot", func(r chi.Router) {
+			r.Get("/", spotHandler.HandleSpotGet)
+			r.Post("/create", spotHandler.HandleSpotCreate)
+		})
 
+		r.Route("/comment", func(r chi.Router) {
+			r.Get("/", commentHandler.HandleCommentGet)
+			r.Group(func(r chi.Router) {
+				r.Use(authMiddleware.Authenticate)
+				r.Post("/create", commentHandler.HandleCommentCreate)
+				r.Post("/update", commentHandler.HandleCommentUpdate)
+				r.Delete("/delete", commentHandler.HandleCommentDelete)
+			})
+		})
+
+		r.Route("/img", func(r chi.Router) {
+			r.Get("/", imgHandler.HandleImageGet)
+			r.Group(func(r chi.Router) {
+				r.Use(authMiddleware.Authenticate)
+				r.Post("/create", imgHandler.HandleImageCreate)
+				r.Post("/delete", imgHandler.HandleImageDelete)
+			})
+		})
+	})
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{
 		Addr:         addr,
@@ -105,7 +114,6 @@ func Serve(addr string) {
 		WriteTimeout: config.WriteTimeout,
 		IdleTimeout:  config.IdleTimeout,
 	}
-
 	/* ===== サーバの起動 ===== */
 	log.SetFlags(0)
 	log.Println("Server running...")
