@@ -17,7 +17,7 @@ import (
 var ErrCacheMiss = errors.New("cache: key not found")
 
 type AuthMiddleware interface {
-	Authenticate(nextFunc http.HandlerFunc) http.HandlerFunc
+	Authenticate(nextFunc http.Handler) http.Handler
 }
 
 type authMiddleware struct {
@@ -31,8 +31,8 @@ func NewAuthMiddleware(rr repository.CacheRepository) AuthMiddleware {
 }
 
 // Authenticate ユーザ認証を行ってContextへユーザID情報を保存する
-func (am *authMiddleware) Authenticate(nextFunc http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (am *authMiddleware) Authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
 		// リクエストヘッダにAuthorizationが存在するか確認
@@ -87,6 +87,6 @@ func (am *authMiddleware) Authenticate(nextFunc http.HandlerFunc) http.HandlerFu
 		// コンテキストに userID を保存
 		ctx = context.WithValue(ctx, config.ContextUserIDKey, payload.UserID)
 
-		nextFunc(w, r.WithContext(ctx))
-	}
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

@@ -35,10 +35,10 @@ func (m *MockAuthMiddleware) EXPECT() *MockAuthMiddlewareMockRecorder {
 }
 
 // Authenticate mocks base method.
-func (m *MockAuthMiddleware) Authenticate(nextFunc http.HandlerFunc) http.HandlerFunc {
+func (m *MockAuthMiddleware) Authenticate(nextFunc http.Handler) http.Handler {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Authenticate", nextFunc)
-	ret0, _ := ret[0].(http.HandlerFunc)
+	ret0, _ := ret[0].(http.Handler)
 	return ret0
 }
 

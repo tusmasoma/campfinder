@@ -16,6 +16,9 @@ import (
 	"github.com/tusmasoma/campfinder/interfaces/handler"
 	"github.com/tusmasoma/campfinder/interfaces/middleware"
 	"github.com/tusmasoma/campfinder/usecase"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 func main() {
@@ -61,35 +64,43 @@ func Serve(addr string) {
 	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
 
 	/* ===== URLマッピングを行う ===== */
-	http.HandleFunc("/api/user/create",
-		middleware.Logging(post(userHandler.HandleUserCreate)))
-	http.HandleFunc("/api/user/login",
-		middleware.Logging(post(userHandler.HandleUserLogin)))
-	http.HandleFunc("/api/user/logout",
-		middleware.Logging(get(authMiddleware.Authenticate(userHandler.HandleUserLogout))))
-	http.HandleFunc("/api/spot",
-		middleware.Logging(get(spotHandler.HandleSpotGet)))
-	http.HandleFunc("/api/spot/create",
-		middleware.Logging(post(spotHandler.HandleSpotCreate)))
-	http.HandleFunc("/api/comment",
-		middleware.Logging(get(commentHandler.HandleCommentGet)))
-	http.HandleFunc("/api/comment/create",
-		middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentCreate))))
-	http.HandleFunc("/api/comment/update",
-		middleware.Logging(post(authMiddleware.Authenticate(commentHandler.HandleCommentUpdate))))
-	http.HandleFunc("/api/comment/delete",
-		middleware.Logging(del(authMiddleware.Authenticate(commentHandler.HandleCommentDelete))))
-	http.HandleFunc("/api/img",
-		middleware.Logging(get(imgHandler.HandleImageGet)))
-	http.HandleFunc("/api/img/create",
-		middleware.Logging(post(authMiddleware.Authenticate(imgHandler.HandleImageCreate))))
-	http.HandleFunc("/api/img/delete",
-		middleware.Logging(del(authMiddleware.Authenticate(imgHandler.HandleImageDelete))))
+
+	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Origin"},
+		ExposedHeaders:   []string{"Link", "Authorization"},
+		AllowCredentials: false,
+		MaxAge:           config.PreflightCacheDurationSeconds,
+	}))
+
+	r.Use(middleware.Logging)
+
+	r.Group(func(r chi.Router) {
+		// r.Use(authMiddleware.Authenticate)
+		r.Post("/api/user/create", userHandler.HandleUserCreate)
+		r.Post("/api/user/login", userHandler.HandleUserLogin)
+		r.Get("/api/spot", spotHandler.HandleSpotGet)
+		r.Post("/api/spot/create", spotHandler.HandleSpotCreate)
+		r.Get("/api/comment", commentHandler.HandleCommentGet)
+		r.Get("/api/img", imgHandler.HandleImageGet)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(authMiddleware.Authenticate)
+		r.Get("/api/user/logout", userHandler.HandleUserLogout)
+		r.Post("/api/comment/create", commentHandler.HandleCommentCreate)
+		r.Post("/api/comment/update", commentHandler.HandleCommentUpdate)
+		r.Delete("/api/comment/delete", commentHandler.HandleCommentDelete)
+		r.Post("/api/img/create", imgHandler.HandleImageCreate)
+		r.Post("/api/img/delete", imgHandler.HandleImageDelete)
+	})
 
 	/* ===== サーバの設定 ===== */
 	srv := &http.Server{
 		Addr:         addr,
-		Handler:      nil,
+		Handler:      r,
 		ReadTimeout:  config.ReadTimeout,
 		WriteTimeout: config.WriteTimeout,
 		IdleTimeout:  config.IdleTimeout,
@@ -118,45 +129,4 @@ func Serve(addr string) {
 		log.Println("failed to shutdown http server", err)
 	}
 	log.Println("Server exited")
-}
-
-// get GETリクエストを処理する
-func get(apiFunc http.HandlerFunc) http.HandlerFunc {
-	return httpMethod(apiFunc, http.MethodGet)
-}
-
-// post POSTリクエストを処理する
-func post(apiFunc http.HandlerFunc) http.HandlerFunc {
-	return httpMethod(apiFunc, http.MethodPost)
-}
-
-// delete DELETEリクエストを処理する
-func del(apiFunc http.HandlerFunc) http.HandlerFunc {
-	return httpMethod(apiFunc, http.MethodDelete)
-}
-
-func httpMethod(apiFunc http.HandlerFunc, method string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// CORS対応
-		w.Header().Add("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Headers", "Content-Type,Accept,Origin,x-token,Authorization")
-		w.Header().Add("Access-Control-Expose-Headers", "Authorization")
-
-		// プリフライトリクエストは処理を通さない
-		if r.Method == http.MethodOptions {
-			return
-		}
-		// 指定のHTTPメソッドでない場合はエラー
-		if r.Method != method {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			if _, err := w.Write([]byte("Method Not Allowed")); err != nil {
-				log.Printf("Error writing data: %v", err)
-			}
-			return
-		}
-
-		// 共通のレスポンスヘッダを設定
-		w.Header().Add("Content-Type", "application/json")
-		apiFunc(w, r)
-	}
 }
