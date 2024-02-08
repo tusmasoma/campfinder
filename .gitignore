@@ -5,3 +5,6 @@
 
 # AWS
 .aws/
+
+# Firebase
+.firebase/
