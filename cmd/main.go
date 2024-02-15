@@ -22,22 +22,56 @@ import (
 )
 
 func main() {
-	var addr string
 	// .envファイルから環境変数を読み込む
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
-	flag.StringVar(&addr, "addr", ":8083", "tcp host:port to connect")
-	flag.Parse()
 
-	Serve(addr)
+	Serve()
 }
 
-func Serve(addr string) {
+func Serve() {
+	var addr string
+	flag.StringVar(&addr, "addr", ":8083", "tcp host:port to connect")
+	flag.Parse()
+	/* ===== サーバの設定 ===== */
+	srv := &http.Server{
+		Addr:         addr,
+		Handler:      InitRoute(),
+		ReadTimeout:  config.ReadTimeout,
+		WriteTimeout: config.WriteTimeout,
+		IdleTimeout:  config.IdleTimeout,
+	}
+	/* ===== サーバの起動 ===== */
+	log.SetFlags(0)
+	log.Println("Server running...")
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt, os.Kill)
+	defer stop()
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("Server stopping...")
+
+	tctx, cancel := context.WithTimeout(context.Background(), config.GracefulShutdownTimeout)
+	defer cancel()
+
+	if err := srv.Shutdown(tctx); err != nil {
+		log.Println("failed to shutdown http server", err)
+	}
+	log.Println("Server exited")
+}
+
+func InitRoute() *chi.Mux {
 	db, err := config.NewDB()
 	if err != nil {
 		log.Printf("Database connection failed: %s\n", err)
-		return
+		return nil
 	}
 	client := config.NewClient()
 
@@ -71,6 +105,20 @@ func Serve(addr string) {
 	}))
 
 	r.Use(middleware.Logging)
+
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Use(authMiddleware.Authenticate)
+		r.Get("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+
+			// Assuming jwtContextKey is the correct key for context value
+			token := r.Context().Value(config.ContextUserIDKey)
+			tokenStr, _ := token.(string)
+			log.Print(tokenStr)
+
+			w.WriteHeader(http.StatusOK)
+		}))
+	})
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/user", func(r chi.Router) {
@@ -106,35 +154,6 @@ func Serve(addr string) {
 			})
 		})
 	})
-	/* ===== サーバの設定 ===== */
-	srv := &http.Server{
-		Addr:         addr,
-		Handler:      r,
-		ReadTimeout:  config.ReadTimeout,
-		WriteTimeout: config.WriteTimeout,
-		IdleTimeout:  config.IdleTimeout,
-	}
-	/* ===== サーバの起動 ===== */
-	log.SetFlags(0)
-	log.Println("Server running...")
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt, os.Kill)
-	defer stop()
-
-	go func() {
-		if err = srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("Server failed: %v", err)
-		}
-	}()
-
-	<-ctx.Done()
-	log.Println("Server stopping...")
-
-	tctx, cancel := context.WithTimeout(context.Background(), config.GracefulShutdownTimeout)
-	defer cancel()
-
-	if err = srv.Shutdown(tctx); err != nil {
-		log.Println("failed to shutdown http server", err)
-	}
-	log.Println("Server exited")
+	return r
 }

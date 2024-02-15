@@ -33,6 +33,7 @@ WORKDIR /root/
 # ビルドされたバイナリを最終的な作業ディレクトリに移動
 RUN cp /app/server .
 RUN cp -r /app/.certificate/ .certificate/
+RUN cp -r /app/.firebase/ .firebase/
 
 # コンテナが起動するときに実行されるコマンド (バイナリにしたgolangのファイルを実行)
 ENTRYPOINT ["entrypoint.sh"]
