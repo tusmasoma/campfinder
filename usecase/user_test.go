@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository/mock"
+	"github.com/tusmasoma/campfinder/internal/auth"
 )
 
 type CreateUserAndGenerateTokenArg struct {
@@ -105,7 +106,7 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 			name: "success",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
 				t.Setenv("PRIVATE_KEY_PATH", "../.certificate/private_key.pem")
-				passward, _ := PasswordEncrypt("password123")
+				passward, _ := auth.PasswordEncrypt("password123")
 				m.EXPECT().GetUserByEmail(
 					gomock.Any(),
 					"test@gmail.com",
@@ -138,7 +139,7 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 		{
 			name: "Fail: already logged in",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
-				passward, _ := PasswordEncrypt("password123")
+				passward, _ := auth.PasswordEncrypt("password123")
 				m.EXPECT().GetUserByEmail(
 					gomock.Any(),
 					"test@gmail.com",
@@ -166,7 +167,7 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 		{
 			name: "Fail: invalid passward",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
-				passward, _ := PasswordEncrypt("password456")
+				passward, _ := auth.PasswordEncrypt("password456")
 				m.EXPECT().GetUserByEmail(
 					gomock.Any(),
 					"test@gmail.com",

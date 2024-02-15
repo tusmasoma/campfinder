@@ -13,7 +13,8 @@ import (
 )
 
 func dummyTestHandler(w http.ResponseWriter, r *http.Request) {
-	if userID, _ := r.Context().Value(config.ContextUserIDKey).(string); userID == "" {
+	userIDValue := r.Context().Value(config.ContextUserIDKey)
+	if userID, _ := userIDValue.(string); userID == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 	w.WriteHeader(http.StatusOK)

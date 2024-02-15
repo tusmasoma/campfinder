@@ -11,11 +11,12 @@ import (
 	"github.com/tusmasoma/campfinder/config"
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository/mock"
+	"github.com/tusmasoma/campfinder/internal/auth"
 )
 
 func TestAuthUseCase_FetchUserFromContext(t *testing.T) {
 	t.Parallel()
-	passward, _ := PasswordEncrypt("password123")
+	passward, _ := auth.PasswordEncrypt("password123")
 	patterns := []struct {
 		name  string
 		setup func(

@@ -26,7 +26,8 @@ func NewAuthUseCase(ur repository.UserRepository) AuthUseCase {
 }
 
 func (auc *authUseCase) FetchUserFromContext(ctx context.Context) (*model.User, error) {
-	userID, ok := ctx.Value(config.ContextUserIDKey).(string)
+	userIDValue := ctx.Value(config.ContextUserIDKey)
+	userID, ok := userIDValue.(string)
 	if !ok {
 		log.Printf("Failed to retrieve userId from context")
 		return nil, fmt.Errorf("user name not found in request context")
