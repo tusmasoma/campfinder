@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/tusmasoma/campfinder/domain/model"
 	"github.com/tusmasoma/campfinder/domain/repository"
 	"github.com/tusmasoma/campfinder/internal/auth"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUseCase interface {
@@ -61,8 +59,8 @@ func (uuc *userUseCase) CreateUser(ctx context.Context, email string, passward s
 
 	var user model.User
 	user.Email = email
-	user.Name = ExtractUsernameFromEmail(email)
-	password, err := PasswordEncrypt(passward)
+	user.Name = auth.ExtractUsernameFromEmail(email)
+	password, err := auth.PasswordEncrypt(passward)
 	if err != nil {
 		log.Printf("Internal server error: %v", err)
 		return nil, err
@@ -74,19 +72,6 @@ func (uuc *userUseCase) CreateUser(ctx context.Context, email string, passward s
 		return nil, err
 	}
 	return &user, nil
-}
-
-func PasswordEncrypt(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(hash), err
-}
-
-func ExtractUsernameFromEmail(email string) string {
-	parts := strings.Split(email, "@")
-	if len(parts) > 0 {
-		return parts[0]
-	}
-	return ""
 }
 
 func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string, passward string) (string, error) {
@@ -105,7 +90,7 @@ func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string,
 	}
 
 	// Clientから送られてきたpasswordをハッシュ化したものとMySQLから返されたハッシュ化されたpasswordを比較する
-	if err = CompareHashAndPassword(user.Password, passward); err != nil {
+	if err = auth.CompareHashAndPassword(user.Password, passward); err != nil {
 		log.Printf("password does not match")
 		return "", err
 	}
@@ -116,10 +101,6 @@ func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string,
 		return "", err
 	}
 	return jwt, nil
-}
-
-func CompareHashAndPassword(hash, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 func (uuc *userUseCase) LogoutUser(ctx context.Context, userID string) error {
