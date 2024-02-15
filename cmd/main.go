@@ -72,6 +72,20 @@ func Serve(addr string) {
 
 	r.Use(middleware.Logging)
 
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Use(authMiddleware.Authenticate)
+		r.Get("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+
+			// Assuming jwtContextKey is the correct key for context value
+			token := r.Context().Value(config.ContextUserIDKey)
+			tokenStr, _ := token.(string)
+			log.Print(tokenStr)
+
+			w.WriteHeader(http.StatusOK)
+		}))
+	})
+
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/user", func(r chi.Router) {
 			r.Post("/create", userHandler.HandleUserCreate)
