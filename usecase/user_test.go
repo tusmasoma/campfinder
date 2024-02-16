@@ -19,7 +19,7 @@ type CreateUserAndGenerateTokenArg struct {
 }
 
 func TestUserUseCase_CreateUserAndGenerateToken(t *testing.T) {
-	t.Error("テストが失敗しました。GitHub Actionsの特定のジョブが失敗した場合に、mainブランチへのマージを禁止する機能をテスト")
+	t.Error("テストが失敗しました。GitHub Actionsの特定のジョブが失敗した場合に、mainブランチへのマージを禁止する機能をテスト2")
 	patterns := []struct {
 		name  string
 		setup func(
