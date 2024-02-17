@@ -67,7 +67,7 @@ curl -X 'POST' \
 
 #### Image
 ```
-curl -X GET 'https://production.campfinderjp.com/api/comment?spot_id='
+curl -X GET 'https://production.campfinderjp.com/api/img?spot_id='
 ```
 
 ```
