@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -51,7 +50,6 @@ func (am *authMiddleware) Authenticate(next http.Handler) http.Handler {
 		jwt := parts[1]
 
 		//　アクセストークンの検証
-		log.Print(jwt)
 		err := auth.ValidateAccessToken(jwt)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Authentication failed 1: %v", err), http.StatusUnauthorized)
