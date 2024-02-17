@@ -12,8 +12,24 @@ campfinder
 ![campfinder_ver_1_22 drawio-2](https://github.com/tusmasoma/campfinder/assets/104899572/073b3d49-8c7c-4b9f-9227-e4a6a99dee39)
 
 ## infra層について
+todo: genericsで汎用化
 
 ## テスト戦略
+### 概要
+本プロジェクトでは、品質を保証するためにユニットテストを重視しています。テストの自動化により、開発の効率化とバグの早期発見を目指しています。
+
+### テストレベル
+- **ユニットテスト**: 各関数やメソッドの正確性を検証します。すべてのコード変更に対して自動的に実行されます。
+
+### テスト技法
+- **モックテスト**: [gomock](https://github.com/golang/mock) ライブラリを使用して、外部依存関係をモック化し、テストの隔離性を向上させます。
+- **データベーステスト**: [dockertest](https://github.com/ory/dockertest) ライブラリを利用して、テスト用のDBインスタンスをDockerコンテナで立ち上げ、データベース操作のテストを実行します。
+
+### テストツール
+- **ユニットテスト**: [go test](https://golang.org/pkg/testing/)
+- **モック生成**: [gomock](https://github.com/golang/mock)
+- **データベーステスト**: [dockertest](https://github.com/ory/dockertest)
+
 
 
 ## curl集
