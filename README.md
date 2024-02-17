@@ -11,6 +11,11 @@ campfinder
 ## インフラ構成
 ![campfinder_ver_1_22 drawio-2](https://github.com/tusmasoma/campfinder/assets/104899572/073b3d49-8c7c-4b9f-9227-e4a6a99dee39)
 
+## infra層について
+
+## テスト戦略
+
+
 ## curl集
 現在は、コストの観点からデプロイを停止しています。
 
