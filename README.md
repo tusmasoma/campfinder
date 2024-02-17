@@ -1,5 +1,4 @@
 # campfinder
-campfinder
 
 ## アーキテクチャ
 レイヤードアーキテクチャ + DDD を採用
