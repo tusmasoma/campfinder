@@ -1,6 +1,6 @@
 upstream config {
     # コンテナのサービス名を指定すると名前解決してくれる
-    server localhost:8083;
+    server $UPSTREAM_SERVER;
 }
 
 server {
