@@ -73,7 +73,7 @@ func Start() (*sql.DB, func(), error) {
 			hc.Mounts = []docker.HostMount{
 				{
 					Type:   "bind",
-					Source: pwd + "../../../db/init/ddl.sql",
+					Source: pwd + "/../../db/init/ddl.sql",
 					Target: "/docker-entrypoint-initdb.d/ddl.sql",
 				},
 				{
@@ -83,7 +83,7 @@ func Start() (*sql.DB, func(), error) {
 				},
 				{
 					Type:   "bind",
-					Source: pwd + "../../../db/my.cnf",
+					Source: pwd + "/../../db/my.cnf",
 					Target: "/etc/mysql/my.cnf",
 				},
 			}
