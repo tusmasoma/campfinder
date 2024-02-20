@@ -20,6 +20,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./docker/back/
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.2
@@ -37,8 +40,8 @@ jobs:
         uses: actions/setup-go@v4.1.0
         id: setup-go
         with:
-          go-version-file: ./go.mod
-          cache-dependency-path: ./go.sum
+          go-version-file: ./docker/back//go.mod
+          cache-dependency-path: ./docker/back//go.sum
 
       - name: Download Go modules
         shell: bash
@@ -53,11 +56,12 @@ jobs:
       - name: Test
         run: go test -v ./...
 
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+
       - name: Lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.55.2
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        run: golangci-lint run
 
       - name: Cleanup
         if: always()
