@@ -20,6 +20,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./docker/back/
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.2
@@ -32,14 +35,13 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-        working-directory: ./docker/back/
 
       - name: Setup Go
         uses: actions/setup-go@v4.1.0
         id: setup-go
         with:
-          go-version-file: ./docker/back/go.mod
-          cache-dependency-path: ./docker/back/go.sum
+          go-version-file: ./go.mod
+          cache-dependency-path: ./go.sum
 
       - name: Download Go modules
         shell: bash
@@ -47,24 +49,19 @@ jobs:
         run: |
           go mod download
           go mod verify
-        working-directory: ./docker/back/
 
       - name: Build
         run: go build -v ./...
-        working-directory: ./docker/back/
 
       - name: Test
         run: go test -v ./...
-        working-directory: ./docker/back/
 
       - name: Lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.55.2
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          args: --config ./docker/back/.golangci.yml ./docker/back/...
 
       - name: Cleanup
         if: always()
         run: rm -rf .certificate
-        working-directory: ./docker/back/
