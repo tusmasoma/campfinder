@@ -15,8 +15,8 @@ services:
       - 3306:3306
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
-      - ./db/init:/docker-entrypoint-initdb.d
-      - ./config/mysql/my.cnf:/etc/mysql/my.cnf
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+      - ./docker/db/my.cnf:/etc/mysql/my.cnf
       - db-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -25,7 +25,7 @@ services:
     container_name: campfinder_back
     build:
       context: ./
-      dockerfile: ./Dockerfile
+      dockerfile: ./docker/back/Dockerfile
     ports:
       - "8083:8083"
     env_file:
@@ -38,7 +38,7 @@ services:
     container_name: campfinder_nginx
     build:
       context: ./
-      dockerfile: ./Dockerfile.nginx
+      dockerfile: ./docker/nginx/Dockerfile
     ports:
       - "80:80"
     env_file:

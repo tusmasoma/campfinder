@@ -5,7 +5,7 @@ services:
     container_name: campfinder_back
     build:
       context: ./
-      dockerfile: ./Dockerfile.production
+      dockerfile: ./docker/back/Dockerfile.production
     ports:
       - "8083:8083"
     env_file:
@@ -15,8 +15,10 @@ services:
     container_name: campfinder_nginx
     build:
       context: ./
-      dockerfile: ./Dockerfile.nginx
+      dockerfile: ./docker/nginx/Dockerfile
     ports:
       - "80:80"
+    env_file:
+      - .env
     #depends_on:
     #  - back
