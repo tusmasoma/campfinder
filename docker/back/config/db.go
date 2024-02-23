@@ -1,24 +1,25 @@
 package config
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	_ "github.com/go-sql-driver/mysql" // This blank import is used for its init function
 )
 
-var (
-	dbUser     = os.Getenv("MYSQL_ROOT_USER")
-	dbPassword = os.Getenv("MYSQL_ROOT_PASSWORD")
-	dbHost     = os.Getenv("MYSQL_HOST")
-	dbPort     = os.Getenv("MYSQL_PORT")
-	dbName     = os.Getenv("MYSQL_DB_NAME")
-)
-
 func NewDB() (*sql.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true", dbUser, dbPassword, dbHost, dbPort, dbName)
+	ctx := context.Background()
+
+	conf, err := NewDBConfig(ctx)
+	if err != nil {
+		log.Printf("Failed to load database config: %s\n", err)
+		return nil, err
+	}
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
+		conf.User, conf.Password, conf.Host, conf.Port, conf.DBName)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
