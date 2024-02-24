@@ -41,6 +41,12 @@ func Serve(addr string) {
 	}
 	client := config.NewClient()
 
+	serverConfig, err := config.NewServerConfig(context.Background())
+	if err != nil {
+		log.Printf("Failed to load server config: %s\n", err)
+		return
+	}
+
 	userRepo := infra.NewUserRepository(db)
 	spotRepo := infra.NewSpotRepository(db)
 	commentRepo := infra.NewCommentRepository(db)
@@ -67,7 +73,7 @@ func Serve(addr string) {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Origin"},
 		ExposedHeaders:   []string{"Link", "Authorization"},
 		AllowCredentials: false,
-		MaxAge:           config.PreflightCacheDurationSeconds,
+		MaxAge:           serverConfig.PreflightCacheDurationSec,
 	}))
 
 	r.Use(middleware.Logging)
@@ -110,9 +116,9 @@ func Serve(addr string) {
 	srv := &http.Server{
 		Addr:         addr,
 		Handler:      r,
-		ReadTimeout:  config.ReadTimeout,
-		WriteTimeout: config.WriteTimeout,
-		IdleTimeout:  config.IdleTimeout,
+		ReadTimeout:  serverConfig.ReadTimeout,
+		WriteTimeout: serverConfig.WriteTimeout,
+		IdleTimeout:  serverConfig.IdleTimeout,
 	}
 	/* ===== サーバの起動 ===== */
 	log.SetFlags(0)
@@ -130,7 +136,7 @@ func Serve(addr string) {
 	<-ctx.Done()
 	log.Println("Server stopping...")
 
-	tctx, cancel := context.WithTimeout(context.Background(), config.GracefulShutdownTimeout)
+	tctx, cancel := context.WithTimeout(context.Background(), serverConfig.GracefulShutdownTimeout)
 	defer cancel()
 
 	if err = srv.Shutdown(tctx); err != nil {
