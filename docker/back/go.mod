@@ -12,6 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/ory/dockertest v3.3.5+incompatible
+	github.com/sethvargo/go-envconfig v0.9.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/crypto v0.19.0
 	gotest.tools v2.2.0+incompatible
