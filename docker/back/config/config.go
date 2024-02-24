@@ -22,7 +22,7 @@ type DBConfig struct {
 type CacheConfig struct {
 	Addr     string `env:"ADDR, required"`
 	Password string `env:"PASSWORD, required"`
-	Db       int    `env:"DB, required"`
+	DB       int    `env:"DB, required"`
 }
 
 func NewDBConfig(ctx context.Context) (*DBConfig, error) {

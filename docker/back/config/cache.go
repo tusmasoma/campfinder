@@ -15,7 +15,7 @@ func NewClient() *redis.Client {
 		return nil
 	}
 
-	client := redis.NewClient(&redis.Options{Addr: conf.Addr, Password: conf.Password, DB: conf.Db})
+	client := redis.NewClient(&redis.Options{Addr: conf.Addr, Password: conf.Password, DB: conf.DB})
 
 	return client
 }
