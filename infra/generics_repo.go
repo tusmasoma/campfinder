@@ -3,97 +3,89 @@ package infra
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"reflect"
-	"strings"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/tusmasoma/campfinder/domain/repository"
 )
 
 type genericRepository[T any] struct {
 	db        *sql.DB
+	dialect   *goqu.DialectWrapper
 	tableName string
 }
 
-func NewGenericRepository[T any](db *sql.DB, tableName string) repository.Repository[T] {
+func NewGenericRepository[T any](db *sql.DB, dialect *goqu.DialectWrapper, tableName string) repository.Repository[T] {
 	return &genericRepository[T]{
 		db:        db,
+		dialect:   dialect,
 		tableName: tableName,
 	}
 }
 
-func (gr *genericRepository[T]) GetByID(ctx context.Context, id string) (T, error) {
+func (gr *genericRepository[T]) List(ctx context.Context, qcs []repository.QueryCondition) ([]T, error) {
+	var entitys []T
+	var whereClauses []goqu.Expression
+	for _, qc := range qcs {
+		whereClauses = append(whereClauses, goqu.C(qc.Field).Eq(qc.Value))
+	}
+
+	query, _, err := gr.dialect.From(gr.tableName).Select("*").Where(whereClauses...).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := gr.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var entity T
+		if err = rows.Scan(&entity); err != nil {
+			return nil, err
+		}
+		entitys = append(entitys, entity)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return entitys, nil
+}
+
+func (gr *genericRepository[T]) Get(ctx context.Context, id string) (T, error) {
 	var entity T
-	query := `SELECT * FROM ` + gr.tableName + ` WHERE id = ?`
-	err := gr.db.QueryRowContext(ctx, query, id).Scan(&entity)
+	query, _, err := gr.dialect.From(gr.tableName).Select("*").Where(goqu.C("id").Eq(id)).ToSQL()
+	if err != nil {
+		return entity, err
+	}
+	err = gr.db.QueryRowContext(ctx, query).Scan(&entity)
 	return entity, err
 }
 
-func (gr *genericRepository[T]) Create(ctx context.Context, entity T) error {
-	// リフレクションを使用してエンティティのフィールド名と値を取得
-	t := reflect.TypeOf(entity)
-	v := reflect.ValueOf(entity)
-	var fieldNames []string
-	var placeholders []string
-	var values []interface{}
-
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		fieldNames = append(fieldNames, field.Name)
-		placeholders = append(placeholders, "?")
-		values = append(values, v.Field(i).Interface())
+func (gr *genericRepository[T]) Create(ctx context.Context, entity []T) error {
+	query, _, err := gr.dialect.Insert(gr.tableName).Rows(entity).ToSQL()
+	if err != nil {
+		return err
 	}
-
-	// SQLクエリ構築
-	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)",
-		gr.tableName,
-		strings.Join(fieldNames, ", "),
-		strings.Join(placeholders, ", "),
-	)
-
-	_, err := gr.db.ExecContext(ctx, query, values...)
-
+	_, err = gr.db.ExecContext(ctx, query)
 	return err
 }
 
-func (gr *genericRepository[T]) Update(ctx context.Context, entity T) error {
-	// リフレクションを使用してエンティティのフィールド名と値を取得
-	t := reflect.TypeOf(entity)
-	v := reflect.ValueOf(entity)
-	var fieldNames []string
-	var values []interface{}
-
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		if field.Name != "ID" {
-			fieldNames = append(fieldNames, field.Name+"=?")
-			values = append(values, v.Field(i).Interface())
-		}
+func (gr *genericRepository[T]) Update(ctx context.Context, id string, entity T) error {
+	query, _, err := gr.dialect.Update(gr.tableName).Set(entity).Where(goqu.C("id").Eq(id)).ToSQL()
+	if err != nil {
+		return err
 	}
-
-	// idフィールドの値を取得 (エンティティにIDフィールドが存在することを前提としています)
-	idField := v.FieldByName("ID")
-	if !idField.IsValid() {
-		return fmt.Errorf("ID field not found in entity")
-	}
-	id := idField.Interface()
-
-	// SQLクエリ構築
-	query := fmt.Sprintf("UPDATE %s SET %s WHERE id = ?",
-		gr.tableName,
-		strings.Join(fieldNames, ", "),
-	)
-
-	// idの値をvaluesの末尾に追加
-	values = append(values, id)
-
-	_, err := gr.db.ExecContext(ctx, query, values...)
-
+	_, err = gr.db.ExecContext(ctx, query)
 	return err
 }
 
 func (gr *genericRepository[T]) Delete(ctx context.Context, id string) error {
-	query := `DELETE FROM ` + gr.tableName + ` WHERE id = ?`
-	_, err := gr.db.ExecContext(ctx, query, id)
+	query, _, err := gr.dialect.Delete(gr.tableName).Where(goqu.C("id").Eq(id)).ToSQL()
+	if err != nil {
+		return err
+	}
+	_, err = gr.db.ExecContext(ctx, query)
 	return err
 }
