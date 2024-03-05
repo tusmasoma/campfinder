@@ -20,9 +20,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./docker/back/
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.2
@@ -49,12 +46,15 @@ jobs:
         run: |
           go mod download
           go mod verify
+        working-directory: ./docker/back/
 
       - name: Build
         run: go build -v ./...
+        working-directory: ./docker/back/
 
       - name: Test
         run: go test -v ./...
+        working-directory: ./docker/back/
 
       - name: Install golangci-lint
         run: |
@@ -62,6 +62,7 @@ jobs:
 
       - name: Lint
         run: golangci-lint run
+        working-directory: ./docker/back/
 
       - name: Cleanup
         if: always()
