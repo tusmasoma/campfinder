@@ -21,8 +21,8 @@ func dummyTestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestAuthMiddleware_Authenticate(t *testing.T) {
-	t.Setenv("PRIVATE_KEY_PATH", "../../.certificate/private_key.pem")
-	t.Setenv("PUBLIC_KEY_PATH", "../../.certificate/public_key.pem")
+	t.Setenv("PRIVATE_KEY_PATH", "../../../../.certificate/private_key.pem")
+	t.Setenv("PUBLIC_KEY_PATH", "../../../../.certificate/public_key.pem")
 
 	userID := uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2")
 	email := "test@gmail.com"

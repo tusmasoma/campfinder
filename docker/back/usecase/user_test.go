@@ -31,7 +31,7 @@ func TestUserUseCase_CreateUserAndGenerateToken(t *testing.T) {
 		{
 			name: "success",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
-				t.Setenv("PRIVATE_KEY_PATH", "../.certificate/private_key.pem")
+				t.Setenv("PRIVATE_KEY_PATH", "../../../.certificate/private_key.pem")
 				m.EXPECT().CheckIfUserExists(
 					gomock.Any(),
 					"test@gmail.com",
@@ -105,7 +105,7 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 		{
 			name: "success",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
-				t.Setenv("PRIVATE_KEY_PATH", "../.certificate/private_key.pem")
+				t.Setenv("PRIVATE_KEY_PATH", "../../../.certificate/private_key.pem")
 				passward, _ := auth.PasswordEncrypt("password123")
 				m.EXPECT().GetUserByEmail(
 					gomock.Any(),
