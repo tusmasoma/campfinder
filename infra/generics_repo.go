@@ -63,8 +63,8 @@ func (gr *genericRepository[T]) Get(ctx context.Context, id string) (T, error) {
 	return entity, err
 }
 
-func (gr *genericRepository[T]) Create(ctx context.Context, entity []T) error {
-	query, _, err := gr.dialect.Insert(gr.tableName).Rows(entity).ToSQL()
+func (gr *genericRepository[T]) Create(ctx context.Context, entitys []T) error {
+	query, _, err := gr.dialect.Insert(gr.tableName).Rows(entitys).ToSQL()
 	if err != nil {
 		return err
 	}
