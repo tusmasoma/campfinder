@@ -18,3 +18,8 @@ type TransactionRepository interface {
 type QueryOptions struct {
 	Executor SQLExecutor
 }
+
+type QueryCondition struct {
+	Field string
+	Value any
+}
