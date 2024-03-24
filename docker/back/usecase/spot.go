@@ -61,7 +61,7 @@ func (suc *spotUseCase) SpotCreate(
 		return fmt.Errorf("user with this name already exists")
 	}
 
-	var spot = model.Spot{
+	spot := model.Spot{
 		Category:    category,
 		Name:        name,
 		Address:     address,

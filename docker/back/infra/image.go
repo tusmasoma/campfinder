@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )

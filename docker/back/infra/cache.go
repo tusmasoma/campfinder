@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/go-redis/redis/v8"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
 

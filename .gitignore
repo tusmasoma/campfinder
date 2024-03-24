@@ -1,4 +1,5 @@
 .env
+bin/
 
 # Privatekey and Publickey
 .certificate/

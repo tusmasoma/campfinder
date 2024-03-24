@@ -50,8 +50,8 @@ func Start() (*sql.DB, func(), error) {
 
 	// Dockerコンテナを起動する際に指定する設定定義
 	runOptions := &dockertest.RunOptions{
-		Repository: "mysql",
-		Tag:        "5.7",
+		Repository: "arm64v8/mysql",
+		Tag:        "latest",
 		Env: []string{
 			"MYSQL_ROOT_USERNAME=root",
 			"MYSQL_ROOT_PASSWORD=campfinder",
@@ -105,7 +105,6 @@ func Start() (*sql.DB, func(), error) {
 		}
 		return db.Ping()
 	})
-
 	if err != nil {
 		log.Printf("Could not connect to docker: %s", err)
 		return nil, nil, err

@@ -7,9 +7,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"gotest.tools/assert"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
-	"gotest.tools/assert"
 )
 
 type CheckIfSpotExistsArg struct {

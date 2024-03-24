@@ -16,11 +16,7 @@ $(BIN)/golangci-lint-$(GOLANGCI_LINT_VERSION):
 	mv $(BIN)/golangci-lint $(BIN)/golangci-lint-$(GOLANGCI_LINT_VERSION)
 	ln -s $(BIN)/golangci-lint-$(GOLANGCI_LINT_VERSION) $(BIN)/golangci-lint
 
-REVIEWDOG_VERSION := v0.12.0
-$(BIN)/reviewdog:
-    curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/$(REVIEWDOG_VERSION)/install.sh | sh -s -- -b $(BIN) $(REVIEWDOG_VERSION)
-
-MOCKGEN_VERSION := v1.6.0
+MOCKGEN_VERSION := 1.6.0
 $(BIN)/mockgen-$(MOCKGEN_VERSION):
 	unlink $(BIN)/mockgen || true
 	$(GO_ENV) ${GO} install github.com/golang/mock/mockgen@v$(MOCKGEN_VERSION)
@@ -44,23 +40,19 @@ $(BIN)/gofumpt-$(GOFUMPT_VERSION):
 # テストターゲット: テストを実行
 .PHONY: test
 test:
-	cd docker/back/ && $(GO) test ${TESTABLE}
-
-.PHONY: test-all
-test-all:
-    cd docker/back/ && $(GO) test -v -count=1 ./...
+	cd docker/back/ && $(GO) test -v -count=1 ./...
 
 # golangci-lint: lint for all under the PKG
 .PHONY: lint
-lint: PKG ?= ./docker/back/...
+lint: PKG ?= ./...
 lint: $(BIN)/golangci-lint-$(GOLANGCI_LINT_VERSION)
-	$(BIN)/golangci-lint run -c ./docker/back/.golangci.yaml $(PKG)
+	cd docker/back/ && $(BIN)/golangci-lint run -c ./.golangci.yml $(PKG)
 
 # golangci-lint: lint for all go files have diff
 .PHONY: lint-diff
-lint-diff: PKG ?= ./docker/back/...
+lint-diff: PKG ?= ./...
 lint-diff: $(BIN)/golangci-lint-$(GOLANGCI_LINT_VERSION)
-	$(BIN)/golangci-lint run -c ./docker/back/.golangci.yaml $(PKG) | reviewdog -f=golangci-lint -diff="git diff origin/develop"
+	cd docker/back/ && $(BIN)/golangci-lint run -c ./.golangci.yml $(PKG) | reviewdog -f=golangci-lint -diff="git diff origin/develop"
 
 .PHONY: fmt
 fmt: $(BIN)/goimports-$(GOIMPORTS_VERSION) $(BIN)/gofumpt-$(GOFUMPT_VERSION)
@@ -88,11 +80,11 @@ generate-deps: $(BIN)/mockgen-$(MOCKGEN_VERSION)
 
 .PHONY: tidy
 tidy:
-    cd docker/back/ && $(GO) mod tidy
+	cd docker/back/ && $(GO) mod tidy
 
 .PHONY: build
 build:
-    $(GO) build -v ./docker/back/...
+	cd docker/back/ && $(GO) build -v ./...
 
 .PHONY: bin-clean
 bin-clean:

@@ -8,6 +8,7 @@ import (
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/google/uuid"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )

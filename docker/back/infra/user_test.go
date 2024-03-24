@@ -8,9 +8,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+	"gotest.tools/assert"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
-	"gotest.tools/assert"
 )
 
 type CheckIfUserExistsArg struct {

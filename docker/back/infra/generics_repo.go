@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/doug-martin/goqu/v9"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
 

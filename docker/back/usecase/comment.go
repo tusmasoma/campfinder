@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
@@ -47,7 +48,7 @@ func (cuc *commentUseCase) CommentCreate(
 	text string,
 	user model.User,
 ) error {
-	var comment = model.Comment{
+	comment := model.Comment{
 		SpotID:   spotID,
 		UserID:   user.ID,
 		StarRate: starRate,
@@ -75,7 +76,7 @@ func (cuc *commentUseCase) CommentUpdate(
 		return fmt.Errorf("don't have permission to update comment")
 	}
 
-	var comment = model.Comment{
+	comment := model.Comment{
 		ID:       id,
 		SpotID:   spotID,
 		UserID:   userID,
