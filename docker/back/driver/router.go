@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+
 	"github.com/tusmasoma/campfinder/docker/back/config"
 	"github.com/tusmasoma/campfinder/docker/back/infra"
 	"github.com/tusmasoma/campfinder/docker/back/interfaces/handler"

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+
 	"github.com/tusmasoma/campfinder/docker/back/usecase/mock"
 )
 

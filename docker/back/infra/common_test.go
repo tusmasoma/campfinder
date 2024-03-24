@@ -105,7 +105,6 @@ func Start() (*sql.DB, func(), error) {
 		}
 		return db.Ping()
 	})
-
 	if err != nil {
 		log.Printf("Could not connect to docker: %s", err)
 		return nil, nil, err

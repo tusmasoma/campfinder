@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
+
 	"github.com/tusmasoma/campfinder/docker/back/driver"
 )
 

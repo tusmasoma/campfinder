@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
@@ -32,7 +33,7 @@ func (ih *imageUseCase) GetSpotImgURLBySpotID(ctx context.Context, spotID string
 }
 
 func (ih *imageUseCase) ImageCreate(ctx context.Context, spotID uuid.UUID, url string, user model.User) error {
-	var img = model.Image{
+	img := model.Image{
 		SpotID: spotID,
 		UserID: user.ID,
 		URL:    url,

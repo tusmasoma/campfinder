@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
+
 	model "github.com/tusmasoma/campfinder/docker/back/domain/model"
 )
 

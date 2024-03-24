@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+
 	model "github.com/tusmasoma/campfinder/docker/back/domain/model"
 )
 
