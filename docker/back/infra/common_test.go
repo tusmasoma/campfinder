@@ -50,8 +50,8 @@ func Start() (*sql.DB, func(), error) {
 
 	// Dockerコンテナを起動する際に指定する設定定義
 	runOptions := &dockertest.RunOptions{
-		Repository: "arm64v8/mysql",
-		Tag:        "8.0",
+		Repository: "mysql",
+		Tag:        "5.7",
 		Env: []string{
 			"MYSQL_ROOT_USERNAME=root",
 			"MYSQL_ROOT_PASSWORD=campfinder",
