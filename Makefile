@@ -62,7 +62,7 @@ fmt: $(BIN)/goimports-$(GOIMPORTS_VERSION) $(BIN)/gofumpt-$(GOFUMPT_VERSION)
 
 .PHONY: generate
 generate: generate-deps
-	@for dir in $$(find ./docker/back -maxdepth 1 -type d | sed '1,1d' | sed 's@./@@') ; do \
+	@for dir in $$(find ./docker/back -type d | sed '1,1d' | sed 's@./@@') ; do \
 		if [ -n "$$(git diff --name-only origin/develop "$${dir}")" ]; then \
 			echo "go generate ./$${dir}/..." && \
 			PATH="$(BIN):$(PATH)" ${GO_ENV} ${GO} generate "./$${dir}/..." || exit 1; \
