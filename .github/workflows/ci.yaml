@@ -16,6 +16,8 @@ on:
       PUBLIC_KEY:
         required: true
   workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
 
 jobs:
   build:
