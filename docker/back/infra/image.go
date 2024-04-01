@@ -24,7 +24,7 @@ func (ir *imageRepository) GetSpotImgURLBySpotID(
 	spotID string,
 	opts ...repository.QueryOptions,
 ) ([]model.Image, error) {
-	var executor repository.SQLExecutor = ir.db
+	executor := ir.db
 	if len(opts) > 0 && opts[0].Executor != nil {
 		executor = opts[0].Executor
 	}
