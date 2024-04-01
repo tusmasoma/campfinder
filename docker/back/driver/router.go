@@ -25,7 +25,7 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 
 	userRepo := infra.NewUserRepository(db)
 	spotRepo := infra.NewSpotRepository(db)
-	commentRepo := infra.NewCommentRepository(db)
+	commentRepo := infra.NewCommentRepository(db, &dialect)
 	imgRepo := infra.NewImageRepository(db, &dialect)
 	redisRepo := infra.NewRedisRepository(client)
 
