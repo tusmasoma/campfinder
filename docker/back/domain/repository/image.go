@@ -9,6 +9,7 @@ import (
 
 type ImageRepository interface {
 	GetSpotImgURLBySpotID(ctx context.Context, spotID string, opts ...QueryOptions) (imgs []model.Image, err error)
-	Create(ctx context.Context, img model.Image, opts ...QueryOptions) (err error)
-	Delete(ctx context.Context, id string, opts ...QueryOptions) (err error)
+	List(ctx context.Context, qcs []QueryCondition) ([]model.Image, error)
+	Create(ctx context.Context, img model.Image) error
+	Delete(ctx context.Context, id string) error
 }

@@ -14,12 +14,12 @@ import (
 )
 
 type base[T any] struct {
-	db        *sql.DB
+	db        repository.SQLExecutor
 	dialect   *goqu.DialectWrapper
 	tableName string
 }
 
-func newBase[T any](db *sql.DB, dialect *goqu.DialectWrapper, tableName string) repository.Base[T] {
+func newBase[T any](db repository.SQLExecutor, dialect *goqu.DialectWrapper, tableName string) *base[T] {
 	return &base[T]{
 		db:        db,
 		dialect:   dialect,

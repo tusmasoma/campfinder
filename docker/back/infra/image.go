@@ -2,21 +2,20 @@ package infra
 
 import (
 	"context"
-	"database/sql"
 
-	"github.com/google/uuid"
+	"github.com/doug-martin/goqu/v9"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
 
 type imageRepository struct {
-	db *sql.DB
+	*base[model.Image]
 }
 
-func NewImageRepository(db *sql.DB) repository.ImageRepository {
+func NewImageRepository(db repository.SQLExecutor, dialect *goqu.DialectWrapper) repository.ImageRepository {
 	return &imageRepository{
-		db: db,
+		base: newBase[model.Image](db, dialect, "Image"),
 	}
 }
 
@@ -59,37 +58,4 @@ func (ir *imageRepository) GetSpotImgURLBySpotID(
 		return nil, err
 	}
 	return imgs, nil
-}
-
-func (ir *imageRepository) Create(ctx context.Context, img model.Image, opts ...repository.QueryOptions) error {
-	var executor repository.SQLExecutor = ir.db
-	if len(opts) > 0 && opts[0].Executor != nil {
-		executor = opts[0].Executor
-	}
-
-	query := `
-	INSERT INTO Image (
-		id, spot_id, user_id, url
-		)
-		VALUES (?, ?, ?, ?)
-		`
-	_, err := executor.ExecContext(
-		ctx,
-		query,
-		uuid.New(),
-		img.SpotID,
-		img.UserID,
-		img.URL,
-	)
-
-	return err
-}
-
-func (ir *imageRepository) Delete(ctx context.Context, id string, opts ...repository.QueryOptions) error {
-	var executor repository.SQLExecutor = ir.db
-	if len(opts) > 0 && opts[0].Executor != nil {
-		executor = opts[0].Executor
-	}
-	_, err := executor.ExecContext(ctx, "DELETE FROM Image WHERE id = ?", id)
-	return err
 }

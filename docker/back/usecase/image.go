@@ -29,7 +29,7 @@ func NewImageUseCase(ir repository.ImageRepository) ImageUseCase {
 }
 
 func (ih *imageUseCase) GetSpotImgURLBySpotID(ctx context.Context, spotID string) ([]model.Image, error) {
-	return ih.ir.GetSpotImgURLBySpotID(ctx, spotID)
+	return ih.ir.List(ctx, []repository.QueryCondition{{Field: "SpotID", Value: spotID}})
 }
 
 func (ih *imageUseCase) ImageCreate(ctx context.Context, spotID uuid.UUID, url string, user model.User) error {
