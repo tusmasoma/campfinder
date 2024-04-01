@@ -65,26 +65,6 @@ func (mr *MockImageRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockImageRepository)(nil).Delete), ctx, id)
 }
 
-// GetSpotImgURLBySpotID mocks base method.
-func (m *MockImageRepository) GetSpotImgURLBySpotID(ctx context.Context, spotID string, opts ...repository.QueryOptions) ([]model.Image, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spotID}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetSpotImgURLBySpotID", varargs...)
-	ret0, _ := ret[0].([]model.Image)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetSpotImgURLBySpotID indicates an expected call of GetSpotImgURLBySpotID.
-func (mr *MockImageRepositoryMockRecorder) GetSpotImgURLBySpotID(ctx, spotID interface{}, opts ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spotID}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotImgURLBySpotID", reflect.TypeOf((*MockImageRepository)(nil).GetSpotImgURLBySpotID), varargs...)
-}
-
 // List mocks base method.
 func (m *MockImageRepository) List(ctx context.Context, qcs []repository.QueryCondition) ([]model.Image, error) {
 	m.ctrl.T.Helper()
