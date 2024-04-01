@@ -2,6 +2,7 @@ package infra
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
+	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
 
 type Item struct {
@@ -23,7 +25,6 @@ type Item struct {
 }
 
 func TestBase(t *testing.T) {
-	t.Skip()
 	dialect := goqu.Dialect("mysql")
 	ctx := context.Background()
 	userID := uuid.NewString()
@@ -48,8 +49,28 @@ func TestBase(t *testing.T) {
 	// get
 	item, err := repo.Get(ctx, items[0].ID)
 	ValidateErr(t, err, nil)
-	if d := cmp.Diff(item, items[0], cmpopts.IgnoreFields(Item{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+	if d := cmp.Diff(*item, items[0], cmpopts.IgnoreFields(Item{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
 		t.Errorf("Get()differs: (-got +want)\n%s", d)
+	}
+
+	// list
+	err = repo.Create(ctx, items[1])
+	ValidateErr(t, err, nil)
+	qcs := []repository.QueryCondition{
+		{
+			Field: "Text",
+			Value: "baz",
+		},
+		{
+			Field: "Count",
+			Value: 2,
+		},
+	}
+	listItems, err := repo.List(ctx, qcs)
+	ValidateErr(t, err, nil)
+	fmt.Print("listItems:", listItems)
+	if d := cmp.Diff(listItems[0], items[1], cmpopts.IgnoreFields(Item{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+		t.Errorf("List()differs: (-got +want)\n%s", d)
 	}
 
 	// update
@@ -59,7 +80,7 @@ func TestBase(t *testing.T) {
 	ValidateErr(t, err, nil)
 	gotItem, err := repo.Get(ctx, updatedItem.ID)
 	ValidateErr(t, err, nil)
-	if d := cmp.Diff(gotItem, updatedItem, cmpopts.IgnoreFields(Item{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+	if d := cmp.Diff(*gotItem, updatedItem, cmpopts.IgnoreFields(Item{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
 		t.Errorf("Update() differs: (-got +want)\n%s", d)
 	}
 
