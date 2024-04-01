@@ -2,7 +2,6 @@ package infra
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -68,7 +67,6 @@ func TestBase(t *testing.T) {
 	}
 	listItems, err := repo.List(ctx, qcs)
 	ValidateErr(t, err, nil)
-	fmt.Print("listItems:", listItems)
 	if d := cmp.Diff(listItems[0], items[1], cmpopts.IgnoreFields(Item{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
 		t.Errorf("List()differs: (-got +want)\n%s", d)
 	}

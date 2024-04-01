@@ -98,7 +98,7 @@ func (b *base[T]) Get(ctx context.Context, id string) (*T, error) {
 		return nil, err
 	}
 	row := b.db.QueryRowContext(ctx, query)
-	if err := b.structScanRow(&entity, row); err != nil {
+	if err = b.structScanRow(&entity, row); err != nil {
 		return nil, err
 	}
 	return &entity, nil
