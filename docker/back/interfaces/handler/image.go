@@ -48,7 +48,7 @@ func (ih *imageHandler) HandleImageGet(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	spotID := r.URL.Query().Get("spot_id")
 
-	imgs, err := ih.iuc.GetSpotImgURLBySpotID(ctx, spotID)
+	imgs, err := ih.iuc.ListSpotImgURLs(ctx, spotID)
 	if err != nil {
 		http.Error(w, "Failed to get images by spot id", http.StatusInternalServerError)
 	}
@@ -63,7 +63,7 @@ func (ih *imageHandler) HandleImageGet(w http.ResponseWriter, r *http.Request) {
 
 func (ih *imageHandler) HandleImageCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := ih.auc.FetchUserFromContext(ctx)
+	user, err := ih.auc.GetUserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "Failed to get UserInfo from context", http.StatusInternalServerError)
 		return
@@ -76,7 +76,7 @@ func (ih *imageHandler) HandleImageCreate(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 
-	if err = ih.iuc.ImageCreate(ctx, requestBody.SpotID, requestBody.URL, *user); err != nil {
+	if err = ih.iuc.CreateImage(ctx, requestBody.SpotID, requestBody.URL, *user); err != nil {
 		http.Error(w, "Internal server error while creating image", http.StatusInternalServerError)
 		return
 	}
@@ -98,7 +98,7 @@ func isValidateImageCreateRequest(body io.ReadCloser, requestBody *ImageCreateRe
 
 func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := ih.auc.FetchUserFromContext(ctx)
+	user, err := ih.auc.GetUserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "Failed to get UserInfo from context", http.StatusInternalServerError)
 		return
@@ -110,7 +110,7 @@ func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err = ih.iuc.ImageDelete(ctx, id, userID, *user); err != nil {
+	if err = ih.iuc.DeleteImage(ctx, id, userID, *user); err != nil {
 		http.Error(w, "Internal server error while deleting image", http.StatusInternalServerError)
 		return
 	}

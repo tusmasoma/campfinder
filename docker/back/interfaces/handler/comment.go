@@ -54,7 +54,7 @@ func (ch *commentHandler) HandleCommentGet(w http.ResponseWriter, r *http.Reques
 	ctx := r.Context()
 	spotID := r.URL.Query().Get("spot_id")
 
-	comments, err := ch.cuc.GetCommentBySpotID(ctx, spotID)
+	comments, err := ch.cuc.ListComments(ctx, spotID)
 	if err != nil {
 		http.Error(w, "Failed to get comments by spot id", http.StatusInternalServerError)
 	}
@@ -69,7 +69,7 @@ func (ch *commentHandler) HandleCommentGet(w http.ResponseWriter, r *http.Reques
 
 func (ch *commentHandler) HandleCommentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := ch.auc.FetchUserFromContext(ctx)
+	user, err := ch.auc.GetUserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "Failed to get UserInfo from context", http.StatusInternalServerError)
 		return
@@ -82,7 +82,7 @@ func (ch *commentHandler) HandleCommentCreate(w http.ResponseWriter, r *http.Req
 	}
 	defer r.Body.Close()
 
-	if err = ch.cuc.CommentCreate(ctx, requestBody.SpotID, requestBody.StarRate, requestBody.Text, *user); err != nil {
+	if err = ch.cuc.CreateComment(ctx, requestBody.SpotID, requestBody.StarRate, requestBody.Text, *user); err != nil {
 		http.Error(w, "Internal server error while creating comment", http.StatusInternalServerError)
 		return
 	}
@@ -104,7 +104,7 @@ func isValidateCommentCreateRequest(body io.ReadCloser, requestBody *CommentCrea
 
 func (ch *commentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := ch.auc.FetchUserFromContext(ctx)
+	user, err := ch.auc.GetUserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "Failed to get UserInfo from context", http.StatusInternalServerError)
 		return
@@ -117,7 +117,7 @@ func (ch *commentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Req
 	}
 	defer r.Body.Close()
 
-	if err = ch.cuc.CommentUpdate(
+	if err = ch.cuc.UpdateComment(
 		ctx,
 		requestBody.ID,
 		requestBody.SpotID,
@@ -151,7 +151,7 @@ func isValidateCommentUpdateRequest(body io.ReadCloser, requestBody *CommentUpda
 
 func (ch *commentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := ch.auc.FetchUserFromContext(ctx)
+	user, err := ch.auc.GetUserFromContext(ctx)
 	if err != nil {
 		http.Error(w, "Failed to get UserInfo from context", http.StatusInternalServerError)
 		return
@@ -163,7 +163,7 @@ func (ch *commentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err = ch.cuc.CommentDelete(ctx, id, userID, *user); err != nil {
+	if err = ch.cuc.DeleteComment(ctx, id, userID, *user); err != nil {
 		http.Error(w, "Internal server error while deleting comment", http.StatusInternalServerError)
 		return
 	}

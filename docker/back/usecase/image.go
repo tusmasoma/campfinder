@@ -13,9 +13,9 @@ import (
 )
 
 type ImageUseCase interface {
-	GetSpotImgURLBySpotID(ctx context.Context, spotID string) ([]model.Image, error)
-	ImageCreate(ctx context.Context, spotID uuid.UUID, url string, user model.User) error
-	ImageDelete(ctx context.Context, id string, userID string, user model.User) error
+	ListSpotImgURLs(ctx context.Context, spotID string) ([]model.Image, error)
+	CreateImage(ctx context.Context, spotID uuid.UUID, url string, user model.User) error
+	DeleteImage(ctx context.Context, id string, userID string, user model.User) error
 }
 
 type imageUseCase struct {
@@ -28,11 +28,11 @@ func NewImageUseCase(ir repository.ImageRepository) ImageUseCase {
 	}
 }
 
-func (ih *imageUseCase) GetSpotImgURLBySpotID(ctx context.Context, spotID string) ([]model.Image, error) {
+func (ih *imageUseCase) ListSpotImgURLs(ctx context.Context, spotID string) ([]model.Image, error) {
 	return ih.ir.List(ctx, []repository.QueryCondition{{Field: "SpotID", Value: spotID}})
 }
 
-func (ih *imageUseCase) ImageCreate(ctx context.Context, spotID uuid.UUID, url string, user model.User) error {
+func (ih *imageUseCase) CreateImage(ctx context.Context, spotID uuid.UUID, url string, user model.User) error {
 	img := model.Image{
 		SpotID: spotID,
 		UserID: user.ID,
@@ -45,7 +45,7 @@ func (ih *imageUseCase) ImageCreate(ctx context.Context, spotID uuid.UUID, url s
 	return nil
 }
 
-func (ih *imageUseCase) ImageDelete(ctx context.Context, id string, userID string, user model.User) error {
+func (ih *imageUseCase) DeleteImage(ctx context.Context, id string, userID string, user model.User) error {
 	if !user.IsAdmin && user.ID.String() != userID {
 		log.Print("Don't have permission to delete images")
 		return fmt.Errorf("don't have permission to delete images")

@@ -89,7 +89,7 @@ func TestAuthUseCase_FetchUserFromContext(t *testing.T) {
 		}
 
 		usecase := NewAuthUseCase(mockUserRepo)
-		user, err := usecase.FetchUserFromContext(tt.in())
+		user, err := usecase.GetUserFromContext(tt.in())
 
 		if (err != nil) != (tt.want.err != nil) {
 			t.Errorf("FetchUserFromContext() error = %v, wantErr %v", err, tt.want.err)

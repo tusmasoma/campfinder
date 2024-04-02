@@ -12,7 +12,7 @@ import (
 )
 
 type AuthUseCase interface {
-	FetchUserFromContext(ctx context.Context) (*model.User, error)
+	GetUserFromContext(ctx context.Context) (*model.User, error)
 }
 
 type authUseCase struct {
@@ -25,7 +25,7 @@ func NewAuthUseCase(ur repository.UserRepository) AuthUseCase {
 	}
 }
 
-func (auc *authUseCase) FetchUserFromContext(ctx context.Context) (*model.User, error) {
+func (auc *authUseCase) GetUserFromContext(ctx context.Context) (*model.User, error) {
 	userIDValue := ctx.Value(config.ContextUserIDKey)
 	userID, ok := userIDValue.(string)
 	if !ok {

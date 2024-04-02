@@ -12,7 +12,7 @@ import (
 )
 
 type SpotUseCase interface {
-	SpotCreate(
+	CreateSpot(
 		ctx context.Context,
 		category string,
 		name string,
@@ -25,7 +25,7 @@ type SpotUseCase interface {
 		description string,
 		iconPath string,
 	) error
-	SpotGet(ctx context.Context, categories []string, spotID string) []model.Spot
+	ListSpots(ctx context.Context, categories []string, spotID string) []model.Spot
 }
 
 type spotUseCase struct {
@@ -38,7 +38,7 @@ func NewSpotUseCase(sr repository.SpotRepository) SpotUseCase {
 	}
 }
 
-func (suc *spotUseCase) SpotCreate(
+func (suc *spotUseCase) CreateSpot(
 	ctx context.Context,
 	category string,
 	name string,
@@ -81,7 +81,7 @@ func (suc *spotUseCase) SpotCreate(
 	return nil
 }
 
-func (suc *spotUseCase) SpotGet(ctx context.Context, categories []string, spotID string) []model.Spot {
+func (suc *spotUseCase) ListSpots(ctx context.Context, categories []string, spotID string) []model.Spot {
 	var allSpots []model.Spot
 
 	for _, category := range categories {

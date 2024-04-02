@@ -96,7 +96,7 @@ func TestCommentUseCase_GetCommentBySpotID(t *testing.T) {
 
 			usecase := NewCommentUseCase(repo)
 
-			_, err := usecase.GetCommentBySpotID(tt.arg.ctx, tt.arg.spotID)
+			_, err := usecase.ListComments(tt.arg.ctx, tt.arg.spotID)
 
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("GetCommentBySpotID() error = %v, wantErr %v", err, tt.wantErr)
@@ -157,7 +157,7 @@ func TestCommentUseCase_CommentCreate(t *testing.T) {
 
 			usecase := NewCommentUseCase(repo)
 
-			err := usecase.CommentCreate(tt.arg.ctx, tt.arg.spotID, tt.arg.starRate, tt.arg.text, tt.arg.user)
+			err := usecase.CreateComment(tt.arg.ctx, tt.arg.spotID, tt.arg.starRate, tt.arg.text, tt.arg.user)
 
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("CommentCreate() error = %v, wantErr %v", err, tt.wantErr)
@@ -269,7 +269,7 @@ func TestCommentUseCase_CommentUpdate(t *testing.T) {
 
 			usecase := NewCommentUseCase(repo)
 
-			err := usecase.CommentUpdate(
+			err := usecase.UpdateComment(
 				tt.arg.ctx,
 				tt.arg.id,
 				tt.arg.spotID,
@@ -372,7 +372,7 @@ func TestCommentUseCase_CommentDelete(t *testing.T) {
 
 			usecase := NewCommentUseCase(repo)
 
-			err := usecase.CommentDelete(
+			err := usecase.DeleteComment(
 				tt.arg.ctx,
 				tt.arg.id,
 				tt.arg.userID,

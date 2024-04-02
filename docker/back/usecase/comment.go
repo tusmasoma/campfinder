@@ -13,9 +13,9 @@ import (
 )
 
 type CommentUseCase interface {
-	GetCommentBySpotID(ctx context.Context, spotID string) ([]model.Comment, error)
-	CommentCreate(ctx context.Context, spotID uuid.UUID, starRate float64, text string, user model.User) error
-	CommentUpdate(
+	ListComments(ctx context.Context, spotID string) ([]model.Comment, error)
+	CreateComment(ctx context.Context, spotID uuid.UUID, starRate float64, text string, user model.User) error
+	UpdateComment(
 		ctx context.Context,
 		id uuid.UUID,
 		spotID uuid.UUID,
@@ -24,7 +24,7 @@ type CommentUseCase interface {
 		text string,
 		user model.User,
 	) error
-	CommentDelete(ctx context.Context, id string, userID string, user model.User) error
+	DeleteComment(ctx context.Context, id string, userID string, user model.User) error
 }
 
 type commentUseCase struct {
@@ -37,11 +37,11 @@ func NewCommentUseCase(cr repository.CommentRepository) CommentUseCase {
 	}
 }
 
-func (cuc *commentUseCase) GetCommentBySpotID(ctx context.Context, spotID string) ([]model.Comment, error) {
+func (cuc *commentUseCase) ListComments(ctx context.Context, spotID string) ([]model.Comment, error) {
 	return cuc.cr.List(ctx, []repository.QueryCondition{{Field: "SpotID", Value: spotID}})
 }
 
-func (cuc *commentUseCase) CommentCreate(
+func (cuc *commentUseCase) CreateComment(
 	ctx context.Context,
 	spotID uuid.UUID,
 	starRate float64,
@@ -62,7 +62,7 @@ func (cuc *commentUseCase) CommentCreate(
 	return nil
 }
 
-func (cuc *commentUseCase) CommentUpdate(
+func (cuc *commentUseCase) UpdateComment(
 	ctx context.Context,
 	id uuid.UUID,
 	spotID uuid.UUID,
@@ -90,7 +90,7 @@ func (cuc *commentUseCase) CommentUpdate(
 	return nil
 }
 
-func (cuc *commentUseCase) CommentDelete(ctx context.Context, id string, userID string, user model.User) error {
+func (cuc *commentUseCase) DeleteComment(ctx context.Context, id string, userID string, user model.User) error {
 	if !user.IsAdmin && user.ID.String() != userID {
 		log.Print("Don't have permission to delete comment")
 		return fmt.Errorf("don't have permission to delete comment")

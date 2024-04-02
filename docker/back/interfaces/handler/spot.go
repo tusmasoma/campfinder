@@ -52,7 +52,7 @@ func (sh *spotHandler) HandleSpotCreate(w http.ResponseWriter, r *http.Request) 
 	}
 	defer r.Body.Close()
 
-	err := sh.suc.SpotCreate(
+	err := sh.suc.CreateSpot(
 		ctx,
 		requestBody.Category,
 		requestBody.Name,
@@ -95,7 +95,7 @@ func (sh *spotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
 	categories := r.URL.Query()["category"]
 	spotID := r.URL.Query().Get("spot_id")
 
-	allSpots := sh.suc.SpotGet(ctx, categories, spotID)
+	allSpots := sh.suc.ListSpots(ctx, categories, spotID)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(SpotGetResponse{Spots: allSpots}); err != nil {

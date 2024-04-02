@@ -36,30 +36,30 @@ func (m *MockSpotUseCase) EXPECT() *MockSpotUseCaseMockRecorder {
 	return m.recorder
 }
 
-// SpotCreate mocks base method.
-func (m *MockSpotUseCase) SpotCreate(ctx context.Context, category, name, address string, lat, lng float64, period, phone, price, description, iconPath string) error {
+// CreateSpot mocks base method.
+func (m *MockSpotUseCase) CreateSpot(ctx context.Context, category, name, address string, lat, lng float64, period, phone, price, description, iconPath string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SpotCreate", ctx, category, name, address, lat, lng, period, phone, price, description, iconPath)
+	ret := m.ctrl.Call(m, "CreateSpot", ctx, category, name, address, lat, lng, period, phone, price, description, iconPath)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SpotCreate indicates an expected call of SpotCreate.
-func (mr *MockSpotUseCaseMockRecorder) SpotCreate(ctx, category, name, address, lat, lng, period, phone, price, description, iconPath interface{}) *gomock.Call {
+// CreateSpot indicates an expected call of CreateSpot.
+func (mr *MockSpotUseCaseMockRecorder) CreateSpot(ctx, category, name, address, lat, lng, period, phone, price, description, iconPath interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpotCreate", reflect.TypeOf((*MockSpotUseCase)(nil).SpotCreate), ctx, category, name, address, lat, lng, period, phone, price, description, iconPath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSpot", reflect.TypeOf((*MockSpotUseCase)(nil).CreateSpot), ctx, category, name, address, lat, lng, period, phone, price, description, iconPath)
 }
 
-// SpotGet mocks base method.
-func (m *MockSpotUseCase) SpotGet(ctx context.Context, categories []string, spotID string) []model.Spot {
+// ListSpots mocks base method.
+func (m *MockSpotUseCase) ListSpots(ctx context.Context, categories []string, spotID string) []model.Spot {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SpotGet", ctx, categories, spotID)
+	ret := m.ctrl.Call(m, "ListSpots", ctx, categories, spotID)
 	ret0, _ := ret[0].([]model.Spot)
 	return ret0
 }
 
-// SpotGet indicates an expected call of SpotGet.
-func (mr *MockSpotUseCaseMockRecorder) SpotGet(ctx, categories, spotID interface{}) *gomock.Call {
+// ListSpots indicates an expected call of ListSpots.
+func (mr *MockSpotUseCaseMockRecorder) ListSpots(ctx, categories, spotID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpotGet", reflect.TypeOf((*MockSpotUseCase)(nil).SpotGet), ctx, categories, spotID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSpots", reflect.TypeOf((*MockSpotUseCase)(nil).ListSpots), ctx, categories, spotID)
 }

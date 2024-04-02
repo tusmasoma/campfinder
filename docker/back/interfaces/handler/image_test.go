@@ -32,7 +32,7 @@ func TestImageHandler_HandleImageGet(t *testing.T) {
 			setup: func(m *mock.MockImageUseCase, m1 *mock.MockAuthUseCase) {
 				const layout = "2006-01-02T15:04:05Z"
 				created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
-				m.EXPECT().GetSpotImgURLBySpotID(
+				m.EXPECT().ListSpotImgURLs(
 					gomock.Any(),
 					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
 				).Return(
@@ -101,8 +101,8 @@ func TestImageHandler_HandleImageCreate(t *testing.T) {
 					IsAdmin:  false,
 				}
 
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
-				m.EXPECT().ImageCreate(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().CreateImage(
 					gomock.Any(),
 					uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					"https://hoge.com/hoge",
@@ -132,7 +132,7 @@ func TestImageHandler_HandleImageCreate(t *testing.T) {
 					IsAdmin:  false,
 				}
 
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
 				imgCreateReq := ImageCreateRequest{
@@ -192,8 +192,8 @@ func TestImageHandler_HandleImageDelete(t *testing.T) {
 					IsAdmin:  false,
 				}
 
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
-				m.EXPECT().ImageDelete(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().DeleteImage(
 					gomock.Any(),
 					"31894386-3e60-45a8-bc67-f46b72b42554",
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
@@ -221,8 +221,8 @@ func TestImageHandler_HandleImageDelete(t *testing.T) {
 					IsAdmin:  true,
 				}
 
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&superUser, nil)
-				m.EXPECT().ImageDelete(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&superUser, nil)
+				m.EXPECT().DeleteImage(
 					gomock.Any(),
 					"31894386-3e60-45a8-bc67-f46b72b42554",
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
@@ -250,7 +250,7 @@ func TestImageHandler_HandleImageDelete(t *testing.T) {
 					IsAdmin:  false,
 				}
 
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
 				req, _ := http.NewRequest(
@@ -273,8 +273,8 @@ func TestImageHandler_HandleImageDelete(t *testing.T) {
 					IsAdmin:  false,
 				}
 
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&userWithoutAuth, nil)
-				m.EXPECT().ImageDelete(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&userWithoutAuth, nil)
+				m.EXPECT().DeleteImage(
 					gomock.Any(),
 					"31894386-3e60-45a8-bc67-f46b72b42554",
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",

@@ -32,7 +32,7 @@ func TestCommentHandler_HandleCommentGet(t *testing.T) {
 			setup: func(m *mock.MockCommentUseCase, m1 *mock.MockAuthUseCase) {
 				const layout = "2006-01-02T15:04:05Z"
 				created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
-				m.EXPECT().GetCommentBySpotID(
+				m.EXPECT().ListComments(
 					gomock.Any(),
 					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
 				).Return(
@@ -100,8 +100,8 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  false,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
-				m.EXPECT().CommentCreate(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().CreateComment(
 					gomock.Any(),
 					uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					3.0,
@@ -132,7 +132,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  false,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
 				commentCreateReq := CommentCreateRequest{
@@ -192,8 +192,8 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  false,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
-				m.EXPECT().CommentUpdate(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().UpdateComment(
 					gomock.Any(),
 					uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
 					uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
@@ -228,8 +228,8 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  true,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&superUser, nil)
-				m.EXPECT().CommentUpdate(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&superUser, nil)
+				m.EXPECT().UpdateComment(
 					gomock.Any(),
 					uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
 					uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
@@ -264,7 +264,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  false,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
 				commentUpdateReq := CommentUpdateRequest{
@@ -290,8 +290,8 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  true,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
-				m.EXPECT().CommentUpdate(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().UpdateComment(
 					gomock.Any(),
 					uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
 					uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
@@ -364,8 +364,8 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  false,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
-				m.EXPECT().CommentDelete(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().DeleteComment(
 					gomock.Any(),
 					"31894386-3e60-45a8-bc67-f46b72b42554",
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
@@ -392,8 +392,8 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  true,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&superUser, nil)
-				m.EXPECT().CommentDelete(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&superUser, nil)
+				m.EXPECT().DeleteComment(
 					gomock.Any(),
 					"31894386-3e60-45a8-bc67-f46b72b42554",
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
@@ -420,7 +420,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  false,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
 				req, _ := http.NewRequest(
@@ -442,8 +442,8 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 					Password: "password123",
 					IsAdmin:  false,
 				}
-				m1.EXPECT().FetchUserFromContext(gomock.Any()).Return(&user, nil)
-				m.EXPECT().CommentDelete(
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().DeleteComment(
 					gomock.Any(),
 					"31894386-3e60-45a8-bc67-f46b72b42554",
 					"f6db2530-cd9b-4ac1-8dc1-38c795e61234",

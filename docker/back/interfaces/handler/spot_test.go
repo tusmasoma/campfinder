@@ -29,7 +29,7 @@ func TestSpotHandler_HandleSpotCreate(t *testing.T) {
 			setup: func(
 				m *mock.MockSpotUseCase,
 			) {
-				m.EXPECT().SpotCreate(
+				m.EXPECT().CreateSpot(
 					gomock.Any(),
 					"campsite",
 					"旭川市21世紀の森ふれあい広場",
@@ -118,7 +118,7 @@ func TestSpotHandler_HandleSpotGet(t *testing.T) {
 			setup: func(
 				m *mock.MockSpotUseCase,
 			) {
-				m.EXPECT().SpotGet(gomock.Any(), []string{"campsite"}, "0c0000e0-c00f-0dac-00ef-d00ab0ea0fed").Return(
+				m.EXPECT().ListSpots(gomock.Any(), []string{"campsite"}, "0c0000e0-c00f-0dac-00ef-d00ab0ea0fed").Return(
 					[]model.Spot{
 						{
 							ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
@@ -177,7 +177,7 @@ func TestSpotHandler_HandleSpotGet(t *testing.T) {
 			setup: func(
 				m *mock.MockSpotUseCase,
 			) {
-				m.EXPECT().SpotGet(gomock.Any(), []string{"campsite", "spa"}, "").Return(
+				m.EXPECT().ListSpots(gomock.Any(), []string{"campsite", "spa"}, "").Return(
 					[]model.Spot{
 						{
 							ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
@@ -237,7 +237,7 @@ func TestSpotHandler_HandleSpotGet(t *testing.T) {
 			setup: func(
 				m *mock.MockSpotUseCase,
 			) {
-				m.EXPECT().SpotGet(gomock.Any(), nil, "0c0000e0-c00f-0dac-00ef-d00ab0ea0fed").Return(
+				m.EXPECT().ListSpots(gomock.Any(), nil, "0c0000e0-c00f-0dac-00ef-d00ab0ea0fed").Return(
 					[]model.Spot{
 						{
 							ID:          uuid.MustParse("0c0000e0-c00f-0dac-00ef-d00ab0ea0fed"),
