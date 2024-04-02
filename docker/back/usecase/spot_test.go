@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
+	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository/mock"
 )
 
@@ -46,7 +47,13 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 		{
 			name: "sccess",
 			setup: func(m *mock.MockSpotRepository) {
-				m.EXPECT().CheckIfSpotExists(gomock.Any(), 43.7172721, 142.6674615).Return(false, nil)
+				m.EXPECT().List(
+					gomock.Any(),
+					[]repository.QueryCondition{
+						{Field: "Lat", Value: 43.7172721},
+						{Field: "Lng", Value: 142.6674615},
+					},
+				).Return([]model.Spot{}, nil)
 				m.EXPECT().Create(
 					gomock.Any(),
 					model.Spot{
@@ -81,7 +88,26 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 		{
 			name: "fail: already exists",
 			setup: func(m *mock.MockSpotRepository) {
-				m.EXPECT().CheckIfSpotExists(gomock.Any(), 43.7172721, 142.6674615).Return(true, nil)
+				m.EXPECT().List(
+					gomock.Any(),
+					[]repository.QueryCondition{
+						{Field: "Lat", Value: 43.7172721},
+						{Field: "Lng", Value: 142.6674615},
+					},
+				).Return([]model.Spot{
+					{
+						Category:    "campsite",
+						Name:        "旭川市21世紀の森ふれあい広場",
+						Address:     "北海道旭川市東旭川町瑞穂4288",
+						Lat:         43.7172721,
+						Lng:         142.6674615,
+						Period:      "2022年5月1日(日)〜11月30日(水)",
+						Phone:       "0166-76-2108",
+						Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
+						Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
+						IconPath:    "/static/img/campsiteflag.jpeg",
+					},
+				}, nil)
 			},
 			arg: SpotCreateArg{
 				ctx:         context.Background(), // コンテキストを適切に設定
@@ -96,7 +122,7 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 				description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
 				iconPath:    "/static/img/campsiteflag.jpeg",
 			},
-			wantErr: fmt.Errorf("user with this name already exists"),
+			wantErr: fmt.Errorf("already exists"),
 		},
 	}
 
@@ -149,54 +175,47 @@ func TestSpotUseCase_SpotGet(t *testing.T) {
 		{
 			name: "success",
 			setup: func(m *mock.MockSpotRepository) {
-				m.EXPECT().GetSpotByCategory(
+				m.EXPECT().List(
 					gomock.Any(),
-					gomock.Any(),
-				).DoAndReturn(
-					// 無名関数の引数と戻り値はモックメソッドに揃える
-					func(_ context.Context, category string, _ ...interface{}) ([]model.Spot, error) {
-						switch category {
-						case "campsite":
-							return []model.Spot{
-								{
-									ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
-									Category:    "campsite",
-									Name:        "旭川市21世紀の森ふれあい広場",
-									Address:     "北海道旭川市東旭川町瑞穂4288",
-									Lat:         43.7172721,
-									Lng:         142.6674615,
-									Period:      "2022年5月1日(日)〜11月30日(水)",
-									Phone:       "0166-76-2108",
-									Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
-									Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
-									IconPath:    "/static/img/campsiteflag.jpeg",
-								},
-							}, nil
-						case "spa":
-							return []model.Spot{
-								{
-									ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab8ea5fdf"),
-									Category:    "spa",
-									Name:        "奥の湯",
-									Address:     "北海道川上郡弟子屈町字屈斜路",
-									Lat:         43.566446,
-									Lng:         144.3091296,
-									Period:      "24時間",
-									Phone:       "-",
-									Price:       "無料",
-									Description: "奥の湯は、札幌市北34条駅から徒歩0分という便利なロケーションにある銭湯です。",
-									IconPath:    "/static/img/spaflag.jpeg",
-								},
-							}, nil
-						}
-						return nil, nil
+					[]repository.QueryCondition{{Field: "Category", Value: "campsite"}},
+				).Return([]model.Spot{
+					{
+						ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
+						Category:    "campsite",
+						Name:        "旭川市21世紀の森ふれあい広場",
+						Address:     "北海道旭川市東旭川町瑞穂4288",
+						Lat:         43.7172721,
+						Lng:         142.6674615,
+						Period:      "2022年5月1日(日)〜11月30日(水)",
+						Phone:       "0166-76-2108",
+						Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
+						Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
+						IconPath:    "/static/img/campsiteflag.jpeg",
 					},
-				).AnyTimes()
-				m.EXPECT().GetSpotByID(
+				}, nil)
+				m.EXPECT().List(
+					gomock.Any(),
+					[]repository.QueryCondition{{Field: "Category", Value: "spa"}},
+				).Return([]model.Spot{
+					{
+						ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab8ea5fdf"),
+						Category:    "spa",
+						Name:        "奥の湯",
+						Address:     "北海道川上郡弟子屈町字屈斜路",
+						Lat:         43.566446,
+						Lng:         144.3091296,
+						Period:      "24時間",
+						Phone:       "-",
+						Price:       "無料",
+						Description: "奥の湯は、札幌市北34条駅から徒歩0分という便利なロケーションにある銭湯です。",
+						IconPath:    "/static/img/spaflag.jpeg",
+					},
+				}, nil)
+				m.EXPECT().Get(
 					gomock.Any(),
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8def",
 				).Return(
-					model.Spot{
+					&model.Spot{
 						ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8def"),
 						Category:    "campsite",
 						Name:        "とままえ夕陽ヶ丘未来港公園",

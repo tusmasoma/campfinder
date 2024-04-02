@@ -139,3 +139,15 @@ func (b *base[T]) Delete(ctx context.Context, id string) error {
 	_, err = b.db.ExecContext(ctx, query)
 	return err
 }
+
+func (b *base[T]) CreateOrUpdate(ctx context.Context, id string, qcs []repository.QueryCondition, entity T) error {
+	// TODO: アンチパターン(CreateOrUpdateは現状使わないこと)
+	entitys, err := b.List(ctx, qcs)
+	if err != nil {
+		return err
+	}
+	if len(entitys) > 0 {
+		return b.Update(ctx, id, entity)
+	}
+	return b.Create(ctx, entity)
+}

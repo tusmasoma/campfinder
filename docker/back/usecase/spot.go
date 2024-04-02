@@ -51,14 +51,14 @@ func (suc *spotUseCase) SpotCreate(
 	description string,
 	iconPath string,
 ) error {
-	exists, err := suc.sr.CheckIfSpotExists(ctx, lat, lng)
+	spots, err := suc.sr.List(ctx, []repository.QueryCondition{{Field: "Lat", Value: lat}, {Field: "Lng", Value: lng}})
 	if err != nil {
 		log.Printf("Internal server error: %v", err)
 		return err
 	}
-	if exists {
-		log.Printf("User with this name already exists - status: %d", http.StatusConflict)
-		return fmt.Errorf("user with this name already exists")
+	if len(spots) > 0 {
+		log.Printf("Spot with this lat,lng already exists - status: %d", http.StatusConflict)
+		return fmt.Errorf("already exists")
 	}
 
 	spot := model.Spot{
@@ -85,7 +85,7 @@ func (suc *spotUseCase) SpotGet(ctx context.Context, categories []string, spotID
 	var allSpots []model.Spot
 
 	for _, category := range categories {
-		spots, err := suc.sr.GetSpotByCategory(ctx, category)
+		spots, err := suc.sr.List(ctx, []repository.QueryCondition{{Field: "Category", Value: category}})
 		if err != nil {
 			log.Printf("Failed to get spot of %v: %v", category, err)
 			continue
@@ -94,11 +94,11 @@ func (suc *spotUseCase) SpotGet(ctx context.Context, categories []string, spotID
 	}
 
 	if spotID != "" {
-		spot, err := suc.sr.GetSpotByID(ctx, spotID)
+		spot, err := suc.sr.Get(ctx, spotID)
 		if err != nil {
 			log.Printf("Failed to get spot of %v: %v", spotID, err)
 		}
-		allSpots = append(allSpots, spot)
+		allSpots = append(allSpots, *spot)
 	}
 
 	return allSpots

@@ -37,138 +37,88 @@ func (m *MockSpotRepository) EXPECT() *MockSpotRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CheckIfSpotExists mocks base method.
-func (m *MockSpotRepository) CheckIfSpotExists(ctx context.Context, lat, lng float64, opts ...repository.QueryOptions) (bool, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, lat, lng}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CheckIfSpotExists", varargs...)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckIfSpotExists indicates an expected call of CheckIfSpotExists.
-func (mr *MockSpotRepositoryMockRecorder) CheckIfSpotExists(ctx, lat, lng interface{}, opts ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, lat, lng}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckIfSpotExists", reflect.TypeOf((*MockSpotRepository)(nil).CheckIfSpotExists), varargs...)
-}
-
 // Create mocks base method.
-func (m *MockSpotRepository) Create(ctx context.Context, spot model.Spot, opts ...repository.QueryOptions) error {
+func (m *MockSpotRepository) Create(ctx context.Context, spot model.Spot) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spot}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Create", varargs...)
+	ret := m.ctrl.Call(m, "Create", ctx, spot)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockSpotRepositoryMockRecorder) Create(ctx, spot interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockSpotRepositoryMockRecorder) Create(ctx, spot interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spot}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockSpotRepository)(nil).Create), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockSpotRepository)(nil).Create), ctx, spot)
+}
+
+// CreateOrUpdate mocks base method.
+func (m *MockSpotRepository) CreateOrUpdate(ctx context.Context, id string, qcs []repository.QueryCondition, spot model.Spot) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateOrUpdate", ctx, id, qcs, spot)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateOrUpdate indicates an expected call of CreateOrUpdate.
+func (mr *MockSpotRepositoryMockRecorder) CreateOrUpdate(ctx, id, qcs, spot interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdate", reflect.TypeOf((*MockSpotRepository)(nil).CreateOrUpdate), ctx, id, qcs, spot)
 }
 
 // Delete mocks base method.
-func (m *MockSpotRepository) Delete(ctx context.Context, id string, opts ...repository.QueryOptions) error {
+func (m *MockSpotRepository) Delete(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, id}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Delete", varargs...)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockSpotRepositoryMockRecorder) Delete(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockSpotRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, id}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSpotRepository)(nil).Delete), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSpotRepository)(nil).Delete), ctx, id)
 }
 
-// GetSpotByCategory mocks base method.
-func (m *MockSpotRepository) GetSpotByCategory(ctx context.Context, category string, opts ...repository.QueryOptions) ([]model.Spot, error) {
+// Get mocks base method.
+func (m *MockSpotRepository) Get(ctx context.Context, id string) (*model.Spot, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, category}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetSpotByCategory", varargs...)
+	ret := m.ctrl.Call(m, "Get", ctx, id)
+	ret0, _ := ret[0].(*model.Spot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockSpotRepositoryMockRecorder) Get(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSpotRepository)(nil).Get), ctx, id)
+}
+
+// List mocks base method.
+func (m *MockSpotRepository) List(ctx context.Context, qcs []repository.QueryCondition) ([]model.Spot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", ctx, qcs)
 	ret0, _ := ret[0].([]model.Spot)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetSpotByCategory indicates an expected call of GetSpotByCategory.
-func (mr *MockSpotRepositoryMockRecorder) GetSpotByCategory(ctx, category interface{}, opts ...interface{}) *gomock.Call {
+// List indicates an expected call of List.
+func (mr *MockSpotRepositoryMockRecorder) List(ctx, qcs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, category}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotByCategory", reflect.TypeOf((*MockSpotRepository)(nil).GetSpotByCategory), varargs...)
-}
-
-// GetSpotByID mocks base method.
-func (m *MockSpotRepository) GetSpotByID(ctx context.Context, id string, opts ...repository.QueryOptions) (model.Spot, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, id}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetSpotByID", varargs...)
-	ret0, _ := ret[0].(model.Spot)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetSpotByID indicates an expected call of GetSpotByID.
-func (mr *MockSpotRepositoryMockRecorder) GetSpotByID(ctx, id interface{}, opts ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, id}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotByID", reflect.TypeOf((*MockSpotRepository)(nil).GetSpotByID), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockSpotRepository)(nil).List), ctx, qcs)
 }
 
 // Update mocks base method.
-func (m *MockSpotRepository) Update(ctx context.Context, spot model.Spot, opts ...repository.QueryOptions) error {
+func (m *MockSpotRepository) Update(ctx context.Context, id string, spot model.Spot) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spot}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Update", varargs...)
+	ret := m.ctrl.Call(m, "Update", ctx, id, spot)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockSpotRepositoryMockRecorder) Update(ctx, spot interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockSpotRepositoryMockRecorder) Update(ctx, id, spot interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spot}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockSpotRepository)(nil).Update), varargs...)
-}
-
-// UpdateOrCreate mocks base method.
-func (m *MockSpotRepository) UpdateOrCreate(ctx context.Context, spot model.Spot, opts ...repository.QueryOptions) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spot}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "UpdateOrCreate", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateOrCreate indicates an expected call of UpdateOrCreate.
-func (mr *MockSpotRepositoryMockRecorder) UpdateOrCreate(ctx, spot interface{}, opts ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spot}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrCreate", reflect.TypeOf((*MockSpotRepository)(nil).UpdateOrCreate), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockSpotRepository)(nil).Update), ctx, id, spot)
 }
