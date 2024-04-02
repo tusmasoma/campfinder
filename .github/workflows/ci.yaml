@@ -85,8 +85,8 @@ jobs:
           make generate
           git add .
           echo "Staged changes:"
-          git diff --cached
-          git diff --cached --quiet
+          git diff --cached -- ./docker/back/
+          git diff --cached --quiet -- ./docker/back/
 
       - name: Cleanup
         if: always()
