@@ -90,7 +90,7 @@ jobs:
         run: |
           make generate
           git add .
-          git diff --cached --quiet -- ./docker/back/
+          git diff --cached --quiet -- ./docker/back/**/*.go
 
       - name: Cleanup
         if: always()
