@@ -84,6 +84,8 @@ jobs:
         run: |
           make generate
           git add .
+          echo "Staged changes:"
+          git diff --cached
           git diff --cached --quiet
 
       - name: Cleanup
