@@ -83,6 +83,11 @@ func Start() (*sql.DB, func(), error) {
 				},
 				{
 					Type:   "bind",
+					Source: pwd + "/init/ddl.test.sql",
+					Target: "/docker-entrypoint-initdb.d/ddl.test.sql",
+				},
+				{
+					Type:   "bind",
 					Source: pwd + "/../../db/my.cnf",
 					Target: "/etc/mysql/my.cnf",
 				},

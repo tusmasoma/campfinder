@@ -38,7 +38,7 @@ func NewCommentUseCase(cr repository.CommentRepository) CommentUseCase {
 }
 
 func (cuc *commentUseCase) GetCommentBySpotID(ctx context.Context, spotID string) ([]model.Comment, error) {
-	return cuc.cr.GetCommentBySpotID(ctx, spotID)
+	return cuc.cr.List(ctx, []repository.QueryCondition{{Field: "SpotID", Value: spotID}})
 }
 
 func (cuc *commentUseCase) CommentCreate(
@@ -83,7 +83,7 @@ func (cuc *commentUseCase) CommentUpdate(
 		StarRate: starRate,
 		Text:     text,
 	}
-	if err := cuc.cr.Update(ctx, comment); err != nil {
+	if err := cuc.cr.Update(ctx, id.String(), comment); err != nil {
 		log.Printf("Failed to update comment: %v", err)
 		return err
 	}

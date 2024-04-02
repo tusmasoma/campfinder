@@ -3,6 +3,7 @@ package driver
 import (
 	"log"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 
@@ -14,6 +15,7 @@ import (
 )
 
 func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
+	dialect := goqu.Dialect("mysql")
 	db, err := config.NewDB()
 	if err != nil {
 		log.Printf("Database connection failed: %s\n", err)
@@ -21,10 +23,10 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 	}
 	client := config.NewClient()
 
-	userRepo := infra.NewUserRepository(db)
-	spotRepo := infra.NewSpotRepository(db)
-	commentRepo := infra.NewCommentRepository(db)
-	imgRepo := infra.NewImageRepository(db)
+	userRepo := infra.NewUserRepository(db, &dialect)
+	spotRepo := infra.NewSpotRepository(db, &dialect)
+	commentRepo := infra.NewCommentRepository(db, &dialect)
+	imgRepo := infra.NewImageRepository(db, &dialect)
 	redisRepo := infra.NewRedisRepository(client)
 
 	userUseCase := usecase.NewUserUseCase(userRepo, redisRepo)

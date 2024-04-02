@@ -38,98 +38,73 @@ func (m *MockCommentRepository) EXPECT() *MockCommentRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockCommentRepository) Create(ctx context.Context, comment model.Comment, opts ...repository.QueryOptions) error {
+func (m *MockCommentRepository) Create(ctx context.Context, comment model.Comment) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, comment}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Create", varargs...)
+	ret := m.ctrl.Call(m, "Create", ctx, comment)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockCommentRepositoryMockRecorder) Create(ctx, comment interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockCommentRepositoryMockRecorder) Create(ctx, comment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, comment}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockCommentRepository)(nil).Create), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockCommentRepository)(nil).Create), ctx, comment)
 }
 
 // Delete mocks base method.
-func (m *MockCommentRepository) Delete(ctx context.Context, id string, opts ...repository.QueryOptions) error {
+func (m *MockCommentRepository) Delete(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, id}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Delete", varargs...)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockCommentRepositoryMockRecorder) Delete(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockCommentRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, id}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCommentRepository)(nil).Delete), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCommentRepository)(nil).Delete), ctx, id)
 }
 
-// GetCommentByID mocks base method.
-func (m *MockCommentRepository) GetCommentByID(ctx context.Context, id string, opts ...repository.QueryOptions) (model.Comment, error) {
+// Get mocks base method.
+func (m *MockCommentRepository) Get(ctx context.Context, id string) (*model.Comment, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, id}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetCommentByID", varargs...)
-	ret0, _ := ret[0].(model.Comment)
+	ret := m.ctrl.Call(m, "Get", ctx, id)
+	ret0, _ := ret[0].(*model.Comment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetCommentByID indicates an expected call of GetCommentByID.
-func (mr *MockCommentRepositoryMockRecorder) GetCommentByID(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+// Get indicates an expected call of Get.
+func (mr *MockCommentRepositoryMockRecorder) Get(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, id}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentByID", reflect.TypeOf((*MockCommentRepository)(nil).GetCommentByID), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockCommentRepository)(nil).Get), ctx, id)
 }
 
-// GetCommentBySpotID mocks base method.
-func (m *MockCommentRepository) GetCommentBySpotID(ctx context.Context, spotID string, opts ...repository.QueryOptions) ([]model.Comment, error) {
+// List mocks base method.
+func (m *MockCommentRepository) List(ctx context.Context, qcs []repository.QueryCondition) ([]model.Comment, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spotID}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetCommentBySpotID", varargs...)
+	ret := m.ctrl.Call(m, "List", ctx, qcs)
 	ret0, _ := ret[0].([]model.Comment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetCommentBySpotID indicates an expected call of GetCommentBySpotID.
-func (mr *MockCommentRepositoryMockRecorder) GetCommentBySpotID(ctx, spotID interface{}, opts ...interface{}) *gomock.Call {
+// List indicates an expected call of List.
+func (mr *MockCommentRepositoryMockRecorder) List(ctx, qcs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spotID}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentBySpotID", reflect.TypeOf((*MockCommentRepository)(nil).GetCommentBySpotID), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockCommentRepository)(nil).List), ctx, qcs)
 }
 
 // Update mocks base method.
-func (m *MockCommentRepository) Update(ctx context.Context, comment model.Comment, opts ...repository.QueryOptions) error {
+func (m *MockCommentRepository) Update(ctx context.Context, id string, comment model.Comment) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, comment}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Update", varargs...)
+	ret := m.ctrl.Call(m, "Update", ctx, id, comment)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockCommentRepositoryMockRecorder) Update(ctx, comment interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockCommentRepositoryMockRecorder) Update(ctx, id, comment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, comment}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCommentRepository)(nil).Update), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCommentRepository)(nil).Update), ctx, id, comment)
 }

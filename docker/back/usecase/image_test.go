@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
+	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository/mock"
 )
 
@@ -45,9 +46,9 @@ func TestImageUseCase_GetSpotImgURLBySpotID(t *testing.T) {
 			setup: func(m *mock.MockImageRepository) {
 				const layout = "2006-01-02T15:04:05Z"
 				created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
-				m.EXPECT().GetSpotImgURLBySpotID(
+				m.EXPECT().List(
 					gomock.Any(),
-					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+					[]repository.QueryCondition{{Field: "SpotID", Value: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"}},
 				).Return(
 					[]model.Image{
 						{

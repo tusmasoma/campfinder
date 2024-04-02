@@ -38,59 +38,44 @@ func (m *MockImageRepository) EXPECT() *MockImageRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockImageRepository) Create(ctx context.Context, img model.Image, opts ...repository.QueryOptions) error {
+func (m *MockImageRepository) Create(ctx context.Context, img model.Image) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, img}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Create", varargs...)
+	ret := m.ctrl.Call(m, "Create", ctx, img)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockImageRepositoryMockRecorder) Create(ctx, img interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockImageRepositoryMockRecorder) Create(ctx, img interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, img}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockImageRepository)(nil).Create), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockImageRepository)(nil).Create), ctx, img)
 }
 
 // Delete mocks base method.
-func (m *MockImageRepository) Delete(ctx context.Context, id string, opts ...repository.QueryOptions) error {
+func (m *MockImageRepository) Delete(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, id}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Delete", varargs...)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockImageRepositoryMockRecorder) Delete(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockImageRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, id}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockImageRepository)(nil).Delete), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockImageRepository)(nil).Delete), ctx, id)
 }
 
-// GetSpotImgURLBySpotID mocks base method.
-func (m *MockImageRepository) GetSpotImgURLBySpotID(ctx context.Context, spotID string, opts ...repository.QueryOptions) ([]model.Image, error) {
+// List mocks base method.
+func (m *MockImageRepository) List(ctx context.Context, qcs []repository.QueryCondition) ([]model.Image, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, spotID}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetSpotImgURLBySpotID", varargs...)
+	ret := m.ctrl.Call(m, "List", ctx, qcs)
 	ret0, _ := ret[0].([]model.Image)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetSpotImgURLBySpotID indicates an expected call of GetSpotImgURLBySpotID.
-func (mr *MockImageRepositoryMockRecorder) GetSpotImgURLBySpotID(ctx, spotID interface{}, opts ...interface{}) *gomock.Call {
+// List indicates an expected call of List.
+func (mr *MockImageRepositoryMockRecorder) List(ctx, qcs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, spotID}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotImgURLBySpotID", reflect.TypeOf((*MockImageRepository)(nil).GetSpotImgURLBySpotID), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockImageRepository)(nil).List), ctx, qcs)
 }
