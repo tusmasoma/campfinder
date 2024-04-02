@@ -44,7 +44,7 @@ func TestSpotHandler_HandleSpotCreate(t *testing.T) {
 				).Return(nil)
 			},
 			in: func() *http.Request {
-				spotCreateReq := SpotCreateRequest{
+				spotCreateReq := CreateSpotRequest{
 					Category:    "campsite",
 					Name:        "旭川市21世紀の森ふれあい広場",
 					Address:     "北海道旭川市東旭川町瑞穂4288",
@@ -66,7 +66,7 @@ func TestSpotHandler_HandleSpotCreate(t *testing.T) {
 		{
 			name: "Fail: invalid request",
 			in: func() *http.Request {
-				spotCreateReq := SpotCreateRequest{
+				spotCreateReq := CreateSpotRequest{
 					Category: "campsite",
 					Name:     "旭川市21世紀の森ふれあい広場",
 					Address:  "北海道旭川市東旭川町瑞穂4288",
@@ -94,7 +94,7 @@ func TestSpotHandler_HandleSpotCreate(t *testing.T) {
 			handler := NewSpotHandler(repo)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleSpotCreate(recorder, tt.in())
+			handler.CreateSpot(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -280,7 +280,7 @@ func TestSpotHandler_HandleSpotGet(t *testing.T) {
 			handler := NewSpotHandler(repo)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleSpotGet(recorder, tt.in())
+			handler.ListSpots(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)

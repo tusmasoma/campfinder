@@ -12,9 +12,9 @@ import (
 )
 
 type UserHandler interface {
-	HandleUserCreate(w http.ResponseWriter, r *http.Request)
-	HandleUserLogin(w http.ResponseWriter, r *http.Request)
-	HandleUserLogout(w http.ResponseWriter, r *http.Request)
+	CreateUser(w http.ResponseWriter, r *http.Request)
+	Login(w http.ResponseWriter, r *http.Request)
+	Logout(w http.ResponseWriter, r *http.Request)
 }
 
 type userHandler struct {
@@ -29,21 +29,21 @@ func NewUserHandler(uur usecase.UserUseCase, auc usecase.AuthUseCase) UserHandle
 	}
 }
 
-type UserCreateRequest struct {
+type CreateUserRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type UserLoginRequest struct {
+type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func (uh *userHandler) HandleUserCreate(w http.ResponseWriter, r *http.Request) {
+func (uh *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var requestBody UserCreateRequest
-	if ok := isValidUserCreateRequest(r.Body, &requestBody); !ok {
+	var requestBody CreateUserRequest
+	if ok := isValidCreateUserRequest(r.Body, &requestBody); !ok {
 		http.Error(w, "Invalid user create request", http.StatusBadRequest)
 		return
 	}
@@ -59,7 +59,7 @@ func (uh *userHandler) HandleUserCreate(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidUserCreateRequest(body io.ReadCloser, requestBody *UserCreateRequest) bool {
+func isValidCreateUserRequest(body io.ReadCloser, requestBody *CreateUserRequest) bool {
 	// リクエストボディのJSONを構造体にデコード
 	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
 		log.Printf("Invalid request body: %v", err)
@@ -72,10 +72,10 @@ func isValidUserCreateRequest(body io.ReadCloser, requestBody *UserCreateRequest
 	return true
 }
 
-func (uh *userHandler) HandleUserLogin(w http.ResponseWriter, r *http.Request) {
+func (uh *userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var requestBody UserLoginRequest
-	if ok := isValidUserLoginRequest(r.Body, &requestBody); !ok {
+	var requestBody LoginRequest
+	if ok := isValidLoginRequest(r.Body, &requestBody); !ok {
 		http.Error(w, "Invalid user create request", http.StatusBadRequest)
 		return
 	}
@@ -91,7 +91,7 @@ func (uh *userHandler) HandleUserLogin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidUserLoginRequest(body io.ReadCloser, requestBody *UserLoginRequest) bool {
+func isValidLoginRequest(body io.ReadCloser, requestBody *LoginRequest) bool {
 	// リクエストボディのJSONを構造体にデコード
 	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
 		log.Printf("Invalid request body: %v", err)
@@ -104,7 +104,7 @@ func isValidUserLoginRequest(body io.ReadCloser, requestBody *UserLoginRequest) 
 	return true
 }
 
-func (uh *userHandler) HandleUserLogout(w http.ResponseWriter, r *http.Request) {
+func (uh *userHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := uh.auc.GetUserFromContext(ctx)
 	if err != nil {

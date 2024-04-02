@@ -70,7 +70,7 @@ func TestImageHandler_HandleImageGet(t *testing.T) {
 			handler := NewImageHandler(iuc, auc)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleImageGet(recorder, tt.in())
+			handler.ListImages(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -110,7 +110,7 @@ func TestImageHandler_HandleImageCreate(t *testing.T) {
 				).Return(nil)
 			},
 			in: func() *http.Request {
-				imgCreateReq := ImageCreateRequest{
+				imgCreateReq := CreateImageRequest{
 					SpotID: uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					URL:    "https://hoge.com/hoge",
 				}
@@ -135,7 +135,7 @@ func TestImageHandler_HandleImageCreate(t *testing.T) {
 				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
-				imgCreateReq := ImageCreateRequest{
+				imgCreateReq := CreateImageRequest{
 					SpotID: uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 				}
 				reqBody, _ := json.Marshal(imgCreateReq)
@@ -161,7 +161,7 @@ func TestImageHandler_HandleImageCreate(t *testing.T) {
 			handler := NewImageHandler(iuc, auc)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleImageCreate(recorder, tt.in())
+			handler.CreateImage(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -309,7 +309,7 @@ func TestImageHandler_HandleImageDelete(t *testing.T) {
 			handler := NewImageHandler(iuc, auc)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleImageDelete(recorder, tt.in())
+			handler.DeleteImage(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)

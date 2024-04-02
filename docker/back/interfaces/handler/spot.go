@@ -12,8 +12,8 @@ import (
 )
 
 type SpotHandler interface {
-	HandleSpotCreate(w http.ResponseWriter, r *http.Request)
-	HandleSpotGet(w http.ResponseWriter, r *http.Request)
+	CreateSpot(w http.ResponseWriter, r *http.Request)
+	ListSpots(w http.ResponseWriter, r *http.Request)
 }
 
 type spotHandler struct {
@@ -26,7 +26,7 @@ func NewSpotHandler(suc usecase.SpotUseCase) SpotHandler {
 	}
 }
 
-type SpotCreateRequest struct {
+type CreateSpotRequest struct {
 	Category    string  `json:"category"`
 	Name        string  `json:"name"`
 	Address     string  `json:"address"`
@@ -39,14 +39,14 @@ type SpotCreateRequest struct {
 	IconPath    string  `json:"iconpath"`
 }
 
-type SpotGetResponse struct {
+type ListSpotsResponse struct {
 	Spots []model.Spot `json:"spots"`
 }
 
-func (sh *spotHandler) HandleSpotCreate(w http.ResponseWriter, r *http.Request) {
+func (sh *spotHandler) CreateSpot(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var requestBody SpotCreateRequest
-	if ok := isValidateSpotCreateRequest(r.Body, &requestBody); !ok {
+	var requestBody CreateSpotRequest
+	if ok := isValidateCreateSpotRequest(r.Body, &requestBody); !ok {
 		http.Error(w, "Invalid user create request", http.StatusBadRequest)
 		return
 	}
@@ -73,7 +73,7 @@ func (sh *spotHandler) HandleSpotCreate(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidateSpotCreateRequest(body io.ReadCloser, requestBody *SpotCreateRequest) bool {
+func isValidateCreateSpotRequest(body io.ReadCloser, requestBody *CreateSpotRequest) bool {
 	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
 		log.Printf("Invalid request body: %v", err)
 		return false
@@ -89,7 +89,7 @@ func isValidateSpotCreateRequest(body io.ReadCloser, requestBody *SpotCreateRequ
 	return true
 }
 
-func (sh *spotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
+func (sh *spotHandler) ListSpots(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	categories := r.URL.Query()["category"]
@@ -98,7 +98,7 @@ func (sh *spotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
 	allSpots := sh.suc.ListSpots(ctx, categories, spotID)
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(SpotGetResponse{Spots: allSpots}); err != nil {
+	if err := json.NewEncoder(w).Encode(ListSpotsResponse{Spots: allSpots}); err != nil {
 		http.Error(w, "Failed to encode spots to JSON", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

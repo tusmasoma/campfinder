@@ -18,9 +18,9 @@ const (
 )
 
 type ImageHandler interface {
-	HandleImageGet(w http.ResponseWriter, r *http.Request)
-	HandleImageCreate(w http.ResponseWriter, r *http.Request)
-	HandleImageDelete(w http.ResponseWriter, r *http.Request)
+	ListImages(w http.ResponseWriter, r *http.Request)
+	CreateImage(w http.ResponseWriter, r *http.Request)
+	DeleteImage(w http.ResponseWriter, r *http.Request)
 }
 
 type imageHandler struct {
@@ -35,16 +35,16 @@ func NewImageHandler(iuc usecase.ImageUseCase, auc usecase.AuthUseCase) ImageHan
 	}
 }
 
-type ImageCreateRequest struct {
+type CreateImageRequest struct {
 	SpotID uuid.UUID `json:"spotID"`
 	URL    string    `json:"url"`
 }
 
-type ImageGetResponse struct {
+type ListImageResponse struct {
 	Images []model.Image `json:"images"`
 }
 
-func (ih *imageHandler) HandleImageGet(w http.ResponseWriter, r *http.Request) {
+func (ih *imageHandler) ListImages(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	spotID := r.URL.Query().Get("spot_id")
 
@@ -54,14 +54,14 @@ func (ih *imageHandler) HandleImageGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(ImageGetResponse{Images: imgs}); err != nil {
+	if err = json.NewEncoder(w).Encode(ListImageResponse{Images: imgs}); err != nil {
 		http.Error(w, "Failed to encode spots to JSON", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
-func (ih *imageHandler) HandleImageCreate(w http.ResponseWriter, r *http.Request) {
+func (ih *imageHandler) CreateImage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := ih.auc.GetUserFromContext(ctx)
 	if err != nil {
@@ -69,8 +69,8 @@ func (ih *imageHandler) HandleImageCreate(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var requestBody ImageCreateRequest
-	if ok := isValidateImageCreateRequest(r.Body, &requestBody); !ok {
+	var requestBody CreateImageRequest
+	if ok := isValidateCreateImageRequest(r.Body, &requestBody); !ok {
 		http.Error(w, "Invalid image create request", http.StatusBadRequest)
 		return
 	}
@@ -84,7 +84,7 @@ func (ih *imageHandler) HandleImageCreate(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidateImageCreateRequest(body io.ReadCloser, requestBody *ImageCreateRequest) bool {
+func isValidateCreateImageRequest(body io.ReadCloser, requestBody *CreateImageRequest) bool {
 	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
 		log.Printf("Invalid request body: %v", err)
 		return false
@@ -96,7 +96,7 @@ func isValidateImageCreateRequest(body io.ReadCloser, requestBody *ImageCreateRe
 	return true
 }
 
-func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request) {
+func (ih *imageHandler) DeleteImage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := ih.auc.GetUserFromContext(ctx)
 	if err != nil {
@@ -104,7 +104,7 @@ func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	ok, id, userID := isValidateImageDeleteRequest(r)
+	ok, id, userID := isValidateDeleteImageRequest(r)
 	if !ok {
 		http.Error(w, "Invalid image delete request", http.StatusBadRequest)
 		return
@@ -118,7 +118,7 @@ func (ih *imageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidateImageDeleteRequest(r *http.Request) (bool, string, string) {
+func isValidateDeleteImageRequest(r *http.Request) (bool, string, string) {
 	id := r.URL.Query().Get("id")
 	userID := r.URL.Query().Get("user_id")
 

@@ -34,26 +34,26 @@ func (m *MockSpotHandler) EXPECT() *MockSpotHandlerMockRecorder {
 	return m.recorder
 }
 
-// HandleSpotCreate mocks base method.
-func (m *MockSpotHandler) HandleSpotCreate(w http.ResponseWriter, r *http.Request) {
+// CreateSpot mocks base method.
+func (m *MockSpotHandler) CreateSpot(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleSpotCreate", w, r)
+	m.ctrl.Call(m, "CreateSpot", w, r)
 }
 
-// HandleSpotCreate indicates an expected call of HandleSpotCreate.
-func (mr *MockSpotHandlerMockRecorder) HandleSpotCreate(w, r interface{}) *gomock.Call {
+// CreateSpot indicates an expected call of CreateSpot.
+func (mr *MockSpotHandlerMockRecorder) CreateSpot(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSpotCreate", reflect.TypeOf((*MockSpotHandler)(nil).HandleSpotCreate), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSpot", reflect.TypeOf((*MockSpotHandler)(nil).CreateSpot), w, r)
 }
 
-// HandleSpotGet mocks base method.
-func (m *MockSpotHandler) HandleSpotGet(w http.ResponseWriter, r *http.Request) {
+// ListSpots mocks base method.
+func (m *MockSpotHandler) ListSpots(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleSpotGet", w, r)
+	m.ctrl.Call(m, "ListSpots", w, r)
 }
 
-// HandleSpotGet indicates an expected call of HandleSpotGet.
-func (mr *MockSpotHandlerMockRecorder) HandleSpotGet(w, r interface{}) *gomock.Call {
+// ListSpots indicates an expected call of ListSpots.
+func (mr *MockSpotHandlerMockRecorder) ListSpots(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSpotGet", reflect.TypeOf((*MockSpotHandler)(nil).HandleSpotGet), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSpots", reflect.TypeOf((*MockSpotHandler)(nil).ListSpots), w, r)
 }
