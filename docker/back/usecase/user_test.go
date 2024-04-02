@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
+	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository/mock"
 	"github.com/tusmasoma/campfinder/docker/back/internal/auth"
 )
@@ -33,10 +34,10 @@ func TestUserUseCase_CreateUserAndGenerateToken(t *testing.T) {
 			name: "success",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
 				t.Setenv("PRIVATE_KEY_PATH", "../../../.certificate/private_key.pem")
-				m.EXPECT().CheckIfUserExists(
+				m.EXPECT().List(
 					gomock.Any(),
-					"test@gmail.com",
-				).Return(false, nil)
+					[]repository.QueryCondition{{Field: "Email", Value: "test@gmail.com"}},
+				).Return([]model.User{}, nil)
 				m.EXPECT().Create(
 					gomock.Any(),
 					gomock.Any(),
@@ -53,10 +54,10 @@ func TestUserUseCase_CreateUserAndGenerateToken(t *testing.T) {
 		{
 			name: "Fail: Username already exists",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
-				m.EXPECT().CheckIfUserExists(
+				m.EXPECT().List(
 					gomock.Any(),
-					"test@gmail.com",
-				).Return(true, nil)
+					[]repository.QueryCondition{{Field: "Email", Value: "test@gmail.com"}},
+				).Return([]model.User{{Name: "test", Email: "test@gmail.com"}}, nil)
 			},
 			arg: CreateUserAndGenerateTokenArg{
 				ctx:      context.Background(),
@@ -108,16 +109,18 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
 				t.Setenv("PRIVATE_KEY_PATH", "../../../.certificate/private_key.pem")
 				passward, _ := auth.PasswordEncrypt("password123")
-				m.EXPECT().GetUserByEmail(
+				m.EXPECT().List(
 					gomock.Any(),
-					"test@gmail.com",
+					[]repository.QueryCondition{{Field: "Email", Value: "test@gmail.com"}},
 				).Return(
-					model.User{
-						ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-						Name:     "test",
-						Email:    "test@gmail.com",
-						Password: passward,
-						IsAdmin:  false,
+					[]model.User{
+						{
+							ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+							Name:     "test",
+							Email:    "test@gmail.com",
+							Password: passward,
+							IsAdmin:  false,
+						},
 					}, nil,
 				)
 				m1.EXPECT().Exists(
@@ -141,16 +144,18 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 			name: "Fail: already logged in",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
 				passward, _ := auth.PasswordEncrypt("password123")
-				m.EXPECT().GetUserByEmail(
+				m.EXPECT().List(
 					gomock.Any(),
-					"test@gmail.com",
+					[]repository.QueryCondition{{Field: "Email", Value: "test@gmail.com"}},
 				).Return(
-					model.User{
-						ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-						Name:     "test",
-						Email:    "test@gmail.com",
-						Password: passward,
-						IsAdmin:  false,
+					[]model.User{
+						{
+							ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+							Name:     "test",
+							Email:    "test@gmail.com",
+							Password: passward,
+							IsAdmin:  false,
+						},
 					}, nil,
 				)
 				m1.EXPECT().Exists(
@@ -169,16 +174,18 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 			name: "Fail: invalid passward",
 			setup: func(m *mock.MockUserRepository, m1 *mock.MockCacheRepository) {
 				passward, _ := auth.PasswordEncrypt("password456")
-				m.EXPECT().GetUserByEmail(
+				m.EXPECT().List(
 					gomock.Any(),
-					"test@gmail.com",
+					[]repository.QueryCondition{{Field: "Email", Value: "test@gmail.com"}},
 				).Return(
-					model.User{
-						ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-						Name:     "test",
-						Email:    "test@gmail.com",
-						Password: passward,
-						IsAdmin:  false,
+					[]model.User{
+						{
+							ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+							Name:     "test",
+							Email:    "test@gmail.com",
+							Password: passward,
+							IsAdmin:  false,
+						},
 					}, nil,
 				)
 				m1.EXPECT().Exists(

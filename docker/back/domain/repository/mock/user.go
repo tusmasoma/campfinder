@@ -37,100 +37,74 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CheckIfUserExists mocks base method.
-func (m *MockUserRepository) CheckIfUserExists(ctx context.Context, email string, opts ...repository.QueryOptions) (bool, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, email}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CheckIfUserExists", varargs...)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckIfUserExists indicates an expected call of CheckIfUserExists.
-func (mr *MockUserRepositoryMockRecorder) CheckIfUserExists(ctx, email interface{}, opts ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, email}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckIfUserExists", reflect.TypeOf((*MockUserRepository)(nil).CheckIfUserExists), varargs...)
-}
-
 // Create mocks base method.
-func (m *MockUserRepository) Create(ctx context.Context, user *model.User, opts ...repository.QueryOptions) error {
+func (m *MockUserRepository) Create(ctx context.Context, user model.User) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, user}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Create", varargs...)
+	ret := m.ctrl.Call(m, "Create", ctx, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockUserRepositoryMockRecorder) Create(ctx, user interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Create(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, user}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserRepository)(nil).Create), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserRepository)(nil).Create), ctx, user)
 }
 
-// GetUserByEmail mocks base method.
-func (m *MockUserRepository) GetUserByEmail(ctx context.Context, email string, opts ...repository.QueryOptions) (model.User, error) {
+// Delete mocks base method.
+func (m *MockUserRepository) Delete(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, email}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetUserByEmail", varargs...)
-	ret0, _ := ret[0].(model.User)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockUserRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUserRepository)(nil).Delete), ctx, id)
+}
+
+// Get mocks base method.
+func (m *MockUserRepository) Get(ctx context.Context, id string) (*model.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, id)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserByEmail indicates an expected call of GetUserByEmail.
-func (mr *MockUserRepositoryMockRecorder) GetUserByEmail(ctx, email interface{}, opts ...interface{}) *gomock.Call {
+// Get indicates an expected call of Get.
+func (mr *MockUserRepositoryMockRecorder) Get(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, email}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockUserRepository)(nil).GetUserByEmail), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUserRepository)(nil).Get), ctx, id)
 }
 
-// GetUserByID mocks base method.
-func (m *MockUserRepository) GetUserByID(ctx context.Context, id string, opts ...repository.QueryOptions) (model.User, error) {
+// List mocks base method.
+func (m *MockUserRepository) List(ctx context.Context, qcs []repository.QueryCondition) ([]model.User, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, id}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetUserByID", varargs...)
-	ret0, _ := ret[0].(model.User)
+	ret := m.ctrl.Call(m, "List", ctx, qcs)
+	ret0, _ := ret[0].([]model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserByID indicates an expected call of GetUserByID.
-func (mr *MockUserRepositoryMockRecorder) GetUserByID(ctx, id interface{}, opts ...interface{}) *gomock.Call {
+// List indicates an expected call of List.
+func (mr *MockUserRepositoryMockRecorder) List(ctx, qcs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, id}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockUserRepository)(nil).GetUserByID), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserRepository)(nil).List), ctx, qcs)
 }
 
 // Update mocks base method.
-func (m *MockUserRepository) Update(ctx context.Context, user model.User, opts ...repository.QueryOptions) error {
+func (m *MockUserRepository) Update(ctx context.Context, id string, spot model.User) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, user}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Update", varargs...)
+	ret := m.ctrl.Call(m, "Update", ctx, id, spot)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockUserRepositoryMockRecorder) Update(ctx, user interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Update(ctx, id, spot interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, user}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserRepository)(nil).Update), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserRepository)(nil).Update), ctx, id, spot)
 }

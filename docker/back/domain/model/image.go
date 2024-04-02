@@ -7,9 +7,9 @@ import (
 )
 
 type Image struct {
-	ID      uuid.UUID
-	SpotID  uuid.UUID
-	UserID  uuid.UUID
-	URL     string
-	Created time.Time
+	ID      uuid.UUID `db:"id"`
+	SpotID  uuid.UUID `db:"spot_id"`
+	UserID  uuid.UUID `db:"user_id"`
+	URL     string    `db:"url"`
+	Created time.Time `db:"-"`
 }

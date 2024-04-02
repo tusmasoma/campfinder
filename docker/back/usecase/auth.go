@@ -32,10 +32,10 @@ func (auc *authUseCase) FetchUserFromContext(ctx context.Context) (*model.User, 
 		log.Printf("Failed to retrieve userId from context")
 		return nil, fmt.Errorf("user name not found in request context")
 	}
-	user, err := auc.ur.GetUserByID(ctx, userID)
+	user, err := auc.ur.Get(ctx, userID)
 	if err != nil {
 		log.Printf("Failed to get UserInfo from db: %v", userID)
 		return nil, err
 	}
-	return &user, nil
+	return user, nil
 }

@@ -47,12 +47,12 @@ func (uuc *userUseCase) CreateUserAndGenerateToken(ctx context.Context, email st
 }
 
 func (uuc *userUseCase) CreateUser(ctx context.Context, email string, passward string) (*model.User, error) {
-	exists, err := uuc.ur.CheckIfUserExists(ctx, email)
+	users, err := uuc.ur.List(ctx, []repository.QueryCondition{{Field: "Email", Value: email}})
 	if err != nil {
 		log.Printf("Internal server error: %v", err)
 		return nil, err
 	}
-	if exists {
+	if len(users) > 0 {
 		log.Printf("User with this name already exists - status: %d", http.StatusConflict)
 		return nil, fmt.Errorf("user with this email already exists")
 	}
@@ -67,7 +67,7 @@ func (uuc *userUseCase) CreateUser(ctx context.Context, email string, passward s
 	}
 	user.Password = password
 
-	if err = uuc.ur.Create(ctx, &user); err != nil {
+	if err = uuc.ur.Create(ctx, user); err != nil {
 		log.Printf("Failed to create user: %v", err)
 		return nil, err
 	}
@@ -75,13 +75,16 @@ func (uuc *userUseCase) CreateUser(ctx context.Context, email string, passward s
 }
 
 func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string, passward string) (string, error) {
+	var user model.User
 	// emailでMySQLにユーザー情報問い合わせ
-	user, err := uuc.ur.GetUserByEmail(ctx, email)
+	users, err := uuc.ur.List(ctx, []repository.QueryCondition{{Field: "Email", Value: email}})
 	if err != nil {
 		log.Printf("Error retrieving user by email")
 		return "", err
 	}
-
+	if len(users) > 0 {
+		user = users[0]
+	}
 	// 既にログイン済みかどうか確認する
 	isAuthenticate := uuc.cr.Exists(ctx, user.ID.String())
 	if isAuthenticate {

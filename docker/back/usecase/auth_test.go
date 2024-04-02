@@ -32,11 +32,11 @@ func TestAuthUseCase_FetchUserFromContext(t *testing.T) {
 		{
 			name: "success",
 			setup: func(m *mock.MockUserRepository) {
-				m.EXPECT().GetUserByID(
+				m.EXPECT().Get(
 					gomock.Any(),
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
 				).Return(
-					model.User{
+					&model.User{
 						ID:       uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
 						Name:     "test",
 						Email:    "test@gmail.com",

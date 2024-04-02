@@ -8,9 +8,9 @@ import (
 )
 
 type CommentRepository interface {
-	GetCommentBySpotID(ctx context.Context, spotID string, opts ...QueryOptions) (comments []model.Comment, err error)
-	GetCommentByID(ctx context.Context, id string, opts ...QueryOptions) (comment model.Comment, err error)
-	Create(ctx context.Context, comment model.Comment, opts ...QueryOptions) (err error)
-	Update(ctx context.Context, comment model.Comment, opts ...QueryOptions) (err error)
-	Delete(ctx context.Context, id string, opts ...QueryOptions) (err error)
+	List(ctx context.Context, qcs []QueryCondition) ([]model.Comment, error)
+	Get(ctx context.Context, id string) (*model.Comment, error)
+	Create(ctx context.Context, comment model.Comment) error
+	Update(ctx context.Context, id string, comment model.Comment) error
+	Delete(ctx context.Context, id string) error
 }

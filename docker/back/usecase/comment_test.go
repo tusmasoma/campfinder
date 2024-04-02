@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
+	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository/mock"
 )
 
@@ -56,9 +57,9 @@ func TestCommentUseCase_GetCommentBySpotID(t *testing.T) {
 			setup: func(m *mock.MockCommentRepository) {
 				const layout = "2006-01-02T15:04:05Z"
 				created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
-				m.EXPECT().GetCommentBySpotID(
+				m.EXPECT().List(
 					gomock.Any(),
-					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+					[]repository.QueryCondition{{Field: "SpotID", Value: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"}},
 				).Return(
 					[]model.Comment{
 						{
@@ -187,7 +188,7 @@ func TestCommentUseCase_CommentUpdate(t *testing.T) {
 					StarRate: 5.0,
 					Text:     "いいスポットでした！!!",
 				}
-				m.EXPECT().Update(gomock.Any(), comment).Return(nil)
+				m.EXPECT().Update(gomock.Any(), "31894386-3e60-45a8-bc67-f46b72b42554", comment).Return(nil)
 			},
 			arg: CommentUpdateArg{
 				ctx:      context.Background(),
@@ -216,7 +217,7 @@ func TestCommentUseCase_CommentUpdate(t *testing.T) {
 					StarRate: 5.0,
 					Text:     "いいスポットでした！!!",
 				}
-				m.EXPECT().Update(gomock.Any(), comment).Return(nil)
+				m.EXPECT().Update(gomock.Any(), "31894386-3e60-45a8-bc67-f46b72b42554", comment).Return(nil)
 			},
 			arg: CommentUpdateArg{
 				ctx:      context.Background(),
