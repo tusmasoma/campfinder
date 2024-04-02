@@ -65,7 +65,7 @@ generate: generate-deps
 	@for dir in $$(find ./docker/back -type d | sed '1,1d' | sed 's@./@@') ; do \
 		if [ -n "$$(git diff --name-only origin/develop "$${dir}")" ]; then \
 			echo "go generate ./$${dir}/..." && \
-			PATH="$(BIN):$(PATH)" ${GO_ENV} ${GO} generate "./$${dir}/..." || exit 1; \
+			(cd "$${dir}" && PATH="$(BIN):$(PATH)" ${GO_ENV} ${GO} generate ./...) || exit 1; \
 		fi; \
 	done
 	$(MAKE) fmt
