@@ -8,9 +8,9 @@ import (
 )
 
 type UserRepository interface {
-	CheckIfUserExists(ctx context.Context, email string, opts ...QueryOptions) (bool, error)
-	GetUserByID(ctx context.Context, id string, opts ...QueryOptions) (model.User, error)
-	GetUserByEmail(ctx context.Context, email string, opts ...QueryOptions) (model.User, error)
-	Create(ctx context.Context, user *model.User, opts ...QueryOptions) error
-	Update(ctx context.Context, user model.User, opts ...QueryOptions) error
+	List(ctx context.Context, qcs []QueryCondition) ([]model.User, error)
+	Get(ctx context.Context, id string) (*model.User, error)
+	Create(ctx context.Context, user model.User) error
+	Update(ctx context.Context, id string, spot model.User) error
+	Delete(ctx context.Context, id string) error
 }
