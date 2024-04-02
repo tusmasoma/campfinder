@@ -14,10 +14,10 @@ import (
 )
 
 type CommentHandler interface {
-	HandleCommentCreate(w http.ResponseWriter, r *http.Request)
-	HandleCommentGet(w http.ResponseWriter, r *http.Request)
-	HandleCommentUpdate(w http.ResponseWriter, r *http.Request)
-	HandleCommentDelete(w http.ResponseWriter, r *http.Request)
+	ListComments(w http.ResponseWriter, r *http.Request)
+	CreateComment(w http.ResponseWriter, r *http.Request)
+	UpdateComment(w http.ResponseWriter, r *http.Request)
+	DeleteComment(w http.ResponseWriter, r *http.Request)
 }
 
 type commentHandler struct {
@@ -32,13 +32,13 @@ func NewCommentHandler(cuc usecase.CommentUseCase, auc usecase.AuthUseCase) Comm
 	}
 }
 
-type CommentCreateRequest struct {
+type CreateCommentRequest struct {
 	SpotID   uuid.UUID `json:"spotID"`
 	StarRate float64   `json:"starRate"`
 	Text     string    `json:"text"`
 }
 
-type CommentUpdateRequest struct {
+type UpdateCommentRequest struct {
 	ID       uuid.UUID `json:"id"`
 	SpotID   uuid.UUID `json:"spotID"`
 	UserID   uuid.UUID `json:"userID"`
@@ -46,11 +46,11 @@ type CommentUpdateRequest struct {
 	Text     string    `json:"text"`
 }
 
-type CommentGetResponse struct {
+type ListCommentResponse struct {
 	Comments []model.Comment `json:"comments"`
 }
 
-func (ch *commentHandler) HandleCommentGet(w http.ResponseWriter, r *http.Request) {
+func (ch *commentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	spotID := r.URL.Query().Get("spot_id")
 
@@ -60,14 +60,14 @@ func (ch *commentHandler) HandleCommentGet(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(CommentGetResponse{Comments: comments}); err != nil {
+	if err = json.NewEncoder(w).Encode(ListCommentResponse{Comments: comments}); err != nil {
 		http.Error(w, "Failed to encode comments to JSON", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
-func (ch *commentHandler) HandleCommentCreate(w http.ResponseWriter, r *http.Request) {
+func (ch *commentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := ch.auc.GetUserFromContext(ctx)
 	if err != nil {
@@ -75,8 +75,8 @@ func (ch *commentHandler) HandleCommentCreate(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var requestBody CommentCreateRequest
-	if ok := isValidateCommentCreateRequest(r.Body, &requestBody); !ok {
+	var requestBody CreateCommentRequest
+	if ok := isValidateCreateCommentRequest(r.Body, &requestBody); !ok {
 		http.Error(w, "Invalid comment create request", http.StatusBadRequest)
 		return
 	}
@@ -90,7 +90,7 @@ func (ch *commentHandler) HandleCommentCreate(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidateCommentCreateRequest(body io.ReadCloser, requestBody *CommentCreateRequest) bool {
+func isValidateCreateCommentRequest(body io.ReadCloser, requestBody *CreateCommentRequest) bool {
 	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
 		log.Printf("Invalid request body: %v", err)
 		return false
@@ -102,7 +102,7 @@ func isValidateCommentCreateRequest(body io.ReadCloser, requestBody *CommentCrea
 	return true
 }
 
-func (ch *commentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Request) {
+func (ch *commentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := ch.auc.GetUserFromContext(ctx)
 	if err != nil {
@@ -110,8 +110,8 @@ func (ch *commentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var requestBody CommentUpdateRequest
-	if ok := isValidateCommentUpdateRequest(r.Body, &requestBody); !ok {
+	var requestBody UpdateCommentRequest
+	if ok := isValidateUpdateCommentRequest(r.Body, &requestBody); !ok {
 		http.Error(w, "Invalid comment update request", http.StatusBadRequest)
 		return
 	}
@@ -133,7 +133,7 @@ func (ch *commentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidateCommentUpdateRequest(body io.ReadCloser, requestBody *CommentUpdateRequest) bool {
+func isValidateUpdateCommentRequest(body io.ReadCloser, requestBody *UpdateCommentRequest) bool {
 	if err := json.NewDecoder(body).Decode(requestBody); err != nil {
 		log.Printf("Invalid request body: %v", err)
 		return false
@@ -149,7 +149,7 @@ func isValidateCommentUpdateRequest(body io.ReadCloser, requestBody *CommentUpda
 	return true
 }
 
-func (ch *commentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Request) {
+func (ch *commentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := ch.auc.GetUserFromContext(ctx)
 	if err != nil {
@@ -157,7 +157,7 @@ func (ch *commentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	ok, id, userID := isValidateCommentDeleteRequest(r)
+	ok, id, userID := isValidateDeleteCommentRequest(r)
 	if !ok {
 		http.Error(w, "Invalid comment delete request", http.StatusBadRequest)
 		return
@@ -171,7 +171,7 @@ func (ch *commentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 }
 
-func isValidateCommentDeleteRequest(r *http.Request) (bool, string, string) {
+func isValidateDeleteCommentRequest(r *http.Request) (bool, string, string) {
 	id := r.URL.Query().Get("id")
 	userID := r.URL.Query().Get("user_id")
 

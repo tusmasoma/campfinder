@@ -34,50 +34,50 @@ func (m *MockCommentHandler) EXPECT() *MockCommentHandlerMockRecorder {
 	return m.recorder
 }
 
-// HandleCommentCreate mocks base method.
-func (m *MockCommentHandler) HandleCommentCreate(w http.ResponseWriter, r *http.Request) {
+// CreateComment mocks base method.
+func (m *MockCommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleCommentCreate", w, r)
+	m.ctrl.Call(m, "CreateComment", w, r)
 }
 
-// HandleCommentCreate indicates an expected call of HandleCommentCreate.
-func (mr *MockCommentHandlerMockRecorder) HandleCommentCreate(w, r interface{}) *gomock.Call {
+// CreateComment indicates an expected call of CreateComment.
+func (mr *MockCommentHandlerMockRecorder) CreateComment(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleCommentCreate", reflect.TypeOf((*MockCommentHandler)(nil).HandleCommentCreate), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockCommentHandler)(nil).CreateComment), w, r)
 }
 
-// HandleCommentDelete mocks base method.
-func (m *MockCommentHandler) HandleCommentDelete(w http.ResponseWriter, r *http.Request) {
+// DeleteComment mocks base method.
+func (m *MockCommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleCommentDelete", w, r)
+	m.ctrl.Call(m, "DeleteComment", w, r)
 }
 
-// HandleCommentDelete indicates an expected call of HandleCommentDelete.
-func (mr *MockCommentHandlerMockRecorder) HandleCommentDelete(w, r interface{}) *gomock.Call {
+// DeleteComment indicates an expected call of DeleteComment.
+func (mr *MockCommentHandlerMockRecorder) DeleteComment(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleCommentDelete", reflect.TypeOf((*MockCommentHandler)(nil).HandleCommentDelete), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteComment", reflect.TypeOf((*MockCommentHandler)(nil).DeleteComment), w, r)
 }
 
-// HandleCommentGet mocks base method.
-func (m *MockCommentHandler) HandleCommentGet(w http.ResponseWriter, r *http.Request) {
+// ListComments mocks base method.
+func (m *MockCommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleCommentGet", w, r)
+	m.ctrl.Call(m, "ListComments", w, r)
 }
 
-// HandleCommentGet indicates an expected call of HandleCommentGet.
-func (mr *MockCommentHandlerMockRecorder) HandleCommentGet(w, r interface{}) *gomock.Call {
+// ListComments indicates an expected call of ListComments.
+func (mr *MockCommentHandlerMockRecorder) ListComments(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleCommentGet", reflect.TypeOf((*MockCommentHandler)(nil).HandleCommentGet), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComments", reflect.TypeOf((*MockCommentHandler)(nil).ListComments), w, r)
 }
 
-// HandleCommentUpdate mocks base method.
-func (m *MockCommentHandler) HandleCommentUpdate(w http.ResponseWriter, r *http.Request) {
+// UpdateComment mocks base method.
+func (m *MockCommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleCommentUpdate", w, r)
+	m.ctrl.Call(m, "UpdateComment", w, r)
 }
 
-// HandleCommentUpdate indicates an expected call of HandleCommentUpdate.
-func (mr *MockCommentHandlerMockRecorder) HandleCommentUpdate(w, r interface{}) *gomock.Call {
+// UpdateComment indicates an expected call of UpdateComment.
+func (mr *MockCommentHandlerMockRecorder) UpdateComment(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleCommentUpdate", reflect.TypeOf((*MockCommentHandler)(nil).HandleCommentUpdate), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateComment", reflect.TypeOf((*MockCommentHandler)(nil).UpdateComment), w, r)
 }

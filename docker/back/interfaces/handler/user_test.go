@@ -36,7 +36,7 @@ func TestUserHandler_HandleUserCreate(t *testing.T) {
 				)
 			},
 			in: func() *http.Request {
-				userCreateReq := UserCreateRequest{Email: "test@gmail.com", Password: "password123"}
+				userCreateReq := CreateUserRequest{Email: "test@gmail.com", Password: "password123"}
 				reqBody, _ := json.Marshal(userCreateReq)
 				req, _ := http.NewRequest(http.MethodPost, "/api/user/create", bytes.NewBuffer(reqBody))
 				req.Header.Set("Content-Type", "application/json")
@@ -47,7 +47,7 @@ func TestUserHandler_HandleUserCreate(t *testing.T) {
 		{
 			name: "Fail: invalid request",
 			in: func() *http.Request {
-				userCreateReq := UserCreateRequest{Email: "test@gmail.com"}
+				userCreateReq := CreateUserRequest{Email: "test@gmail.com"}
 				reqBody, _ := json.Marshal(userCreateReq)
 				req, _ := http.NewRequest(http.MethodPost, "/api/user/create", bytes.NewBuffer(reqBody))
 				req.Header.Set("Content-Type", "application/json")
@@ -69,7 +69,7 @@ func TestUserHandler_HandleUserCreate(t *testing.T) {
 
 			handler := NewUserHandler(uuc, auc)
 			recorder := httptest.NewRecorder()
-			handler.HandleUserCreate(recorder, tt.in())
+			handler.CreateUser(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -106,7 +106,7 @@ func TestUserHandler_HandleUserLogin(t *testing.T) {
 				)
 			},
 			in: func() *http.Request {
-				userLoginReq := UserLoginRequest{Email: "test@gmail.com", Password: "password123"}
+				userLoginReq := LoginRequest{Email: "test@gmail.com", Password: "password123"}
 				reqBody, _ := json.Marshal(userLoginReq)
 				req, _ := http.NewRequest(http.MethodPost, "/api/user/login", bytes.NewBuffer(reqBody))
 				req.Header.Set("Content-Type", "application/json")
@@ -117,7 +117,7 @@ func TestUserHandler_HandleUserLogin(t *testing.T) {
 		{
 			name: "Fail: invalid request",
 			in: func() *http.Request {
-				userLoginReq := UserLoginRequest{Email: "test@gmail.com"}
+				userLoginReq := LoginRequest{Email: "test@gmail.com"}
 				reqBody, _ := json.Marshal(userLoginReq)
 				req, _ := http.NewRequest(http.MethodPost, "/api/user/login", bytes.NewBuffer(reqBody))
 				req.Header.Set("Content-Type", "application/json")
@@ -139,7 +139,7 @@ func TestUserHandler_HandleUserLogin(t *testing.T) {
 
 			handler := NewUserHandler(uuc, auc)
 			recorder := httptest.NewRecorder()
-			handler.HandleUserLogin(recorder, tt.in())
+			handler.Login(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)

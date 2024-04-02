@@ -70,7 +70,7 @@ func TestCommentHandler_HandleCommentGet(t *testing.T) {
 			handler := NewCommentHandler(cuc, auc)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleCommentGet(recorder, tt.in())
+			handler.ListComments(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -110,7 +110,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 				).Return(nil)
 			},
 			in: func() *http.Request {
-				commentCreateReq := CommentCreateRequest{
+				commentCreateReq := CreateCommentRequest{
 					SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					StarRate: 3.0,
 					Text:     "いいスポットでした！",
@@ -135,7 +135,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
-				commentCreateReq := CommentCreateRequest{
+				commentCreateReq := CreateCommentRequest{
 					SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					StarRate: 3.0,
 				}
@@ -162,7 +162,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 			handler := NewCommentHandler(cuc, auc)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleCommentCreate(recorder, tt.in())
+			handler.CreateComment(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -204,7 +204,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 				).Return(nil)
 			},
 			in: func() *http.Request {
-				commentUpdateReq := CommentUpdateRequest{
+				commentUpdateReq := UpdateCommentRequest{
 					ID:       uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
 					SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
@@ -240,7 +240,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 				).Return(nil)
 			},
 			in: func() *http.Request {
-				commentUpdateReq := CommentUpdateRequest{
+				commentUpdateReq := UpdateCommentRequest{
 					ID:       uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
 					SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
@@ -267,7 +267,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 			},
 			in: func() *http.Request {
-				commentUpdateReq := CommentUpdateRequest{
+				commentUpdateReq := UpdateCommentRequest{
 					ID:       uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
 					SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
@@ -304,7 +304,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 				)
 			},
 			in: func() *http.Request {
-				commentUpdateReq := CommentUpdateRequest{
+				commentUpdateReq := UpdateCommentRequest{
 					ID:       uuid.MustParse("31894386-3e60-45a8-bc67-f46b72b42554"),
 					SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 					UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
@@ -334,7 +334,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 			handler := NewCommentHandler(cuc, auc)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleCommentUpdate(recorder, tt.in())
+			handler.UpdateComment(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
@@ -478,7 +478,7 @@ func TestCommentHandler_HandleCommentDelete(t *testing.T) {
 			handler := NewCommentHandler(cuc, auc)
 			recorder := httptest.NewRecorder()
 
-			handler.HandleCommentDelete(recorder, tt.in())
+			handler.DeleteComment(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)

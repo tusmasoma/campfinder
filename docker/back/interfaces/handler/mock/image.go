@@ -34,38 +34,38 @@ func (m *MockImageHandler) EXPECT() *MockImageHandlerMockRecorder {
 	return m.recorder
 }
 
-// HandleImageCreate mocks base method.
-func (m *MockImageHandler) HandleImageCreate(w http.ResponseWriter, r *http.Request) {
+// CreateImage mocks base method.
+func (m *MockImageHandler) CreateImage(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleImageCreate", w, r)
+	m.ctrl.Call(m, "CreateImage", w, r)
 }
 
-// HandleImageCreate indicates an expected call of HandleImageCreate.
-func (mr *MockImageHandlerMockRecorder) HandleImageCreate(w, r interface{}) *gomock.Call {
+// CreateImage indicates an expected call of CreateImage.
+func (mr *MockImageHandlerMockRecorder) CreateImage(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleImageCreate", reflect.TypeOf((*MockImageHandler)(nil).HandleImageCreate), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImageHandler)(nil).CreateImage), w, r)
 }
 
-// HandleImageDelete mocks base method.
-func (m *MockImageHandler) HandleImageDelete(w http.ResponseWriter, r *http.Request) {
+// DeleteImage mocks base method.
+func (m *MockImageHandler) DeleteImage(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleImageDelete", w, r)
+	m.ctrl.Call(m, "DeleteImage", w, r)
 }
 
-// HandleImageDelete indicates an expected call of HandleImageDelete.
-func (mr *MockImageHandlerMockRecorder) HandleImageDelete(w, r interface{}) *gomock.Call {
+// DeleteImage indicates an expected call of DeleteImage.
+func (mr *MockImageHandlerMockRecorder) DeleteImage(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleImageDelete", reflect.TypeOf((*MockImageHandler)(nil).HandleImageDelete), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteImage", reflect.TypeOf((*MockImageHandler)(nil).DeleteImage), w, r)
 }
 
-// HandleImageGet mocks base method.
-func (m *MockImageHandler) HandleImageGet(w http.ResponseWriter, r *http.Request) {
+// ListImages mocks base method.
+func (m *MockImageHandler) ListImages(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleImageGet", w, r)
+	m.ctrl.Call(m, "ListImages", w, r)
 }
 
-// HandleImageGet indicates an expected call of HandleImageGet.
-func (mr *MockImageHandlerMockRecorder) HandleImageGet(w, r interface{}) *gomock.Call {
+// ListImages indicates an expected call of ListImages.
+func (mr *MockImageHandlerMockRecorder) ListImages(w, r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleImageGet", reflect.TypeOf((*MockImageHandler)(nil).HandleImageGet), w, r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImages", reflect.TypeOf((*MockImageHandler)(nil).ListImages), w, r)
 }

@@ -56,35 +56,35 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/user", func(r chi.Router) {
-			r.Post("/create", userHandler.HandleUserCreate)
-			r.Post("/login", userHandler.HandleUserLogin)
+			r.Post("/create", userHandler.CreateUser)
+			r.Post("/login", userHandler.Login)
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware.Authenticate)
-				r.Get("/api/user/logout", userHandler.HandleUserLogout)
+				r.Get("/api/user/logout", userHandler.Logout)
 			})
 		})
 
 		r.Route("/spot", func(r chi.Router) {
-			r.Get("/", spotHandler.HandleSpotGet)
-			r.Post("/create", spotHandler.HandleSpotCreate)
+			r.Get("/", spotHandler.ListSpots)
+			r.Post("/create", spotHandler.CreateSpot)
 		})
 
 		r.Route("/comment", func(r chi.Router) {
-			r.Get("/", commentHandler.HandleCommentGet)
+			r.Get("/", commentHandler.ListComments)
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware.Authenticate)
-				r.Post("/create", commentHandler.HandleCommentCreate)
-				r.Post("/update", commentHandler.HandleCommentUpdate)
-				r.Delete("/delete", commentHandler.HandleCommentDelete)
+				r.Post("/create", commentHandler.CreateComment)
+				r.Post("/update", commentHandler.UpdateComment)
+				r.Delete("/delete", commentHandler.DeleteComment)
 			})
 		})
 
 		r.Route("/img", func(r chi.Router) {
-			r.Get("/", imgHandler.HandleImageGet)
+			r.Get("/", imgHandler.ListImages)
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware.Authenticate)
-				r.Post("/create", imgHandler.HandleImageCreate)
-				r.Post("/delete", imgHandler.HandleImageDelete)
+				r.Post("/create", imgHandler.CreateImage)
+				r.Post("/delete", imgHandler.DeleteImage)
 			})
 		})
 	})
