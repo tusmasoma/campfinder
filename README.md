@@ -1,4 +1,5 @@
 # campfinder
+[![codecov](https://codecov.io/gh/tusmasoma/campfinder/graph/badge.svg?token=OSHVGG9LPY)](https://codecov.io/gh/tusmasoma/campfinder)
 
 ## アーキテクチャ
 レイヤードアーキテクチャ + DDD を採用
