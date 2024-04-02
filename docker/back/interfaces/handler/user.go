@@ -106,7 +106,7 @@ func isValidUserLoginRequest(body io.ReadCloser, requestBody *UserLoginRequest) 
 
 func (uh *userHandler) HandleUserLogout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := uh.auc.FetchUserFromContext(ctx)
+	user, err := uh.auc.GetUserFromContext(ctx)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to get UserInfo from context: %v", err), http.StatusInternalServerError)
 		return

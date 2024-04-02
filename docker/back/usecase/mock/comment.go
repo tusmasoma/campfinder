@@ -37,59 +37,59 @@ func (m *MockCommentUseCase) EXPECT() *MockCommentUseCaseMockRecorder {
 	return m.recorder
 }
 
-// CommentCreate mocks base method.
-func (m *MockCommentUseCase) CommentCreate(ctx context.Context, spotID uuid.UUID, starRate float64, text string, user model.User) error {
+// CreateComment mocks base method.
+func (m *MockCommentUseCase) CreateComment(ctx context.Context, spotID uuid.UUID, starRate float64, text string, user model.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CommentCreate", ctx, spotID, starRate, text, user)
+	ret := m.ctrl.Call(m, "CreateComment", ctx, spotID, starRate, text, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CommentCreate indicates an expected call of CommentCreate.
-func (mr *MockCommentUseCaseMockRecorder) CommentCreate(ctx, spotID, starRate, text, user interface{}) *gomock.Call {
+// CreateComment indicates an expected call of CreateComment.
+func (mr *MockCommentUseCaseMockRecorder) CreateComment(ctx, spotID, starRate, text, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommentCreate", reflect.TypeOf((*MockCommentUseCase)(nil).CommentCreate), ctx, spotID, starRate, text, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockCommentUseCase)(nil).CreateComment), ctx, spotID, starRate, text, user)
 }
 
-// CommentDelete mocks base method.
-func (m *MockCommentUseCase) CommentDelete(ctx context.Context, id, userID string, user model.User) error {
+// DeleteComment mocks base method.
+func (m *MockCommentUseCase) DeleteComment(ctx context.Context, id, userID string, user model.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CommentDelete", ctx, id, userID, user)
+	ret := m.ctrl.Call(m, "DeleteComment", ctx, id, userID, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CommentDelete indicates an expected call of CommentDelete.
-func (mr *MockCommentUseCaseMockRecorder) CommentDelete(ctx, id, userID, user interface{}) *gomock.Call {
+// DeleteComment indicates an expected call of DeleteComment.
+func (mr *MockCommentUseCaseMockRecorder) DeleteComment(ctx, id, userID, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommentDelete", reflect.TypeOf((*MockCommentUseCase)(nil).CommentDelete), ctx, id, userID, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteComment", reflect.TypeOf((*MockCommentUseCase)(nil).DeleteComment), ctx, id, userID, user)
 }
 
-// CommentUpdate mocks base method.
-func (m *MockCommentUseCase) CommentUpdate(ctx context.Context, id, spotID, userID uuid.UUID, starRate float64, text string, user model.User) error {
+// ListComments mocks base method.
+func (m *MockCommentUseCase) ListComments(ctx context.Context, spotID string) ([]model.Comment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CommentUpdate", ctx, id, spotID, userID, starRate, text, user)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CommentUpdate indicates an expected call of CommentUpdate.
-func (mr *MockCommentUseCaseMockRecorder) CommentUpdate(ctx, id, spotID, userID, starRate, text, user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommentUpdate", reflect.TypeOf((*MockCommentUseCase)(nil).CommentUpdate), ctx, id, spotID, userID, starRate, text, user)
-}
-
-// GetCommentBySpotID mocks base method.
-func (m *MockCommentUseCase) GetCommentBySpotID(ctx context.Context, spotID string) ([]model.Comment, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCommentBySpotID", ctx, spotID)
+	ret := m.ctrl.Call(m, "ListComments", ctx, spotID)
 	ret0, _ := ret[0].([]model.Comment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetCommentBySpotID indicates an expected call of GetCommentBySpotID.
-func (mr *MockCommentUseCaseMockRecorder) GetCommentBySpotID(ctx, spotID interface{}) *gomock.Call {
+// ListComments indicates an expected call of ListComments.
+func (mr *MockCommentUseCaseMockRecorder) ListComments(ctx, spotID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentBySpotID", reflect.TypeOf((*MockCommentUseCase)(nil).GetCommentBySpotID), ctx, spotID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComments", reflect.TypeOf((*MockCommentUseCase)(nil).ListComments), ctx, spotID)
+}
+
+// UpdateComment mocks base method.
+func (m *MockCommentUseCase) UpdateComment(ctx context.Context, id, spotID, userID uuid.UUID, starRate float64, text string, user model.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateComment", ctx, id, spotID, userID, starRate, text, user)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateComment indicates an expected call of UpdateComment.
+func (mr *MockCommentUseCaseMockRecorder) UpdateComment(ctx, id, spotID, userID, starRate, text, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateComment", reflect.TypeOf((*MockCommentUseCase)(nil).UpdateComment), ctx, id, spotID, userID, starRate, text, user)
 }

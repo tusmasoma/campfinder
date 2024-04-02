@@ -37,45 +37,45 @@ func (m *MockImageUseCase) EXPECT() *MockImageUseCaseMockRecorder {
 	return m.recorder
 }
 
-// GetSpotImgURLBySpotID mocks base method.
-func (m *MockImageUseCase) GetSpotImgURLBySpotID(ctx context.Context, spotID string) ([]model.Image, error) {
+// CreateImage mocks base method.
+func (m *MockImageUseCase) CreateImage(ctx context.Context, spotID uuid.UUID, url string, user model.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSpotImgURLBySpotID", ctx, spotID)
+	ret := m.ctrl.Call(m, "CreateImage", ctx, spotID, url, user)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateImage indicates an expected call of CreateImage.
+func (mr *MockImageUseCaseMockRecorder) CreateImage(ctx, spotID, url, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateImage), ctx, spotID, url, user)
+}
+
+// DeleteImage mocks base method.
+func (m *MockImageUseCase) DeleteImage(ctx context.Context, id, userID string, user model.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteImage", ctx, id, userID, user)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteImage indicates an expected call of DeleteImage.
+func (mr *MockImageUseCaseMockRecorder) DeleteImage(ctx, id, userID, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteImage", reflect.TypeOf((*MockImageUseCase)(nil).DeleteImage), ctx, id, userID, user)
+}
+
+// ListSpotImgURLs mocks base method.
+func (m *MockImageUseCase) ListSpotImgURLs(ctx context.Context, spotID string) ([]model.Image, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSpotImgURLs", ctx, spotID)
 	ret0, _ := ret[0].([]model.Image)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetSpotImgURLBySpotID indicates an expected call of GetSpotImgURLBySpotID.
-func (mr *MockImageUseCaseMockRecorder) GetSpotImgURLBySpotID(ctx, spotID interface{}) *gomock.Call {
+// ListSpotImgURLs indicates an expected call of ListSpotImgURLs.
+func (mr *MockImageUseCaseMockRecorder) ListSpotImgURLs(ctx, spotID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotImgURLBySpotID", reflect.TypeOf((*MockImageUseCase)(nil).GetSpotImgURLBySpotID), ctx, spotID)
-}
-
-// ImageCreate mocks base method.
-func (m *MockImageUseCase) ImageCreate(ctx context.Context, spotID uuid.UUID, url string, user model.User) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ImageCreate", ctx, spotID, url, user)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ImageCreate indicates an expected call of ImageCreate.
-func (mr *MockImageUseCaseMockRecorder) ImageCreate(ctx, spotID, url, user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageCreate", reflect.TypeOf((*MockImageUseCase)(nil).ImageCreate), ctx, spotID, url, user)
-}
-
-// ImageDelete mocks base method.
-func (m *MockImageUseCase) ImageDelete(ctx context.Context, id, userID string, user model.User) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ImageDelete", ctx, id, userID, user)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ImageDelete indicates an expected call of ImageDelete.
-func (mr *MockImageUseCaseMockRecorder) ImageDelete(ctx, id, userID, user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageDelete", reflect.TypeOf((*MockImageUseCase)(nil).ImageDelete), ctx, id, userID, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSpotImgURLs", reflect.TypeOf((*MockImageUseCase)(nil).ListSpotImgURLs), ctx, spotID)
 }

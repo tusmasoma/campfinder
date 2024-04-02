@@ -36,17 +36,17 @@ func (m *MockAuthUseCase) EXPECT() *MockAuthUseCaseMockRecorder {
 	return m.recorder
 }
 
-// FetchUserFromContext mocks base method.
-func (m *MockAuthUseCase) FetchUserFromContext(ctx context.Context) (*model.User, error) {
+// GetUserFromContext mocks base method.
+func (m *MockAuthUseCase) GetUserFromContext(ctx context.Context) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchUserFromContext", ctx)
+	ret := m.ctrl.Call(m, "GetUserFromContext", ctx)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FetchUserFromContext indicates an expected call of FetchUserFromContext.
-func (mr *MockAuthUseCaseMockRecorder) FetchUserFromContext(ctx interface{}) *gomock.Call {
+// GetUserFromContext indicates an expected call of GetUserFromContext.
+func (mr *MockAuthUseCaseMockRecorder) GetUserFromContext(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchUserFromContext", reflect.TypeOf((*MockAuthUseCase)(nil).FetchUserFromContext), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFromContext", reflect.TypeOf((*MockAuthUseCase)(nil).GetUserFromContext), ctx)
 }

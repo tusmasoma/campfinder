@@ -85,7 +85,7 @@ func TestImageUseCase_GetSpotImgURLBySpotID(t *testing.T) {
 
 			usecase := NewImageUseCase(repo)
 
-			_, err := usecase.GetSpotImgURLBySpotID(tt.arg.ctx, tt.arg.spotID)
+			_, err := usecase.ListSpotImgURLs(tt.arg.ctx, tt.arg.spotID)
 
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.wantErr)
@@ -147,7 +147,7 @@ func TestImageUseCase_ImageCreate(t *testing.T) {
 
 			usecase := NewImageUseCase(repo)
 
-			err := usecase.ImageCreate(tt.arg.ctx, tt.arg.spotID, tt.arg.url, tt.arg.user)
+			err := usecase.CreateImage(tt.arg.ctx, tt.arg.spotID, tt.arg.url, tt.arg.user)
 
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("ImageCreate() error = %v, wantErr %v", err, tt.wantErr)
@@ -242,7 +242,7 @@ func TestImageUseCase_ImageDelete(t *testing.T) {
 
 			usecase := NewImageUseCase(repo)
 
-			err := usecase.ImageDelete(tt.arg.ctx, tt.arg.id, tt.arg.userID, tt.arg.user)
+			err := usecase.DeleteImage(tt.arg.ctx, tt.arg.id, tt.arg.userID, tt.arg.user)
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("ImageDelete() error = %v, wantErr %v", err, tt.wantErr)
 			} else if err != nil && tt.wantErr != nil && err.Error() != tt.wantErr.Error() {

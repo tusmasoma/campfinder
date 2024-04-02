@@ -139,7 +139,7 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 
 			usecase := NewSpotUseCase(repo)
 
-			err := usecase.SpotCreate(
+			err := usecase.CreateSpot(
 				tt.arg.ctx,
 				tt.arg.category,
 				tt.arg.name,
@@ -293,7 +293,7 @@ func TestSpotUseCase_SpotGet(t *testing.T) {
 
 			usecase := NewSpotUseCase(repo)
 
-			spots := usecase.SpotGet(tt.arg.ctx, tt.arg.categories, tt.arg.spotID)
+			spots := usecase.ListSpots(tt.arg.ctx, tt.arg.categories, tt.arg.spotID)
 
 			if !reflect.DeepEqual(spots, tt.want) {
 				t.Errorf("SpotGet() \n got = %v,\n want %v", spots, tt.want)
