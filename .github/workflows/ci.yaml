@@ -33,8 +33,10 @@ jobs:
 
       - name: Create package and commitlint.config.json
         run: |
-          echo `${{ vars.NODE_PACKAGE_JSON }}` > ./package.json
-          echo `${{ vars.COMMITLINT_CONFIG_JS }}` > ./commitlint.config.js
+          # echo `${{ vars.NODE_PACKAGE_JSON }}` > ./package.json
+          # echo `${{ vars.COMMITLINT_CONFIG_JS }}` > ./commitlint.config.js
+          npm init -y
+          npm install --save-dev @commitlint/cli @commitlint/config-conventional
 
       - name: Install dependencies
         run: npm install
