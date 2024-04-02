@@ -79,6 +79,12 @@ jobs:
       - name: Lint
         run: golangci-lint run
         working-directory: ./docker/back/
+        
+      - name: Generate and check for changes
+        run: |
+          make generate
+          git add .
+          git diff --cached --quiet
 
       - name: Cleanup
         if: always()
