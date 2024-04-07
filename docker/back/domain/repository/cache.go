@@ -10,4 +10,5 @@ type CacheRepository interface {
 	Get(ctx context.Context, key string) (interface{}, error)
 	Delete(ctx context.Context, key string) error
 	Exists(ctx context.Context, key string) bool
+	Scan(ctx context.Context, match string) ([]string, error)
 }

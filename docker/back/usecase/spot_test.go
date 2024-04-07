@@ -28,10 +28,9 @@ type SpotCreateArg struct {
 	iconPath    string
 }
 
-type SpotGetArg struct {
+type SpotListArg struct {
 	ctx        context.Context
 	categories []string
-	spotID     string
 }
 
 func TestSpotUseCase_SpotCreate(t *testing.T) {
@@ -169,7 +168,7 @@ func TestSpotUseCase_SpotGet(t *testing.T) {
 		setup func(
 			m *mock.MockSpotRepository,
 		)
-		arg  SpotGetArg
+		arg  SpotListArg
 		want []model.Spot
 	}{
 		{
@@ -211,30 +210,10 @@ func TestSpotUseCase_SpotGet(t *testing.T) {
 						IconPath:    "/static/img/spaflag.jpeg",
 					},
 				}, nil)
-				m.EXPECT().Get(
-					gomock.Any(),
-					"5c5323e9-c78f-4dac-94ef-d34ab5ea8def",
-				).Return(
-					&model.Spot{
-						ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8def"),
-						Category:    "campsite",
-						Name:        "とままえ夕陽ヶ丘未来港公園",
-						Address:     "北海道苫前郡苫前町字栄浜313",
-						Lat:         44.3153234,
-						Lng:         141.6563455,
-						Period:      "管理棟は7月中旬～8月中旬",
-						Phone:       "0164-64-2212",
-						Price:       "不明",
-						Description: "とままえ夕陽ヶ丘公園は、日本海に面した位置にある開放感あふれる公園です。",
-						IconPath:    "/static/img/campsiteflag.jpeg",
-					},
-					nil,
-				)
 			},
-			arg: SpotGetArg{
+			arg: SpotListArg{
 				ctx:        context.Background(),
 				categories: []string{"campsite", "spa"},
-				spotID:     "5c5323e9-c78f-4dac-94ef-d34ab5ea8def",
 			},
 			want: []model.Spot{
 				{
@@ -263,19 +242,6 @@ func TestSpotUseCase_SpotGet(t *testing.T) {
 					Description: "奥の湯は、札幌市北34条駅から徒歩0分という便利なロケーションにある銭湯です。",
 					IconPath:    "/static/img/spaflag.jpeg",
 				},
-				{
-					ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8def"),
-					Category:    "campsite",
-					Name:        "とままえ夕陽ヶ丘未来港公園",
-					Address:     "北海道苫前郡苫前町字栄浜313",
-					Lat:         44.3153234,
-					Lng:         141.6563455,
-					Period:      "管理棟は7月中旬～8月中旬",
-					Phone:       "0164-64-2212",
-					Price:       "不明",
-					Description: "とままえ夕陽ヶ丘公園は、日本海に面した位置にある開放感あふれる公園です。",
-					IconPath:    "/static/img/campsiteflag.jpeg",
-				},
 			},
 		},
 	}
@@ -293,7 +259,7 @@ func TestSpotUseCase_SpotGet(t *testing.T) {
 
 			usecase := NewSpotUseCase(repo)
 
-			spots := usecase.ListSpots(tt.arg.ctx, tt.arg.categories, tt.arg.spotID)
+			spots := usecase.ListSpots(tt.arg.ctx, tt.arg.categories)
 
 			if !reflect.DeepEqual(spots, tt.want) {
 				t.Errorf("SpotGet() \n got = %v,\n want %v", spots, tt.want)

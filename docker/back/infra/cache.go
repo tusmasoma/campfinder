@@ -51,3 +51,20 @@ func (rr *redisRepository) Exists(ctx context.Context, key string) bool {
 	val := rr.client.Exists(ctx, key).Val()
 	return val > 0
 }
+
+func (rr *redisRepository) Scan(ctx context.Context, match string) ([]string, error) {
+	var allKeys []string
+	var cursor uint64
+	for {
+		keys, newCursor, err := rr.client.Scan(ctx, cursor, match, 0).Result()
+		if err != nil {
+			return nil, err
+		}
+		allKeys = append(allKeys, keys...)
+		if newCursor == 0 {
+			break
+		}
+		cursor = newCursor
+	}
+	return allKeys, nil
+}

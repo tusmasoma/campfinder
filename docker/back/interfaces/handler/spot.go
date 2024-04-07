@@ -93,9 +93,9 @@ func (sh *spotHandler) ListSpots(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	categories := r.URL.Query()["category"]
-	spotID := r.URL.Query().Get("spot_id")
+	// spotID := r.URL.Query().Get("spot_id")
 
-	allSpots := sh.suc.ListSpots(ctx, categories, spotID)
+	allSpots := sh.suc.ListSpots(ctx, categories)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(ListSpotsResponse{Spots: allSpots}); err != nil {

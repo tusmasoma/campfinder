@@ -77,6 +77,21 @@ func (mr *MockCacheRepositoryMockRecorder) Get(ctx, key interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockCacheRepository)(nil).Get), ctx, key)
 }
 
+// Scan mocks base method.
+func (m *MockCacheRepository) Scan(ctx context.Context, match string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Scan", ctx, match)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Scan indicates an expected call of Scan.
+func (mr *MockCacheRepositoryMockRecorder) Scan(ctx, match interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scan", reflect.TypeOf((*MockCacheRepository)(nil).Scan), ctx, match)
+}
+
 // Set mocks base method.
 func (m *MockCacheRepository) Set(ctx context.Context, key string, value interface{}) error {
 	m.ctrl.T.Helper()
