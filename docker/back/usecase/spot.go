@@ -32,12 +32,13 @@ type SpotUseCase interface {
 
 type spotUseCase struct {
 	sr repository.SpotRepository
-	rr repository.CacheRepository
+	cr repository.CacheRepository
 }
 
-func NewSpotUseCase(sr repository.SpotRepository) SpotUseCase {
+func NewSpotUseCase(sr repository.SpotRepository, cr repository.CacheRepository) SpotUseCase {
 	return &spotUseCase{
 		sr: sr,
+		cr: cr,
 	}
 }
 
@@ -86,24 +87,19 @@ func (suc *spotUseCase) CreateSpot(
 
 func (suc *spotUseCase) ListSpots(ctx context.Context, categories []string) []model.Spot {
 	var allSpots []model.Spot
-	var err error
 
 	for _, category := range categories {
 		spots, err := suc.sr.List(ctx, []repository.QueryCondition{{Field: "Category", Value: category}})
 		if err != nil {
 			log.Printf("Failed to get spot of %v: %v", category, err)
+			spots = suc.getMasterData(ctx, category)
+			allSpots = append(allSpots, spots...)
 			continue
 		}
 		if cacheErr := suc.setMasterData(ctx, category, spots); cacheErr != nil {
 			log.Printf("Failed to set master data of %v: %v", category, err)
-			continue
 		}
 		allSpots = append(allSpots, spots...)
-	}
-
-	if err != nil {
-		allSpots = suc.getMasterData(ctx, categories)
-		return allSpots
 	}
 
 	return allSpots
@@ -114,39 +110,38 @@ func (suc *spotUseCase) GetSpot(ctx context.Context, spotID string) model.Spot {
 	if err != nil {
 		log.Printf("Failed to get spot of %v: %v", spotID, err)
 
-		var categories []string
-		keys, scanErr := suc.rr.Scan(ctx, "spots_*")
+		var allSpots []model.Spot
+		keys, scanErr := suc.cr.Scan(ctx, "spots_*")
 		if scanErr != nil {
 			log.Printf("Failed to scan cache: %v", scanErr)
 			return model.Spot{}
 		}
 		for _, key := range keys {
 			category := strings.TrimPrefix(key, "spots_")
-			categories = append(categories, category)
+			spots := suc.getMasterData(ctx, category)
+			allSpots = append(allSpots, spots...)
 		}
-		spots := suc.getMasterData(ctx, categories)
-		for _, spot := range spots {
+		for _, spot := range allSpots {
 			if spot.ID.String() == spotID {
 				return spot
 			}
 		}
+		return model.Spot{}
 	}
 	return *spot
 }
 
-func (suc *spotUseCase) getMasterData(ctx context.Context, categories []string) []model.Spot {
-	var allSpots []model.Spot
-	for _, category := range categories {
-		temp, cacheErr := suc.rr.Get(ctx, "spots_"+category)
-		if cacheErr != nil {
-			log.Printf("Failed to get spots from cache for category %v: %v", category, cacheErr)
-			continue
-		}
-		allSpots = append(allSpots, temp.([]model.Spot)...)
+func (suc *spotUseCase) getMasterData(ctx context.Context, category string) []model.Spot {
+	temp, cacheErr := suc.cr.Get(ctx, "spots_"+category)
+	if cacheErr != nil {
+		log.Printf("Failed to get spots from cache for category %v: %v", category, cacheErr)
+		return nil
 	}
-	return allSpots
+	spots := temp.([]model.Spot)
+
+	return spots
 }
 
 func (suc *spotUseCase) setMasterData(ctx context.Context, category string, spots []model.Spot) error {
-	return suc.rr.Set(ctx, "spots_"+category, spots)
+	return suc.cr.Set(ctx, "spots_"+category, spots)
 }

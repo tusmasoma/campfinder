@@ -30,7 +30,7 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 	redisRepo := infra.NewRedisRepository(client)
 
 	userUseCase := usecase.NewUserUseCase(userRepo, redisRepo)
-	spotUseCase := usecase.NewSpotUseCase(spotRepo)
+	spotUseCase := usecase.NewSpotUseCase(spotRepo, redisRepo)
 	commentUseCase := usecase.NewCommentUseCase(commentRepo)
 	imgUseCase := usecase.NewImageUseCase(imgRepo)
 	authUseCase := usecase.NewAuthUseCase(userRepo)
