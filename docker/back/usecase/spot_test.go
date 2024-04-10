@@ -343,8 +343,20 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 		{
 			name: "fail: fail to get spot form db. but, success to get spot from cache.",
 			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
-				m.EXPECT().Get(gomock.Any(), "5c5323e9-c78f-4dac-94ef-d34ab5ea8fed").Return(nil, fmt.Errorf("fail to get spot from db"))
-				m1.EXPECT().Scan(gomock.Any(), "spots_*").Return([]string{"spots_campsite", "spots_spa"}, nil)
+				m.EXPECT().Get(
+					gomock.Any(),
+					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
+				).Return(
+					nil,
+					fmt.Errorf("fail to get spot from db"),
+				)
+				m1.EXPECT().Scan(
+					gomock.Any(),
+					"spots_*",
+				).Return(
+					[]string{"spots_campsite", "spots_spa"},
+					nil,
+				)
 				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
 				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{}, nil)
 			},
@@ -357,8 +369,17 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 		{
 			name: "fail: fail to get spot form db. and, does not exists the spot from cache.",
 			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
-				m.EXPECT().Get(gomock.Any(), "5c5323e9-c78f-4dac-94ef-d34ab5ea8def").Return(nil, fmt.Errorf("fail to get spot from db"))
-				m1.EXPECT().Scan(gomock.Any(), "spots_*").Return([]string{"spots_campsite", "spots_spa"}, nil)
+				m.EXPECT().Get(
+					gomock.Any(),
+					"5c5323e9-c78f-4dac-94ef-d34ab5ea8def",
+				).Return(nil, fmt.Errorf("fail to get spot from db"))
+				m1.EXPECT().Scan(
+					gomock.Any(),
+					"spots_*",
+				).Return(
+					[]string{"spots_campsite", "spots_spa"},
+					nil,
+				)
 				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
 				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{}, nil)
 			},
@@ -371,8 +392,17 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 		{
 			name: "fail: fail to get spot form db. and, scan",
 			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
-				m.EXPECT().Get(gomock.Any(), "5c5323e9-c78f-4dac-94ef-d34ab5ea8fed").Return(nil, fmt.Errorf("fail to get spot from db"))
-				m1.EXPECT().Scan(gomock.Any(), "spots_*").Return([]string{"spots_campsite", "spots_spa"}, fmt.Errorf("fail to scan"))
+				m.EXPECT().Get(
+					gomock.Any(),
+					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
+				).Return(nil, fmt.Errorf("fail to get spot from db"))
+				m1.EXPECT().Scan(
+					gomock.Any(),
+					"spots_*",
+				).Return(
+					[]string{"spots_campsite", "spots_spa"},
+					fmt.Errorf("fail to scan"),
+				)
 			},
 			arg: GetSpotArg{
 				ctx:    context.Background(),

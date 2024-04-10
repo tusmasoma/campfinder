@@ -137,8 +137,10 @@ func (suc *spotUseCase) getMasterData(ctx context.Context, category string) []mo
 		log.Printf("Failed to get spots from cache for category %v: %v", category, cacheErr)
 		return nil
 	}
-	spots := temp.([]model.Spot)
-
+	spots, ok := temp.([]model.Spot)
+	if !ok {
+		return nil
+	}
 	return spots
 }
 
