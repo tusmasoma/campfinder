@@ -14,6 +14,7 @@ import (
 type SpotHandler interface {
 	CreateSpot(w http.ResponseWriter, r *http.Request)
 	ListSpots(w http.ResponseWriter, r *http.Request)
+	GetSpot(w http.ResponseWriter, r *http.Request)
 }
 
 type spotHandler struct {
