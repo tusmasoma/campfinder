@@ -3,7 +3,7 @@ package model
 import "github.com/google/uuid"
 
 type Spot struct {
-	ID          uuid.UUID `db:"id"`
+	ID          uuid.UUID `db:"id" json:"id"`
 	Category    string    `db:"category" json:"category"`
 	Name        string    `db:"name" json:"name"`
 	Address     string    `db:"address" json:"address"`

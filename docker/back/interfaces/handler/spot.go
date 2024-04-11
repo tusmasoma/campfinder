@@ -14,6 +14,7 @@ import (
 type SpotHandler interface {
 	CreateSpot(w http.ResponseWriter, r *http.Request)
 	ListSpots(w http.ResponseWriter, r *http.Request)
+	GetSpot(w http.ResponseWriter, r *http.Request)
 }
 
 type spotHandler struct {
@@ -41,6 +42,10 @@ type CreateSpotRequest struct {
 
 type ListSpotsResponse struct {
 	Spots []model.Spot `json:"spots"`
+}
+
+type GetSpotResponse struct {
+	Spot model.Spot `json:"spot"`
 }
 
 func (sh *spotHandler) CreateSpot(w http.ResponseWriter, r *http.Request) {
@@ -91,15 +96,27 @@ func isValidateCreateSpotRequest(body io.ReadCloser, requestBody *CreateSpotRequ
 
 func (sh *spotHandler) ListSpots(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
 	categories := r.URL.Query()["category"]
-	spotID := r.URL.Query().Get("spot_id")
 
-	allSpots := sh.suc.ListSpots(ctx, categories, spotID)
+	allSpots := sh.suc.ListSpots(ctx, categories)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(ListSpotsResponse{Spots: allSpots}); err != nil {
 		http.Error(w, "Failed to encode spots to JSON", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (sh *spotHandler) GetSpot(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	spotID := r.URL.Query().Get("spot_id")
+
+	spot := sh.suc.GetSpot(ctx, spotID)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(GetSpotResponse{Spot: spot}); err != nil {
+		http.Error(w, "Failed to encode spot to JSON", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
