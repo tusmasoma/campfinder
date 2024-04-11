@@ -53,7 +53,7 @@ curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.s
 make test
 ```
 ## infra層について
-todo: genericsで汎用化
+infra層では、ジェネリクスを使用してベースクラスを作成することで、domain層のモデルごとにinfra層を実装する必要をなくしています
 
 ## タスク管理
 
