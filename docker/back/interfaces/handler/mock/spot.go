@@ -46,6 +46,18 @@ func (mr *MockSpotHandlerMockRecorder) CreateSpot(w, r interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSpot", reflect.TypeOf((*MockSpotHandler)(nil).CreateSpot), w, r)
 }
 
+// GetSpot mocks base method.
+func (m *MockSpotHandler) GetSpot(w http.ResponseWriter, r *http.Request) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "GetSpot", w, r)
+}
+
+// GetSpot indicates an expected call of GetSpot.
+func (mr *MockSpotHandlerMockRecorder) GetSpot(w, r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpot", reflect.TypeOf((*MockSpotHandler)(nil).GetSpot), w, r)
+}
+
 // ListSpots mocks base method.
 func (m *MockSpotHandler) ListSpots(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
