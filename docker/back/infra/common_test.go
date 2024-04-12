@@ -15,8 +15,10 @@ import (
 	_ "github.com/go-sql-driver/mysql" // This blank import is used for its init function
 )
 
-var db *sql.DB
-var client *redis.Client
+var (
+	db     *sql.DB
+	client *redis.Client
+)
 
 func TestMain(m *testing.M) {
 	var closeMySQL func()
