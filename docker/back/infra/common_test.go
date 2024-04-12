@@ -16,19 +16,19 @@ import (
 var db *sql.DB
 
 func TestMain(m *testing.M) {
-	var closeDB func()
+	var closeMySQL func()
 	var err error
-	db, closeDB, err = Start()
+	db, closeMySQL, err = startMySQL()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer closeDB()
+	defer closeMySQL()
 
 	m.Run()
 }
 
 // Start はDockerを使用してMySQLコンテナを起動し、データベース接続を確立する関数です。
-func Start() (*sql.DB, func(), error) {
+func startMySQL() (*sql.DB, func(), error) {
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("Failed to get current directory: %s", err)
