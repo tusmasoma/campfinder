@@ -70,16 +70,24 @@ jobs:
         working-directory: ./docker/back/
 
       - name: Build
-        run: go build -v ./...
+        run: go build -v -o app ./...
         working-directory: ./docker/back/
 
-      - name: Cleanup
-        if: always()
-        run: rm -rf .certificate
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/app
   test:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/
+
       - name: Test
         run: go test -v -coverprofile=coverage.txt ./...
         working-directory: ./docker/back/
@@ -94,6 +102,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/
+
       - name: Install golangci-lint
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
@@ -105,6 +119,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/
+
       - name: Generate and check for changes
         run: |
           make generate
