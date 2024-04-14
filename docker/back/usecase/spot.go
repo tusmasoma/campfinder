@@ -3,6 +3,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -137,13 +138,23 @@ func (suc *spotUseCase) getMasterData(ctx context.Context, category string) []mo
 		log.Printf("Failed to get spots from cache for category %v: %v", category, cacheErr)
 		return nil
 	}
-	spots, ok := temp.([]model.Spot)
-	if !ok {
+	spots, err := Deserialize(temp)
+	if err != nil {
 		return nil
 	}
-	return spots
+	return *spots
 }
 
 func (suc *spotUseCase) setMasterData(ctx context.Context, category string, spots []model.Spot) error {
 	return suc.cr.Set(ctx, "spots_"+category, spots)
+}
+
+// TODO: 一旦以下に配置
+func Deserialize(data string) (*[]model.Spot, error) {
+	var items []model.Spot
+	err := json.Unmarshal([]byte(data), &items)
+	if err != nil {
+		return nil, err
+	}
+	return &items, nil
 }

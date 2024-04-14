@@ -27,24 +27,19 @@ func (rr *redisRepository) Set(ctx context.Context, key string, value interface{
 	return err
 }
 
-func (rr *redisRepository) Get(ctx context.Context, key string) (interface{}, error) {
+func (rr *redisRepository) Get(ctx context.Context, key string) (string, error) {
 	val, err := rr.client.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return nil, ErrCacheMiss
+		return "", ErrCacheMiss
 	} else if err != nil {
-		return nil, err
+		return "", err
 	}
 	return val, nil
 }
 
 func (rr *redisRepository) Delete(ctx context.Context, key string) error {
 	err := rr.client.Del(ctx, key).Err()
-	if errors.Is(err, redis.Nil) {
-		return ErrCacheMiss
-	} else if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (rr *redisRepository) Exists(ctx context.Context, key string) bool {

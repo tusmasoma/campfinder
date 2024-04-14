@@ -63,10 +63,10 @@ func (mr *MockCacheRepositoryMockRecorder) Exists(ctx, key interface{}) *gomock.
 }
 
 // Get mocks base method.
-func (m *MockCacheRepository) Get(ctx context.Context, key string) (interface{}, error) {
+func (m *MockCacheRepository) Get(ctx context.Context, key string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, key)
-	ret0, _ := ret[0].(interface{})
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
