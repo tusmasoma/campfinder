@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
@@ -301,9 +302,7 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 
 			spots := usecase.ListSpots(tt.arg.ctx, tt.arg.categories)
 
-			if !reflect.DeepEqual(spots, tt.want) {
-				t.Errorf("ListSpots() \n got = %v,\n want %v", spots, tt.want)
-			}
+			assert.ElementsMatch(t, tt.want, spots, "ListSpots() should return the correct set of spots regardless of order")
 		})
 	}
 }
