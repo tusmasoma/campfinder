@@ -63,6 +63,10 @@ func TestCache(t *testing.T) {
 		t.Errorf("Get()differs: (-got +want)\n%s", d)
 	}
 
+	// get: dont exists key
+	_, err = repo.Get(ctx, "item1")
+	ValidateErr(t, err, ErrCacheMiss)
+
 	// exists
 	exists := repo.Exists(ctx, "item0")
 	if !reflect.DeepEqual(exists, true) {
@@ -83,4 +87,8 @@ func TestCache(t *testing.T) {
 	if !reflect.DeepEqual(exists, false) {
 		t.Errorf("Delete() \n got = %v,\n want = %v", exists, false)
 	}
+
+	// delete: dont exists key
+	err = repo.Delete(ctx, "item1")
+	ValidateErr(t, err, ErrCacheMiss)
 }
