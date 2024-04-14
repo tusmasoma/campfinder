@@ -90,5 +90,5 @@ func TestCache(t *testing.T) {
 
 	// delete: dont exists key
 	err = repo.Delete(ctx, "item1")
-	ValidateErr(t, err, ErrCacheMiss)
+	ValidateErr(t, err, nil)
 }

@@ -39,12 +39,7 @@ func (rr *redisRepository) Get(ctx context.Context, key string) (string, error) 
 
 func (rr *redisRepository) Delete(ctx context.Context, key string) error {
 	err := rr.client.Del(ctx, key).Err()
-	if errors.Is(err, redis.Nil) {
-		return ErrCacheMiss
-	} else if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (rr *redisRepository) Exists(ctx context.Context, key string) bool {
