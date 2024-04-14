@@ -20,7 +20,7 @@ on:
     - cron: '0 */6 * * *'
 
 jobs:
-  build:
+  commitlint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -36,25 +36,21 @@ jobs:
           npm init -y
           npm install --save-dev @commitlint/cli @commitlint/config-conventional
           echo "module.exports = {extends: ['@commitlint/config-conventional']}" > commitlint.config.js
-  
+
       - name: Validate all commits from PR
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
-
-      - name: Create Private and Public Keys
-        run: |
-          mkdir -p .certificate
-          echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
-          echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3.5.2
 
       - name: Setup Go
         uses: actions/setup-go@v4.1.0
         id: setup-go
         with:
-          go-version-file: ./docker/back//go.mod
-          cache-dependency-path: ./docker/back//go.sum
+          go-version-file: ./docker/back/go.mod
+          cache-dependency-path: ./docker/back/go.sum
 
       - name: Download Go modules
         shell: bash
@@ -65,34 +61,73 @@ jobs:
         working-directory: ./docker/back/
 
       - name: Build
-        run: go build -v ./...
+        run: go build -v -o app ./cmd/
         working-directory: ./docker/back/
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/app
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/
+
+      - name: Create Private and Public Keys
+        run: |
+          mkdir -p .certificate
+          echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+          echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
 
       - name: Test
         run: go test -v -coverprofile=coverage.txt ./...
         working-directory: ./docker/back/
-        
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./docker/back/coverage.txt
           slug: tusmasoma/campfinder
-
-      - name: Install golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+  lint:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/
 
       - name: Lint
-        run: golangci-lint run
-        working-directory: ./docker/back/
-        
+        run: make lint
+  generate:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+          path: ./docker/back/
+
       - name: Generate and check for changes
         run: |
           make generate
           git add .
           git diff --cached --quiet -- ./docker/back/**/*.go
-
+  cleanup:
+    needs: [test, lint, generate]
+    runs-on: ubuntu-latest
+    steps:
       - name: Cleanup
-        if: always()
         run: rm -rf .certificate
