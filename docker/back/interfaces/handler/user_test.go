@@ -13,7 +13,7 @@ import (
 	"github.com/tusmasoma/campfinder/docker/back/usecase/mock"
 )
 
-func TestUserHandler_HandleUserCreate(t *testing.T) {
+func TestUserHandler_CreateUser(t *testing.T) {
 	patterns := []struct {
 		name  string
 		setup func(
@@ -83,7 +83,7 @@ func TestUserHandler_HandleUserCreate(t *testing.T) {
 	}
 }
 
-func TestUserHandler_HandleUserLogin(t *testing.T) {
+func TestUserHandler_Login(t *testing.T) {
 	patterns := []struct {
 		name  string
 		setup func(
