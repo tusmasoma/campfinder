@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
@@ -88,21 +89,30 @@ func (suc *spotUseCase) CreateSpot(
 
 func (suc *spotUseCase) ListSpots(ctx context.Context, categories []string) []model.Spot {
 	var allSpots []model.Spot
+	var mu sync.Mutex
+	wg := sync.WaitGroup{}
 
 	for _, category := range categories {
-		spots, err := suc.sr.List(ctx, []repository.QueryCondition{{Field: "Category", Value: category}})
-		if err != nil {
-			log.Printf("Failed to get spot of %v: %v", category, err)
-			spots = suc.getMasterData(ctx, category)
+		wg.Add(1)
+		go func(category string) {
+			defer wg.Done()
+
+			spots, err := suc.sr.List(ctx, []repository.QueryCondition{{Field: "Category", Value: category}})
+			if err != nil {
+				log.Printf("Failed to get spot of %v: %v", category, err)
+				spots = suc.getMasterData(ctx, category)
+			} else {
+				if cacheErr := suc.setMasterData(ctx, category, spots); cacheErr != nil {
+					log.Printf("Failed to set master data of %v: %v", category, err)
+				}
+			}
+			mu.Lock()
 			allSpots = append(allSpots, spots...)
-			continue
-		}
-		if cacheErr := suc.setMasterData(ctx, category, spots); cacheErr != nil {
-			log.Printf("Failed to set master data of %v: %v", category, err)
-		}
-		allSpots = append(allSpots, spots...)
+			mu.Unlock()
+		}(category)
 	}
 
+	wg.Wait()
 	return allSpots
 }
 
