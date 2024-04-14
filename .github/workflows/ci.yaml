@@ -70,7 +70,7 @@ jobs:
         working-directory: ./docker/back/
 
       - name: Build
-        run: go build -v -o app ./...
+        run: go build -v -o app ./cmd/
         working-directory: ./docker/back/
 
       - name: Archive production artifacts
