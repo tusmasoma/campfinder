@@ -146,10 +146,19 @@ func (suc *spotUseCase) getMasterData(ctx context.Context, category string) []mo
 }
 
 func (suc *spotUseCase) setMasterData(ctx context.Context, category string, spots []model.Spot) error {
-	return suc.cr.Set(ctx, "spots_"+category, spots)
+	data, _ := Serialize(spots)
+	return suc.cr.Set(ctx, "spots_"+category, data)
 }
 
 // TODO: 一旦以下に配置
+func Serialize(spots []model.Spot) (string, error) {
+	data, err := json.Marshal(spots)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
 func Deserialize(data string) (*[]model.Spot, error) {
 	var items []model.Spot
 	err := json.Unmarshal([]byte(data), &items)
