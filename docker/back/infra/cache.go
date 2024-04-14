@@ -27,12 +27,12 @@ func (rr *redisRepository) Set(ctx context.Context, key string, value interface{
 	return err
 }
 
-func (rr *redisRepository) Get(ctx context.Context, key string) (interface{}, error) {
+func (rr *redisRepository) Get(ctx context.Context, key string) (string, error) {
 	val, err := rr.client.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return nil, ErrCacheMiss
+		return "", ErrCacheMiss
 	} else if err != nil {
-		return nil, err
+		return "", err
 	}
 	return val, nil
 }
