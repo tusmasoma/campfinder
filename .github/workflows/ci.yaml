@@ -7,8 +7,8 @@ on:
       - '**/*.md'
     branches-ignore:
       - main
-  pull_request:
-    branches: [ "develop" ]
+  # pull_request:
+  # branches: [ "develop" ]
   workflow_call:
     secrets:
       PRIVATE_KEY:
