@@ -85,7 +85,7 @@ func TestImageUseCase_ListSpotImgURLs(t *testing.T) {
 
 			usecase := NewImageUseCase(repo)
 
-			_, err := usecase.ListSpotImgURLs(tt.arg.ctx, tt.arg.spotID)
+			_, err := usecase.ListImages(tt.arg.ctx, tt.arg.spotID)
 
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.wantErr)
