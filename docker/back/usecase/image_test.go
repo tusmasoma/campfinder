@@ -28,7 +28,7 @@ type ImageDeleteArg struct {
 	user   model.User
 }
 
-func TestImageUseCase_GetSpotImgURLBySpotID(t *testing.T) {
+func TestImageUseCase_ListSpotImgURLs(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -96,7 +96,7 @@ func TestImageUseCase_GetSpotImgURLBySpotID(t *testing.T) {
 	}
 }
 
-func TestImageUseCase_ImageCreate(t *testing.T) {
+func TestImageUseCase_CreateImage(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -158,7 +158,7 @@ func TestImageUseCase_ImageCreate(t *testing.T) {
 	}
 }
 
-func TestImageUseCase_ImageDelete(t *testing.T) {
+func TestImageUseCase_DeleteImage(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string

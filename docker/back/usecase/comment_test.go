@@ -39,7 +39,7 @@ type CommentDeleteArg struct {
 	user   model.User
 }
 
-func TestCommentUseCase_GetCommentBySpotID(t *testing.T) {
+func TestCommentUseCase_ListComments(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -107,7 +107,7 @@ func TestCommentUseCase_GetCommentBySpotID(t *testing.T) {
 	}
 }
 
-func TestCommentUseCase_CommentCreate(t *testing.T) {
+func TestCommentUseCase_CreateComment(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -168,7 +168,7 @@ func TestCommentUseCase_CommentCreate(t *testing.T) {
 	}
 }
 
-func TestCommentUseCase_CommentUpdate(t *testing.T) {
+func TestCommentUseCase_UpdateComment(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -288,7 +288,7 @@ func TestCommentUseCase_CommentUpdate(t *testing.T) {
 	}
 }
 
-func TestCommentUseCase_CommentDelete(t *testing.T) {
+func TestCommentUseCase_DeleteComment(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string

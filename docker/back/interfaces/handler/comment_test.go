@@ -16,7 +16,7 @@ import (
 	"github.com/tusmasoma/campfinder/docker/back/usecase/mock"
 )
 
-func TestCommentHandler_HandleCommentGet(t *testing.T) {
+func TestCommentHandler_ListComments(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -79,7 +79,7 @@ func TestCommentHandler_HandleCommentGet(t *testing.T) {
 	}
 }
 
-func TestCommentHandler_HandleCommentCreate(t *testing.T) {
+func TestCommentHandler_CreateComment(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -171,7 +171,7 @@ func TestCommentHandler_HandleCommentCreate(t *testing.T) {
 	}
 }
 
-func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
+func TestCommentHandler_UpdateComment(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -343,7 +343,7 @@ func TestCommentHandler_HandleCommentUpdate(t *testing.T) {
 	}
 }
 
-func TestCommentHandler_HandleCommentDelete(t *testing.T) {
+func TestCommentHandler_DeleteComment(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string

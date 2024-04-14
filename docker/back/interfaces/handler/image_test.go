@@ -16,7 +16,7 @@ import (
 	"github.com/tusmasoma/campfinder/docker/back/usecase/mock"
 )
 
-func TestImageHandler_HandleImageGet(t *testing.T) {
+func TestImageHandler_ListImages(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -79,7 +79,7 @@ func TestImageHandler_HandleImageGet(t *testing.T) {
 	}
 }
 
-func TestImageHandler_HandleImageCreate(t *testing.T) {
+func TestImageHandler_CreateImage(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
@@ -170,7 +170,7 @@ func TestImageHandler_HandleImageCreate(t *testing.T) {
 	}
 }
 
-func TestImageHandler_HandleImageDelete(t *testing.T) {
+func TestImageHandler_DeleteImage(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
 		name  string
