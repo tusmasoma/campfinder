@@ -45,15 +45,6 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.2
 
-      - name: Create Private and Public Keys
-        run: |
-          mkdir -p .certificate
-          echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
-          echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-
       - name: Setup Go
         uses: actions/setup-go@v4.1.0
         id: setup-go
@@ -88,6 +79,15 @@ jobs:
           name: app
           path: ./docker/back/
 
+      - name: Create Private and Public Keys
+        run: |
+          mkdir -p .certificate
+          echo "${{ secrets.PRIVATE_KEY }}" > .certificate/private_key.pem
+          echo "${{ secrets.PUBLIC_KEY }}" > .certificate/public_key.pem
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+
       - name: Test
         run: go test -v -coverprofile=coverage.txt ./...
         working-directory: ./docker/back/
@@ -108,13 +108,8 @@ jobs:
           name: app
           path: ./docker/back/
 
-      - name: Install golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
-
       - name: Lint
-        run: golangci-lint run
-        working-directory: ./docker/back/
+        run: make lint
   generate:
     needs: build
     runs-on: ubuntu-latest
