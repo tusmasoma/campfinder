@@ -48,7 +48,7 @@ func (ih *imageHandler) ListImages(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	spotID := r.URL.Query().Get("spot_id")
 
-	imgs, err := ih.iuc.ListSpotImgURLs(ctx, spotID)
+	imgs, err := ih.iuc.ListImages(ctx, spotID)
 	if err != nil {
 		http.Error(w, "Failed to get images by spot id", http.StatusInternalServerError)
 	}

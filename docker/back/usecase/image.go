@@ -13,7 +13,7 @@ import (
 )
 
 type ImageUseCase interface {
-	ListSpotImgURLs(ctx context.Context, spotID string) ([]model.Image, error)
+	ListImages(ctx context.Context, spotID string) ([]model.Image, error)
 	CreateImage(ctx context.Context, spotID uuid.UUID, url string, user model.User) error
 	DeleteImage(ctx context.Context, id string, userID string, user model.User) error
 }
@@ -28,7 +28,7 @@ func NewImageUseCase(ir repository.ImageRepository) ImageUseCase {
 	}
 }
 
-func (ih *imageUseCase) ListSpotImgURLs(ctx context.Context, spotID string) ([]model.Image, error) {
+func (ih *imageUseCase) ListImages(ctx context.Context, spotID string) ([]model.Image, error) {
 	return ih.ir.List(ctx, []repository.QueryCondition{{Field: "SpotID", Value: spotID}})
 }
 

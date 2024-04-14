@@ -32,7 +32,7 @@ func TestImageHandler_ListImages(t *testing.T) {
 			setup: func(m *mock.MockImageUseCase, m1 *mock.MockAuthUseCase) {
 				const layout = "2006-01-02T15:04:05Z"
 				created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
-				m.EXPECT().ListSpotImgURLs(
+				m.EXPECT().ListImages(
 					gomock.Any(),
 					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
 				).Return(
