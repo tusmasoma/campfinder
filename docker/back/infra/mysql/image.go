@@ -1,4 +1,4 @@
-package infra
+package mysql
 
 import (
 	"github.com/doug-martin/goqu/v9"

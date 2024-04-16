@@ -15,3 +15,5 @@ type Spot struct {
 	Description string    `db:"description" json:"description"`
 	IconPath    string    `db:"iconpath" json:"iconpath"`
 }
+
+type Spots []Spot

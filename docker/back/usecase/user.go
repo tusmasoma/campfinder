@@ -20,10 +20,10 @@ type UserUseCase interface {
 
 type userUseCase struct {
 	ur repository.UserRepository
-	cr repository.CacheRepository
+	cr repository.UserCacheRepository
 }
 
-func NewUserUseCase(ur repository.UserRepository, cr repository.CacheRepository) UserUseCase {
+func NewUserUseCase(ur repository.UserRepository, cr repository.UserCacheRepository) UserUseCase {
 	return &userUseCase{
 		ur: ur,
 		cr: cr,
@@ -38,7 +38,7 @@ func (uuc *userUseCase) CreateUserAndGenerateToken(ctx context.Context, email st
 	}
 
 	jwt, jti := auth.GenerateToken(user.ID.String(), user.Email)
-	if err = uuc.cr.Set(ctx, user.ID.String(), jti); err != nil {
+	if err = uuc.cr.SetUserSession(ctx, user.ID.String(), jti); err != nil {
 		log.Print("Failed to set access token in cache")
 		return "", err
 	}
@@ -99,7 +99,7 @@ func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string,
 	}
 
 	jwt, jti := auth.GenerateToken(user.ID.String(), email)
-	if err = uuc.cr.Set(ctx, user.ID.String(), jti); err != nil {
+	if err = uuc.cr.SetUserSession(ctx, user.ID.String(), jti); err != nil {
 		log.Print("Failed to set access token in cache")
 		return "", err
 	}
