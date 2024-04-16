@@ -14,3 +14,11 @@ type CommentRepository interface {
 	Update(ctx context.Context, id string, comment model.Comment) error
 	Delete(ctx context.Context, id string) error
 }
+
+type CommentsCacheRepository interface {
+	Set(ctx context.Context, key string, comments model.Comments) error
+	Get(ctx context.Context, key string) (*model.Comments, error)
+	Delete(ctx context.Context, key string) error
+	Exists(ctx context.Context, key string) bool
+	Scan(ctx context.Context, match string) ([]string, error)
+}

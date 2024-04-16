@@ -1,8 +1,7 @@
-package infra
+package redis
 
 import (
 	"context"
-	"encoding/json"
 	"reflect"
 	"testing"
 	"time"
@@ -12,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type CacheItem struct {
+type Item struct {
 	ID        string    `db:"id" json:"id"`
 	UserID    string    `db:"user_id" json:"user_id"`
 	Text      string    `db:"text" json:"text"`
@@ -21,45 +20,24 @@ type CacheItem struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-func (item *CacheItem) Serialize() (string, error) {
-	data, err := json.Marshal(item)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
-}
-
-// DeserializeCacheItem は JSON 文字列から CacheItem インスタンスを生成します。
-func DeserializeCacheItem(data string) (*CacheItem, error) {
-	var item CacheItem
-	err := json.Unmarshal([]byte(data), &item)
-	if err != nil {
-		return nil, err
-	}
-	return &item, nil
-}
-
-func TestCache(t *testing.T) {
+func TestBase(t *testing.T) {
 	ctx := context.Background()
 	userID := uuid.NewString()
-	items := []CacheItem{
+	items := []Item{
 		{ID: uuid.NewString(), UserID: userID, Text: "bar", Count: 1, CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: uuid.NewString(), UserID: "bat", Text: "baz", Count: 2, CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: uuid.NewString(), UserID: "qux", Text: "quux", Count: 3, CreatedAt: time.Now(), UpdatedAt: time.Now()},
 	}
-	repo := NewRedisRepository(client)
+	repo := newBase[Item](client)
 
 	// set
-	serialized, _ := items[0].Serialize()
-	err := repo.Set(ctx, "item0", serialized)
+	err := repo.Set(ctx, "item0", items[0])
 	ValidateErr(t, err, nil)
 
 	// get
-	temp, err := repo.Get(ctx, "item0")
+	getItem, err := repo.Get(ctx, "item0")
 	ValidateErr(t, err, nil)
-
-	getItem, _ := DeserializeCacheItem(temp)
-	if d := cmp.Diff(getItem, &items[0], cmpopts.IgnoreFields(CacheItem{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+	if d := cmp.Diff(getItem, &items[0], cmpopts.IgnoreFields(Item{}, "CreatedAt", "UpdatedAt")); len(d) != 0 {
 		t.Errorf("Get()differs: (-got +want)\n%s", d)
 	}
 

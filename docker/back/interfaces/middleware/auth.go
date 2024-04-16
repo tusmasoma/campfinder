@@ -20,10 +20,10 @@ type AuthMiddleware interface {
 }
 
 type authMiddleware struct {
-	rr repository.CacheRepository
+	rr repository.UserCacheRepository
 }
 
-func NewAuthMiddleware(rr repository.CacheRepository) AuthMiddleware {
+func NewAuthMiddleware(rr repository.UserCacheRepository) AuthMiddleware {
 	return &authMiddleware{
 		rr: rr,
 	}
@@ -65,7 +65,7 @@ func (am *authMiddleware) Authenticate(next http.Handler) http.Handler {
 		}
 
 		// 該当のuserIdが存在するかキャッシュに問い合わせ
-		jti, err := am.rr.Get(ctx, payload.UserID)
+		jti, err := am.rr.GetUserSession(ctx, payload.UserID)
 		if errors.Is(err, ErrCacheMiss) {
 			http.Error(w, "Authentication failed: userId is not exit on cache", http.StatusUnauthorized)
 			return

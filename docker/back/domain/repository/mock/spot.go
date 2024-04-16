@@ -122,3 +122,98 @@ func (mr *MockSpotRepositoryMockRecorder) Update(ctx, id, spot interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockSpotRepository)(nil).Update), ctx, id, spot)
 }
+
+// MockSpotsCacheRepository is a mock of SpotsCacheRepository interface.
+type MockSpotsCacheRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockSpotsCacheRepositoryMockRecorder
+}
+
+// MockSpotsCacheRepositoryMockRecorder is the mock recorder for MockSpotsCacheRepository.
+type MockSpotsCacheRepositoryMockRecorder struct {
+	mock *MockSpotsCacheRepository
+}
+
+// NewMockSpotsCacheRepository creates a new mock instance.
+func NewMockSpotsCacheRepository(ctrl *gomock.Controller) *MockSpotsCacheRepository {
+	mock := &MockSpotsCacheRepository{ctrl: ctrl}
+	mock.recorder = &MockSpotsCacheRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSpotsCacheRepository) EXPECT() *MockSpotsCacheRepositoryMockRecorder {
+	return m.recorder
+}
+
+// Delete mocks base method.
+func (m *MockSpotsCacheRepository) Delete(ctx context.Context, key string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, key)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockSpotsCacheRepositoryMockRecorder) Delete(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSpotsCacheRepository)(nil).Delete), ctx, key)
+}
+
+// Exists mocks base method.
+func (m *MockSpotsCacheRepository) Exists(ctx context.Context, key string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Exists", ctx, key)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// Exists indicates an expected call of Exists.
+func (mr *MockSpotsCacheRepositoryMockRecorder) Exists(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockSpotsCacheRepository)(nil).Exists), ctx, key)
+}
+
+// Get mocks base method.
+func (m *MockSpotsCacheRepository) Get(ctx context.Context, key string) (*model.Spots, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, key)
+	ret0, _ := ret[0].(*model.Spots)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockSpotsCacheRepositoryMockRecorder) Get(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSpotsCacheRepository)(nil).Get), ctx, key)
+}
+
+// Scan mocks base method.
+func (m *MockSpotsCacheRepository) Scan(ctx context.Context, match string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Scan", ctx, match)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Scan indicates an expected call of Scan.
+func (mr *MockSpotsCacheRepositoryMockRecorder) Scan(ctx, match interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scan", reflect.TypeOf((*MockSpotsCacheRepository)(nil).Scan), ctx, match)
+}
+
+// Set mocks base method.
+func (m *MockSpotsCacheRepository) Set(ctx context.Context, key string, spots model.Spots) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Set", ctx, key, spots)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Set indicates an expected call of Set.
+func (mr *MockSpotsCacheRepositoryMockRecorder) Set(ctx, key, spots interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockSpotsCacheRepository)(nil).Set), ctx, key, spots)
+}

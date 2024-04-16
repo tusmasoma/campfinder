@@ -1,5 +1,5 @@
 //go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
-package infra
+package mysql
 
 import (
 	"github.com/doug-martin/goqu/v9"
@@ -8,12 +8,12 @@ import (
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
 
-type userRepository struct {
-	*base[model.User]
+type spotRepository struct {
+	*base[model.Spot]
 }
 
-func NewUserRepository(db repository.SQLExecutor, dialect *goqu.DialectWrapper) repository.UserRepository {
-	return &userRepository{
-		base: newBase[model.User](db, dialect, "User"),
+func NewSpotRepository(db repository.SQLExecutor, dialect *goqu.DialectWrapper) repository.SpotRepository {
+	return &spotRepository{
+		base: newBase[model.Spot](db, dialect, "Spot"),
 	}
 }

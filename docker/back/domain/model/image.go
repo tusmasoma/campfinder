@@ -13,3 +13,5 @@ type Image struct {
 	URL     string    `db:"url"`
 	Created time.Time `db:"-"`
 }
+
+type Images []Image

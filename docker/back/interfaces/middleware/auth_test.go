@@ -33,15 +33,15 @@ func TestAuthMiddleware_Authenticate(t *testing.T) {
 	patterns := []struct {
 		name  string
 		setup func(
-			m *mock.MockCacheRepository,
+			m *mock.MockUserCacheRepository,
 		)
 		in         func() *http.Request
 		wantStatus int
 	}{
 		{
 			name: "success",
-			setup: func(m *mock.MockCacheRepository) {
-				m.EXPECT().Get(
+			setup: func(m *mock.MockUserCacheRepository) {
+				m.EXPECT().GetUserSession(
 					gomock.Any(),
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
 				).Return(
@@ -84,8 +84,8 @@ func TestAuthMiddleware_Authenticate(t *testing.T) {
 		},
 		{
 			name: "Fail: User ID Not In Cache",
-			setup: func(m *mock.MockCacheRepository) {
-				m.EXPECT().Get(
+			setup: func(m *mock.MockUserCacheRepository) {
+				m.EXPECT().GetUserSession(
 					gomock.Any(),
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
 				).Return(
@@ -102,8 +102,8 @@ func TestAuthMiddleware_Authenticate(t *testing.T) {
 		},
 		{
 			name: "Fail: jti in Cache != jti in Payload",
-			setup: func(m *mock.MockCacheRepository) {
-				m.EXPECT().Get(
+			setup: func(m *mock.MockUserCacheRepository) {
+				m.EXPECT().GetUserSession(
 					gomock.Any(),
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
 				).Return(
@@ -125,7 +125,7 @@ func TestAuthMiddleware_Authenticate(t *testing.T) {
 			tt := tt
 
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockCacheRepository(ctrl)
+			repo := mock.NewMockUserCacheRepository(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(repo)

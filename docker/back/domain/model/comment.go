@@ -14,3 +14,5 @@ type Comment struct {
 	Text     string    `db:"text" json:"text"`
 	Created  time.Time `db:"-"`
 }
+
+type Comments []Comment

@@ -3,7 +3,6 @@ package usecase
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -34,10 +33,10 @@ type SpotUseCase interface {
 
 type spotUseCase struct {
 	sr repository.SpotRepository
-	cr repository.CacheRepository
+	cr repository.SpotsCacheRepository
 }
 
-func NewSpotUseCase(sr repository.SpotRepository, cr repository.CacheRepository) SpotUseCase {
+func NewSpotUseCase(sr repository.SpotRepository, cr repository.SpotsCacheRepository) SpotUseCase {
 	return &spotUseCase{
 		sr: sr,
 		cr: cr,
@@ -143,37 +142,14 @@ func (suc *spotUseCase) GetSpot(ctx context.Context, spotID string) model.Spot {
 }
 
 func (suc *spotUseCase) getMasterData(ctx context.Context, category string) []model.Spot {
-	temp, cacheErr := suc.cr.Get(ctx, "spots_"+category)
+	spots, cacheErr := suc.cr.Get(ctx, "spots_"+category)
 	if cacheErr != nil {
 		log.Printf("Failed to get spots from cache for category %v: %v", category, cacheErr)
-		return nil
-	}
-	spots, err := Deserialize(temp)
-	if err != nil {
 		return nil
 	}
 	return *spots
 }
 
 func (suc *spotUseCase) setMasterData(ctx context.Context, category string, spots []model.Spot) error {
-	data, _ := Serialize(spots)
-	return suc.cr.Set(ctx, "spots_"+category, data)
-}
-
-// TODO: 一旦以下に配置
-func Serialize(spots []model.Spot) (string, error) {
-	data, err := json.Marshal(spots)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
-}
-
-func Deserialize(data string) (*[]model.Spot, error) {
-	var items []model.Spot
-	err := json.Unmarshal([]byte(data), &items)
-	if err != nil {
-		return nil, err
-	}
-	return &items, nil
+	return suc.cr.Set(ctx, "spots_"+category, spots)
 }
