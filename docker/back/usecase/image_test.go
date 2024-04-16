@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -28,38 +29,49 @@ type ImageDeleteArg struct {
 	user   model.User
 }
 
-func TestImageUseCase_ListSpotImgURLs(t *testing.T) {
+func TestImageUseCase_ListImages(t *testing.T) {
 	t.Parallel()
+
+	const layout = "2006-01-02T15:04:05Z"
+	created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
+	images := model.Images{
+		{
+			ID:      uuid.New(),
+			SpotID:  uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+			UserID:  uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+			URL:     "https://hoge.com/hoge",
+			Created: created,
+		},
+	}
 	patterns := []struct {
 		name  string
 		setup func(
 			m *mock.MockImageRepository,
+			m1 *mock.MockImagesCacheRepository,
 		)
 		arg struct {
 			ctx    context.Context
 			spotID string
 		}
-		wantErr error
+		want struct {
+			images []model.Image
+			err    error
+		}
 	}{
 		{
 			name: "success",
-			setup: func(m *mock.MockImageRepository) {
-				const layout = "2006-01-02T15:04:05Z"
-				created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
+			setup: func(m *mock.MockImageRepository, m1 *mock.MockImagesCacheRepository) {
 				m.EXPECT().List(
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "SpotID", Value: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"}},
 				).Return(
-					[]model.Image{
-						{
-							ID:      uuid.New(),
-							SpotID:  uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
-							UserID:  uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-							URL:     "https://hoge.com/hoge",
-							Created: created,
-						},
-					}, nil,
+					images, nil,
 				)
+				m1.EXPECT().Set(
+					gomock.Any(),
+					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+					images,
+				).Return(nil)
 			},
 			arg: struct {
 				ctx    context.Context
@@ -68,7 +80,42 @@ func TestImageUseCase_ListSpotImgURLs(t *testing.T) {
 				ctx:    context.Background(),
 				spotID: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
 			},
-			wantErr: nil,
+			want: struct {
+				images []model.Image
+				err    error
+			}{
+				images: images,
+				err:    nil,
+			},
+		},
+		{
+			name: "success: fail to get images from db, but success to get images from masterdata",
+			setup: func(m *mock.MockImageRepository, m1 *mock.MockImagesCacheRepository) {
+				m.EXPECT().List(
+					gomock.Any(),
+					[]repository.QueryCondition{{Field: "SpotID", Value: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"}},
+				).Return(
+					nil, fmt.Errorf("fail to get images from db"),
+				)
+				m1.EXPECT().Get(
+					gomock.Any(),
+					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+				).Return(&images, nil)
+			},
+			arg: struct {
+				ctx    context.Context
+				spotID string
+			}{
+				ctx:    context.Background(),
+				spotID: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+			},
+			want: struct {
+				images []model.Image
+				err    error
+			}{
+				images: images,
+				err:    nil,
+			},
 		},
 	}
 
@@ -77,20 +124,25 @@ func TestImageUseCase_ListSpotImgURLs(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockImageRepository(ctrl)
+			ir := mock.NewMockImageRepository(ctrl)
+			ic := mock.NewMockImagesCacheRepository(ctrl)
 
 			if tt.setup != nil {
-				tt.setup(repo)
+				tt.setup(ir, ic)
 			}
 
-			usecase := NewImageUseCase(repo)
+			usecase := NewImageUseCase(ir, ic)
 
-			_, err := usecase.ListImages(tt.arg.ctx, tt.arg.spotID)
+			images, err := usecase.ListImages(tt.arg.ctx, tt.arg.spotID)
 
-			if (err != nil) != (tt.wantErr != nil) {
-				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.wantErr)
-			} else if err != nil && tt.wantErr != nil && err.Error() != tt.wantErr.Error() {
-				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != (tt.want.err != nil) {
+				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.want.err)
+			} else if err != nil && tt.want.err != nil && err.Error() != tt.want.err.Error() {
+				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.want.err)
+			}
+
+			if !reflect.DeepEqual(images, tt.want.images) {
+				t.Errorf("GetSpot() \n got = %v,\n want %v", images, tt.want)
 			}
 		})
 	}
@@ -139,13 +191,14 @@ func TestImageUseCase_CreateImage(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockImageRepository(ctrl)
+			ir := mock.NewMockImageRepository(ctrl)
+			ic := mock.NewMockImagesCacheRepository(ctrl)
 
 			if tt.setup != nil {
-				tt.setup(repo)
+				tt.setup(ir)
 			}
 
-			usecase := NewImageUseCase(repo)
+			usecase := NewImageUseCase(ir, ic)
 
 			err := usecase.CreateImage(tt.arg.ctx, tt.arg.spotID, tt.arg.url, tt.arg.user)
 
@@ -234,13 +287,14 @@ func TestImageUseCase_DeleteImage(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockImageRepository(ctrl)
+			ir := mock.NewMockImageRepository(ctrl)
+			ic := mock.NewMockImagesCacheRepository(ctrl)
 
 			if tt.setup != nil {
-				tt.setup(repo)
+				tt.setup(ir)
 			}
 
-			usecase := NewImageUseCase(repo)
+			usecase := NewImageUseCase(ir, ic)
 
 			err := usecase.DeleteImage(tt.arg.ctx, tt.arg.id, tt.arg.userID, tt.arg.user)
 			if (err != nil) != (tt.wantErr != nil) {
