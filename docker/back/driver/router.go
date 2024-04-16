@@ -31,11 +31,12 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 
 	spotsRedisRepo := redis.NewSpotsRepository(client)
 	userRedisRepo := redis.NewUserRepository(client)
+	commentsRedisRepo := redis.NewCommentsRepository(client)
 	imgRedisRepo := redis.NewImagesRepository(client)
 
 	userUseCase := usecase.NewUserUseCase(userRepo, userRedisRepo)
 	spotUseCase := usecase.NewSpotUseCase(spotRepo, spotsRedisRepo)
-	commentUseCase := usecase.NewCommentUseCase(commentRepo)
+	commentUseCase := usecase.NewCommentUseCase(commentRepo, commentsRedisRepo)
 	imgUseCase := usecase.NewImageUseCase(imgRepo, imgRedisRepo)
 	authUseCase := usecase.NewAuthUseCase(userRepo)
 

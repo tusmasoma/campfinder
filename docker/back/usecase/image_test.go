@@ -69,7 +69,7 @@ func TestImageUseCase_ListImages(t *testing.T) {
 				)
 				m1.EXPECT().Set(
 					gomock.Any(),
-					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+					"images_fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
 					images,
 				).Return(nil)
 			},
@@ -99,7 +99,7 @@ func TestImageUseCase_ListImages(t *testing.T) {
 				)
 				m1.EXPECT().Get(
 					gomock.Any(),
-					"fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+					"images_fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
 				).Return(&images, nil)
 			},
 			arg: struct {
@@ -133,16 +133,16 @@ func TestImageUseCase_ListImages(t *testing.T) {
 
 			usecase := NewImageUseCase(ir, ic)
 
-			images, err := usecase.ListImages(tt.arg.ctx, tt.arg.spotID)
+			getImages, err := usecase.ListImages(tt.arg.ctx, tt.arg.spotID)
 
 			if (err != nil) != (tt.want.err != nil) {
-				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.want.err)
+				t.Errorf("ListImages() error = %v, wantErr %v", err, tt.want.err)
 			} else if err != nil && tt.want.err != nil && err.Error() != tt.want.err.Error() {
-				t.Errorf("GetSpotImgURLBySpotID() error = %v, wantErr %v", err, tt.want.err)
+				t.Errorf("ListImages() error = %v, wantErr %v", err, tt.want.err)
 			}
 
-			if !reflect.DeepEqual(images, tt.want.images) {
-				t.Errorf("GetSpot() \n got = %v,\n want %v", images, tt.want)
+			if !reflect.DeepEqual(getImages, tt.want.images) {
+				t.Errorf("ListImages() \n got = %v,\n want %v", getImages, tt.want)
 			}
 		})
 	}
