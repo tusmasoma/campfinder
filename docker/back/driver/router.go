@@ -8,7 +8,8 @@ import (
 	"github.com/go-chi/cors"
 
 	"github.com/tusmasoma/campfinder/docker/back/config"
-	"github.com/tusmasoma/campfinder/docker/back/infra"
+	"github.com/tusmasoma/campfinder/docker/back/infra/mysql"
+	"github.com/tusmasoma/campfinder/docker/back/infra/redis"
 	"github.com/tusmasoma/campfinder/docker/back/interfaces/handler"
 	"github.com/tusmasoma/campfinder/docker/back/interfaces/middleware"
 	"github.com/tusmasoma/campfinder/docker/back/usecase"
@@ -23,14 +24,16 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 	}
 	client := config.NewClient()
 
-	userRepo := infra.NewUserRepository(db, &dialect)
-	spotRepo := infra.NewSpotRepository(db, &dialect)
-	commentRepo := infra.NewCommentRepository(db, &dialect)
-	imgRepo := infra.NewImageRepository(db, &dialect)
-	redisRepo := infra.NewRedisRepository(client)
+	userRepo := mysql.NewUserRepository(db, &dialect)
+	spotRepo := mysql.NewSpotRepository(db, &dialect)
+	commentRepo := mysql.NewCommentRepository(db, &dialect)
+	imgRepo := mysql.NewImageRepository(db, &dialect)
 
-	userUseCase := usecase.NewUserUseCase(userRepo, redisRepo)
-	spotUseCase := usecase.NewSpotUseCase(spotRepo, redisRepo)
+	spotsRedisRepo := redis.NewSpotsRepository(client)
+	userRedisRepo := redis.NewUserRepository(client)
+
+	userUseCase := usecase.NewUserUseCase(userRepo, userRedisRepo)
+	spotUseCase := usecase.NewSpotUseCase(spotRepo, spotsRedisRepo)
 	commentUseCase := usecase.NewCommentUseCase(commentRepo)
 	imgUseCase := usecase.NewImageUseCase(imgRepo)
 	authUseCase := usecase.NewAuthUseCase(userRepo)
@@ -39,7 +42,7 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 	spotHandler := handler.NewSpotHandler(spotUseCase)
 	commentHandler := handler.NewCommentHandler(commentUseCase, authUseCase)
 	imgHandler := handler.NewImageHandler(imgUseCase, authUseCase)
-	authMiddleware := middleware.NewAuthMiddleware(redisRepo)
+	authMiddleware := middleware.NewAuthMiddleware(userRedisRepo)
 
 	/* ===== URLマッピングを行う ===== */
 	r := chi.NewRouter()

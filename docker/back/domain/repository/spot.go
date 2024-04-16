@@ -15,3 +15,11 @@ type SpotRepository interface {
 	Delete(ctx context.Context, id string) error
 	CreateOrUpdate(ctx context.Context, id string, qcs []QueryCondition, spot model.Spot) error
 }
+
+type SpotsCacheRepository interface {
+	Set(ctx context.Context, key string, spots model.Spots) error
+	Get(ctx context.Context, key string) (*model.Spots, error)
+	Delete(ctx context.Context, key string) error
+	Exists(ctx context.Context, key string) bool
+	Scan(ctx context.Context, match string) ([]string, error)
+}

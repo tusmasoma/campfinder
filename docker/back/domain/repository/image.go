@@ -12,3 +12,11 @@ type ImageRepository interface {
 	Create(ctx context.Context, img model.Image) error
 	Delete(ctx context.Context, id string) error
 }
+
+type ImagesCacheRepository interface {
+	Set(ctx context.Context, key string, images model.Images) error
+	Get(ctx context.Context, key string) (*model.Images, error)
+	Delete(ctx context.Context, key string) error
+	Exists(ctx context.Context, key string) bool
+	Scan(ctx context.Context, match string) ([]string, error)
+}

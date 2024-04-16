@@ -137,7 +137,7 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			sr := mock.NewMockSpotRepository(ctrl)
-			cr := mock.NewMockCacheRepository(ctrl)
+			cr := mock.NewMockSpotsCacheRepository(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(sr)
@@ -196,21 +196,19 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 		Description: "奥の湯は、札幌市北34条駅から徒歩0分という便利なロケーションにある銭湯です。",
 		IconPath:    "/static/img/spaflag.jpeg",
 	}
-	serializeCampsites, _ := Serialize([]model.Spot{campsite})
-	serializeSpas, _ := Serialize([]model.Spot{spa})
 
 	patterns := []struct {
 		name  string
 		setup func(
 			m *mock.MockSpotRepository,
-			m1 *mock.MockCacheRepository,
+			m1 *mock.MockSpotsCacheRepository,
 		)
 		arg  ListSpotsArg
 		want []model.Spot
 	}{
 		{
 			name: "success",
-			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
+			setup: func(m *mock.MockSpotRepository, m1 *mock.MockSpotsCacheRepository) {
 				m.EXPECT().List(
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "Category", Value: "campsite"}},
@@ -218,7 +216,7 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 				m1.EXPECT().Set(
 					gomock.Any(),
 					"spots_campsite",
-					serializeCampsites,
+					[]model.Spot{campsite},
 				).Return(nil)
 				m.EXPECT().List(
 					gomock.Any(),
@@ -227,7 +225,7 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 				m1.EXPECT().Set(
 					gomock.Any(),
 					"spots_spa",
-					serializeSpas,
+					[]model.Spot{spa},
 				).Return(nil)
 			},
 			arg: ListSpotsArg{
@@ -238,17 +236,17 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 		},
 		{
 			name: "fail: get spot from db",
-			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
+			setup: func(m *mock.MockSpotRepository, m1 *mock.MockSpotsCacheRepository) {
 				m.EXPECT().List(
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "Category", Value: "campsite"}},
 				).Return([]model.Spot{}, fmt.Errorf("fail to get spot from db"))
-				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return(serializeCampsites, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
 				m.EXPECT().List(
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "Category", Value: "spa"}},
 				).Return([]model.Spot{}, fmt.Errorf("fail to get spot from db"))
-				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return(serializeSpas, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{spa}, nil)
 			},
 			arg: ListSpotsArg{
 				ctx:        context.Background(),
@@ -258,7 +256,7 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 		},
 		{
 			name: "fail: set master data",
-			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
+			setup: func(m *mock.MockSpotRepository, m1 *mock.MockSpotsCacheRepository) {
 				m.EXPECT().List(
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "Category", Value: "campsite"}},
@@ -266,7 +264,7 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 				m1.EXPECT().Set(
 					gomock.Any(),
 					"spots_campsite",
-					serializeCampsites,
+					[]model.Spot{campsite},
 				).Return(fmt.Errorf("fail to set in cache"))
 				m.EXPECT().List(
 					gomock.Any(),
@@ -275,7 +273,7 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 				m1.EXPECT().Set(
 					gomock.Any(),
 					"spots_spa",
-					serializeSpas,
+					[]model.Spot{spa},
 				).Return(fmt.Errorf("fail to set in cache"))
 			},
 			arg: ListSpotsArg{
@@ -292,7 +290,7 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			sr := mock.NewMockSpotRepository(ctrl)
-			cr := mock.NewMockCacheRepository(ctrl)
+			cr := mock.NewMockSpotsCacheRepository(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(sr, cr)
@@ -322,21 +320,19 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 		Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
 		IconPath:    "/static/img/campsiteflag.jpeg",
 	}
-	serializeCampsites, _ := Serialize([]model.Spot{campsite})
-	serializeNil, _ := Serialize([]model.Spot{})
 
 	patterns := []struct {
 		name  string
 		setup func(
 			m *mock.MockSpotRepository,
-			m1 *mock.MockCacheRepository,
+			m1 *mock.MockSpotsCacheRepository,
 		)
 		arg  GetSpotArg
 		want model.Spot
 	}{
 		{
 			name: "success",
-			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
+			setup: func(m *mock.MockSpotRepository, m1 *mock.MockSpotsCacheRepository) {
 				m.EXPECT().Get(gomock.Any(), "5c5323e9-c78f-4dac-94ef-d34ab5ea8fed").Return(&campsite, nil)
 			},
 			arg: GetSpotArg{
@@ -347,7 +343,7 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 		},
 		{
 			name: "fail: fail to get spot form db. but, success to get spot from cache.",
-			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
+			setup: func(m *mock.MockSpotRepository, m1 *mock.MockSpotsCacheRepository) {
 				m.EXPECT().Get(
 					gomock.Any(),
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
@@ -362,8 +358,8 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 					[]string{"spots_campsite", "spots_spa"},
 					nil,
 				)
-				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return(serializeCampsites, nil)
-				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return(serializeNil, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{}, nil)
 			},
 			arg: GetSpotArg{
 				ctx:    context.Background(),
@@ -373,7 +369,7 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 		},
 		{
 			name: "fail: fail to get spot form db. and, does not exists the spot from cache.",
-			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
+			setup: func(m *mock.MockSpotRepository, m1 *mock.MockSpotsCacheRepository) {
 				m.EXPECT().Get(
 					gomock.Any(),
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8def",
@@ -385,8 +381,8 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 					[]string{"spots_campsite", "spots_spa"},
 					nil,
 				)
-				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return(serializeCampsites, nil)
-				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return(serializeNil, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{}, nil)
 			},
 			arg: GetSpotArg{
 				ctx:    context.Background(),
@@ -396,7 +392,7 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 		},
 		{
 			name: "fail: fail to get spot form db. and, scan",
-			setup: func(m *mock.MockSpotRepository, m1 *mock.MockCacheRepository) {
+			setup: func(m *mock.MockSpotRepository, m1 *mock.MockSpotsCacheRepository) {
 				m.EXPECT().Get(
 					gomock.Any(),
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
@@ -423,7 +419,7 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			sr := mock.NewMockSpotRepository(ctrl)
-			cr := mock.NewMockCacheRepository(ctrl)
+			cr := mock.NewMockSpotsCacheRepository(ctrl)
 
 			if tt.setup != nil {
 				tt.setup(sr, cr)

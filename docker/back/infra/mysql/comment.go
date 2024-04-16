@@ -1,5 +1,5 @@
 //go:generate mockgen -source=$GOFILE -package=mock -destination=./mock/$GOFILE
-package infra
+package mysql
 
 import (
 	"github.com/doug-martin/goqu/v9"
