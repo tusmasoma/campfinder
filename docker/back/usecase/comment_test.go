@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -41,37 +42,48 @@ type CommentDeleteArg struct {
 
 func TestCommentUseCase_ListComments(t *testing.T) {
 	t.Parallel()
+
+	const layout = "2006-01-02T15:04:05Z"
+	created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
+	comments := model.Comments{
+		{
+			ID:       uuid.New(),
+			SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+			UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+			StarRate: 5.0,
+			Text:     "いいスポットでした！!!",
+			Created:  created,
+		},
+	}
 	patterns := []struct {
 		name  string
 		setup func(
 			m *mock.MockCommentRepository,
+			m1 *mock.MockCommentsCacheRepository,
 		)
 		arg struct {
 			ctx    context.Context
 			spotID string
 		}
-		wantErr error
+		want struct {
+			comments []model.Comment
+			err      error
+		}
 	}{
 		{
 			name: "success",
-			setup: func(m *mock.MockCommentRepository) {
-				const layout = "2006-01-02T15:04:05Z"
-				created, _ := time.Parse(layout, "0001-01-01T00:00:00Z")
+			setup: func(m *mock.MockCommentRepository, m1 *mock.MockCommentsCacheRepository) {
 				m.EXPECT().List(
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "SpotID", Value: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"}},
 				).Return(
-					[]model.Comment{
-						{
-							ID:       uuid.New(),
-							SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
-							UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-							StarRate: 5.0,
-							Text:     "いいスポットでした！!!",
-							Created:  created,
-						},
-					}, nil,
+					comments, nil,
 				)
+				m1.EXPECT().Set(
+					gomock.Any(),
+					"comments_fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+					comments,
+				).Return(nil)
 			},
 			arg: struct {
 				ctx    context.Context
@@ -80,7 +92,42 @@ func TestCommentUseCase_ListComments(t *testing.T) {
 				ctx:    context.Background(),
 				spotID: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
 			},
-			wantErr: nil,
+			want: struct {
+				comments []model.Comment
+				err      error
+			}{
+				comments: comments,
+				err:      nil,
+			},
+		},
+		{
+			name: "success: fail to get comments from db, but success to get comments from masterdata",
+			setup: func(m *mock.MockCommentRepository, m1 *mock.MockCommentsCacheRepository) {
+				m.EXPECT().List(
+					gomock.Any(),
+					[]repository.QueryCondition{{Field: "SpotID", Value: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"}},
+				).Return(
+					nil, fmt.Errorf("fail to get comments from db"),
+				)
+				m1.EXPECT().Get(
+					gomock.Any(),
+					"comments_fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+				).Return(&comments, nil)
+			},
+			arg: struct {
+				ctx    context.Context
+				spotID string
+			}{
+				ctx:    context.Background(),
+				spotID: "fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052",
+			},
+			want: struct {
+				comments []model.Comment
+				err      error
+			}{
+				comments: comments,
+				err:      nil,
+			},
 		},
 	}
 	for _, tt := range patterns {
@@ -88,20 +135,24 @@ func TestCommentUseCase_ListComments(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockCommentRepository(ctrl)
+			cr := mock.NewMockCommentRepository(ctrl)
+			cc := mock.NewMockCommentsCacheRepository(ctrl)
 
 			if tt.setup != nil {
-				tt.setup(repo)
+				tt.setup(cr, cc)
 			}
 
-			usecase := NewCommentUseCase(repo)
+			usecase := NewCommentUseCase(cr, cc)
 
-			_, err := usecase.ListComments(tt.arg.ctx, tt.arg.spotID)
+			getComments, err := usecase.ListComments(tt.arg.ctx, tt.arg.spotID)
 
-			if (err != nil) != (tt.wantErr != nil) {
-				t.Errorf("GetCommentBySpotID() error = %v, wantErr %v", err, tt.wantErr)
-			} else if err != nil && tt.wantErr != nil && err.Error() != tt.wantErr.Error() {
-				t.Errorf("GetCommentBySpotID() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != (tt.want.err != nil) {
+				t.Errorf("ListComments() error = %v, wantErr %v", err, tt.want.err)
+			} else if err != nil && tt.want.err != nil && err.Error() != tt.want.err.Error() {
+				t.Errorf("ListComments() error = %v, wantErr %v", err, tt.want.err)
+			}
+			if !reflect.DeepEqual(getComments, tt.want.comments) {
+				t.Errorf("GetSpot() \n got = %v,\n want %v", getComments, tt.want.comments)
 			}
 		})
 	}
@@ -149,13 +200,14 @@ func TestCommentUseCase_CreateComment(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockCommentRepository(ctrl)
+			cr := mock.NewMockCommentRepository(ctrl)
+			cc := mock.NewMockCommentsCacheRepository(ctrl)
 
 			if tt.setup != nil {
-				tt.setup(repo)
+				tt.setup(cr)
 			}
 
-			usecase := NewCommentUseCase(repo)
+			usecase := NewCommentUseCase(cr, cc)
 
 			err := usecase.CreateComment(tt.arg.ctx, tt.arg.spotID, tt.arg.starRate, tt.arg.text, tt.arg.user)
 
@@ -261,13 +313,14 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockCommentRepository(ctrl)
+			cr := mock.NewMockCommentRepository(ctrl)
+			cc := mock.NewMockCommentsCacheRepository(ctrl)
 
 			if tt.setup != nil {
-				tt.setup(repo)
+				tt.setup(cr)
 			}
 
-			usecase := NewCommentUseCase(repo)
+			usecase := NewCommentUseCase(cr, cc)
 
 			err := usecase.UpdateComment(
 				tt.arg.ctx,
@@ -364,13 +417,14 @@ func TestCommentUseCase_DeleteComment(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			repo := mock.NewMockCommentRepository(ctrl)
+			cr := mock.NewMockCommentRepository(ctrl)
+			cc := mock.NewMockCommentsCacheRepository(ctrl)
 
 			if tt.setup != nil {
-				tt.setup(repo)
+				tt.setup(cr)
 			}
 
-			usecase := NewCommentUseCase(repo)
+			usecase := NewCommentUseCase(cr, cc)
 
 			err := usecase.DeleteComment(
 				tt.arg.ctx,

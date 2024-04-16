@@ -29,16 +29,27 @@ type CommentUseCase interface {
 
 type commentUseCase struct {
 	cr repository.CommentRepository
+	cc repository.CommentsCacheRepository
 }
 
-func NewCommentUseCase(cr repository.CommentRepository) CommentUseCase {
+func NewCommentUseCase(cr repository.CommentRepository, cc repository.CommentsCacheRepository) CommentUseCase {
 	return &commentUseCase{
 		cr: cr,
+		cc: cc,
 	}
 }
 
 func (cuc *commentUseCase) ListComments(ctx context.Context, spotID string) ([]model.Comment, error) {
-	return cuc.cr.List(ctx, []repository.QueryCondition{{Field: "SpotID", Value: spotID}})
+	comments, err := cuc.cr.List(ctx, []repository.QueryCondition{{Field: "SpotID", Value: spotID}})
+	if err != nil {
+		log.Printf("Failed to get comments of %v: %v", spotID, err)
+		comments = cuc.getMasterData(ctx, spotID)
+		return comments, nil
+	}
+	if cacheErr := cuc.setMasterData(ctx, spotID, comments); cacheErr != nil {
+		log.Printf("Failed to set comments data of %v: %v", spotID, cacheErr)
+	}
+	return comments, nil
 }
 
 func (cuc *commentUseCase) CreateComment(
@@ -101,4 +112,17 @@ func (cuc *commentUseCase) DeleteComment(ctx context.Context, id string, userID 
 		return err
 	}
 	return nil
+}
+
+func (cuc *commentUseCase) getMasterData(ctx context.Context, spotID string) []model.Comment {
+	comments, cacheErr := cuc.cc.Get(ctx, "comments_"+spotID)
+	if cacheErr != nil {
+		log.Printf("Failed to get comments from cache for spotID %v: %v", spotID, cacheErr)
+		return nil
+	}
+	return *comments
+}
+
+func (cuc *commentUseCase) setMasterData(ctx context.Context, spotID string, comments []model.Comment) error {
+	return cuc.cc.Set(ctx, "comments_"+spotID, comments)
 }

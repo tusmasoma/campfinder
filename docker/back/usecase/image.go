@@ -70,7 +70,7 @@ func (ih *imageUseCase) DeleteImage(ctx context.Context, id string, userID strin
 }
 
 func (ih *imageUseCase) getMasterData(ctx context.Context, spotID string) []model.Image {
-	images, cacheErr := ih.ic.Get(ctx, spotID)
+	images, cacheErr := ih.ic.Get(ctx, "images_"+spotID)
 	if cacheErr != nil {
 		log.Printf("Failed to get images from cache for spotID %v: %v", spotID, cacheErr)
 		return nil
@@ -79,5 +79,5 @@ func (ih *imageUseCase) getMasterData(ctx context.Context, spotID string) []mode
 }
 
 func (ih *imageUseCase) setMasterData(ctx context.Context, spotID string, images []model.Image) error {
-	return ih.ic.Set(ctx, spotID, images)
+	return ih.ic.Set(ctx, "images_"+spotID, images)
 }
