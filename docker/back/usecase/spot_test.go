@@ -241,12 +241,12 @@ func TestSpotUseCase_ListSpots(t *testing.T) {
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "Category", Value: "campsite"}},
 				).Return([]model.Spot{}, fmt.Errorf("fail to get spot from db"))
-				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return(&model.Spots{campsite}, nil)
 				m.EXPECT().List(
 					gomock.Any(),
 					[]repository.QueryCondition{{Field: "Category", Value: "spa"}},
 				).Return([]model.Spot{}, fmt.Errorf("fail to get spot from db"))
-				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{spa}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return(&model.Spots{spa}, nil)
 			},
 			arg: ListSpotsArg{
 				ctx:        context.Background(),
