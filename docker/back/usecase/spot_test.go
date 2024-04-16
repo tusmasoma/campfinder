@@ -358,8 +358,8 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 					[]string{"spots_campsite", "spots_spa"},
 					nil,
 				)
-				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
-				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return(&model.Spots{campsite}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return(&model.Spots{}, nil)
 			},
 			arg: GetSpotArg{
 				ctx:    context.Background(),
@@ -381,8 +381,8 @@ func TestSpotUseCase_GetSpot(t *testing.T) {
 					[]string{"spots_campsite", "spots_spa"},
 					nil,
 				)
-				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return([]model.Spot{campsite}, nil)
-				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return([]model.Spot{}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_campsite").Return(&model.Spots{campsite}, nil)
+				m1.EXPECT().Get(gomock.Any(), "spots_spa").Return(&model.Spots{}, nil)
 			},
 			arg: GetSpotArg{
 				ctx:    context.Background(),
