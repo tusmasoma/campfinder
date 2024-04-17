@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/usecase"
 )
@@ -110,7 +111,7 @@ func (sh *spotHandler) ListSpots(w http.ResponseWriter, r *http.Request) {
 
 func (sh *spotHandler) GetSpot(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	spotID := r.URL.Query().Get("spot_id")
+	spotID := chi.URLParam(r, "spotID")
 
 	spot := sh.suc.GetSpot(ctx, spotID)
 

@@ -71,6 +71,7 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 
 		r.Route("/spot", func(r chi.Router) {
 			r.Get("/", spotHandler.ListSpots)
+			r.Get("/{spotID}", spotHandler.GetSpot)
 			r.Post("/create", spotHandler.CreateSpot)
 		})
 
