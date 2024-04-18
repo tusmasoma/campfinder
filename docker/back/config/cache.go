@@ -10,7 +10,7 @@ import (
 func NewClient() *redis.Client {
 	ctx := context.Background()
 	conf, err := NewCacheConfig(ctx)
-	if err != nil {
+	if err != nil || conf == nil {
 		log.Printf("Failed to load cache config: %s\n", err)
 		return nil
 	}
