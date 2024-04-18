@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 
@@ -237,13 +238,30 @@ func TestSpotHandler_ListSpots(t *testing.T) {
 
 func TestSpotHandler_GetSpot(t *testing.T) {
 	t.Parallel()
+
+	spot := model.Spot{
+		ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
+		Category:    "campsite",
+		Name:        "旭川市21世紀の森ふれあい広場",
+		Address:     "北海道旭川市東旭川町瑞穂4288",
+		Lat:         43.7172721,
+		Lng:         142.6674615,
+		Period:      "2022年5月1日(日)〜11月30日(水)",
+		Phone:       "0166-76-2108",
+		Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
+		Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
+		IconPath:    "/static/img/campsiteflag.jpeg",
+	}
+	jsonData, _ := json.MarshalIndent(spot, "", "    ")
+
 	patterns := []struct {
 		name  string
 		setup func(
 			m *mock.MockSpotUseCase,
 		)
-		in         func() *http.Request
+		spotID     string
 		wantStatus int
+		wantBody   string
 	}{
 		{
 			name: "success",
@@ -251,31 +269,11 @@ func TestSpotHandler_GetSpot(t *testing.T) {
 				m.EXPECT().GetSpot(
 					gomock.Any(),
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
-				).Return(
-					model.Spot{
-						ID:          uuid.MustParse("5c5323e9-c78f-4dac-94ef-d34ab5ea8fed"),
-						Category:    "campsite",
-						Name:        "旭川市21世紀の森ふれあい広場",
-						Address:     "北海道旭川市東旭川町瑞穂4288",
-						Lat:         43.7172721,
-						Lng:         142.6674615,
-						Period:      "2022年5月1日(日)〜11月30日(水)",
-						Phone:       "0166-76-2108",
-						Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
-						Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
-						IconPath:    "/static/img/campsiteflag.jpeg",
-					},
-				)
+				).Return(spot)
 			},
-			in: func() *http.Request {
-				req, _ := http.NewRequest(
-					http.MethodGet,
-					"/api/spot?spot_id=5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
-					nil,
-				)
-				return req
-			},
+			spotID:     "5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
 			wantStatus: http.StatusOK,
+			wantBody:   string(jsonData),
 		},
 		{
 			name: "success: getspot method return nil",
@@ -285,15 +283,9 @@ func TestSpotHandler_GetSpot(t *testing.T) {
 					"5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
 				).Return(model.Spot{})
 			},
-			in: func() *http.Request {
-				req, _ := http.NewRequest(
-					http.MethodGet,
-					"/api/spot?spot_id=5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
-					nil,
-				)
-				return req
-			},
+			spotID:     "5c5323e9-c78f-4dac-94ef-d34ab5ea8fed",
 			wantStatus: http.StatusOK,
+			wantBody:   `{"spot":{}}`,
 		},
 	}
 
@@ -311,7 +303,11 @@ func TestSpotHandler_GetSpot(t *testing.T) {
 			handler := NewSpotHandler(repo)
 			recorder := httptest.NewRecorder()
 
-			handler.GetSpot(recorder, tt.in())
+			r := chi.NewRouter()
+			r.Get("/api/spot/{spotID}", handler.GetSpot)
+
+			req, _ := http.NewRequest("GET", "/api/spot/"+tt.spotID, nil)
+			r.ServeHTTP(recorder, req)
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
