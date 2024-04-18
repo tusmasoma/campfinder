@@ -306,7 +306,7 @@ func TestSpotHandler_GetSpot(t *testing.T) {
 			r := chi.NewRouter()
 			r.Get("/api/spot/{spotID}", handler.GetSpot)
 
-			req, _ := http.NewRequest("GET", "/api/spot/"+tt.spotID, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/spot/"+tt.spotID, nil)
 			r.ServeHTTP(recorder, req)
 
 			if status := recorder.Code; status != tt.wantStatus {
