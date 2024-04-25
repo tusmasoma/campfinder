@@ -11,6 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 
 	model "github.com/tusmasoma/campfinder/docker/back/domain/model"
+	usecase "github.com/tusmasoma/campfinder/docker/back/usecase"
 )
 
 // MockSpotUseCase is a mock of SpotUseCase interface.
@@ -36,18 +37,32 @@ func (m *MockSpotUseCase) EXPECT() *MockSpotUseCaseMockRecorder {
 	return m.recorder
 }
 
-// CreateSpot mocks base method.
-func (m *MockSpotUseCase) CreateSpot(ctx context.Context, category, name, address string, lat, lng float64, period, phone, price, description, iconPath string) error {
+// BatchCreateSpots mocks base method.
+func (m *MockSpotUseCase) BatchCreateSpots(ctx context.Context, params *usecase.BatchCreateSpotParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSpot", ctx, category, name, address, lat, lng, period, phone, price, description, iconPath)
+	ret := m.ctrl.Call(m, "BatchCreateSpots", ctx, params)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BatchCreateSpots indicates an expected call of BatchCreateSpots.
+func (mr *MockSpotUseCaseMockRecorder) BatchCreateSpots(ctx, params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCreateSpots", reflect.TypeOf((*MockSpotUseCase)(nil).BatchCreateSpots), ctx, params)
+}
+
+// CreateSpot mocks base method.
+func (m *MockSpotUseCase) CreateSpot(ctx context.Context, params *usecase.CreateSpotParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSpot", ctx, params)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateSpot indicates an expected call of CreateSpot.
-func (mr *MockSpotUseCaseMockRecorder) CreateSpot(ctx, category, name, address, lat, lng, period, phone, price, description, iconPath interface{}) *gomock.Call {
+func (mr *MockSpotUseCaseMockRecorder) CreateSpot(ctx, params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSpot", reflect.TypeOf((*MockSpotUseCase)(nil).CreateSpot), ctx, category, name, address, lat, lng, period, phone, price, description, iconPath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSpot", reflect.TypeOf((*MockSpotUseCase)(nil).CreateSpot), ctx, params)
 }
 
 // GetSpot mocks base method.

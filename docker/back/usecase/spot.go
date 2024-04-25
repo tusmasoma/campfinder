@@ -14,19 +14,8 @@ import (
 )
 
 type SpotUseCase interface {
-	CreateSpot(
-		ctx context.Context,
-		category string,
-		name string,
-		address string,
-		lat float64,
-		lng float64,
-		period string,
-		phone string,
-		price string,
-		description string,
-		iconPath string,
-	) error
+	CreateSpot(ctx context.Context, params *CreateSpotParams) error
+	BatchCreateSpots(ctx context.Context, params *BatchCreateSpotParams) error
 	ListSpots(ctx context.Context, categories []string) []model.Spot
 	GetSpot(ctx context.Context, spotID string) model.Spot
 }
@@ -43,20 +32,27 @@ func NewSpotUseCase(sr repository.SpotRepository, cr repository.SpotsCacheReposi
 	}
 }
 
-func (suc *spotUseCase) CreateSpot(
-	ctx context.Context,
-	category string,
-	name string,
-	address string,
-	lat float64,
-	lng float64,
-	period string,
-	phone string,
-	price string,
-	description string,
-	iconPath string,
-) error {
-	spots, err := suc.sr.List(ctx, []repository.QueryCondition{{Field: "Lat", Value: lat}, {Field: "Lng", Value: lng}})
+type CreateSpotParams struct {
+	Category    string
+	Name        string
+	Address     string
+	Lat         float64
+	Lng         float64
+	Period      string
+	Phone       string
+	Price       string
+	Description string
+	IconPath    string
+}
+
+func (suc *spotUseCase) CreateSpot(ctx context.Context, params *CreateSpotParams) error {
+	spots, err := suc.sr.List(
+		ctx,
+		[]repository.QueryCondition{
+			{Field: "Lat", Value: params.Lat},
+			{Field: "Lng", Value: params.Lng},
+		},
+	)
 	if err != nil {
 		log.Printf("Internal server error: %v", err)
 		return err
@@ -67,20 +63,48 @@ func (suc *spotUseCase) CreateSpot(
 	}
 
 	spot := model.Spot{
-		Category:    category,
-		Name:        name,
-		Address:     address,
-		Lat:         lat,
-		Lng:         lng,
-		Period:      period,
-		Phone:       phone,
-		Price:       price,
-		Description: description,
-		IconPath:    iconPath,
+		Category:    params.Category,
+		Name:        params.Name,
+		Address:     params.Address,
+		Lat:         params.Lat,
+		Lng:         params.Lng,
+		Period:      params.Period,
+		Phone:       params.Phone,
+		Price:       params.Price,
+		Description: params.Description,
+		IconPath:    params.IconPath,
 	}
 
 	if err = suc.sr.Create(ctx, spot); err != nil {
 		log.Printf("Failed to create spot: %v", err)
+		return err
+	}
+	return nil
+}
+
+type BatchCreateSpotParams struct {
+	Spots []CreateSpotParams
+}
+
+func (suc *spotUseCase) BatchCreateSpots(ctx context.Context, params *BatchCreateSpotParams) error {
+	var spots []model.Spot
+	for _, param := range params.Spots {
+		spot := model.Spot{
+			Category:    param.Category,
+			Name:        param.Name,
+			Address:     param.Address,
+			Lat:         param.Lat,
+			Lng:         param.Lng,
+			Period:      param.Period,
+			Phone:       param.Phone,
+			Price:       param.Price,
+			Description: param.Description,
+			IconPath:    param.IconPath,
+		}
+		spots = append(spots, spot)
+	}
+	if err := suc.sr.BatchCreate(ctx, spots); err != nil {
+		log.Printf("Failed to batch create spots: %v", err)
 		return err
 	}
 	return nil

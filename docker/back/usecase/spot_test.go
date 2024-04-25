@@ -15,20 +15,6 @@ import (
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository/mock"
 )
 
-type SpotCreateArg struct {
-	ctx         context.Context
-	category    string
-	name        string
-	address     string
-	lat         float64
-	lng         float64
-	period      string
-	phone       string
-	price       string
-	description string
-	iconPath    string
-}
-
 type ListSpotsArg struct {
 	ctx        context.Context
 	categories []string
@@ -39,14 +25,16 @@ type GetSpotArg struct {
 	spotID string
 }
 
-func TestSpotUseCase_SpotCreate(t *testing.T) {
+func TestSpotUseCase_CreateSpot(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
+
 	patterns := []struct {
 		name  string
 		setup func(
 			m *mock.MockSpotRepository,
 		)
-		arg     SpotCreateArg
+		params  *CreateSpotParams
 		wantErr error
 	}{
 		{
@@ -75,18 +63,17 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 					},
 				).Return(nil)
 			},
-			arg: SpotCreateArg{
-				ctx:         context.Background(), // コンテキストを適切に設定
-				category:    "campsite",
-				name:        "旭川市21世紀の森ふれあい広場",
-				address:     "北海道旭川市東旭川町瑞穂4288",
-				lat:         43.7172721,
-				lng:         142.6674615,
-				period:      "2022年5月1日(日)〜11月30日(水)",
-				phone:       "0166-76-2108",
-				price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
-				description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
-				iconPath:    "/static/img/campsiteflag.jpeg",
+			params: &CreateSpotParams{
+				Category:    "campsite",
+				Name:        "旭川市21世紀の森ふれあい広場",
+				Address:     "北海道旭川市東旭川町瑞穂4288",
+				Lat:         43.7172721,
+				Lng:         142.6674615,
+				Period:      "2022年5月1日(日)〜11月30日(水)",
+				Phone:       "0166-76-2108",
+				Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
+				Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
+				IconPath:    "/static/img/campsiteflag.jpeg",
 			},
 			wantErr: nil,
 		},
@@ -114,18 +101,17 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 					},
 				}, nil)
 			},
-			arg: SpotCreateArg{
-				ctx:         context.Background(), // コンテキストを適切に設定
-				category:    "campsite",
-				name:        "旭川市21世紀の森ふれあい広場",
-				address:     "北海道旭川市東旭川町瑞穂4288",
-				lat:         43.7172721,
-				lng:         142.6674615,
-				period:      "2022年5月1日(日)〜11月30日(水)",
-				phone:       "0166-76-2108",
-				price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
-				description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
-				iconPath:    "/static/img/campsiteflag.jpeg",
+			params: &CreateSpotParams{
+				Category:    "campsite",
+				Name:        "旭川市21世紀の森ふれあい広場",
+				Address:     "北海道旭川市東旭川町瑞穂4288",
+				Lat:         43.7172721,
+				Lng:         142.6674615,
+				Period:      "2022年5月1日(日)〜11月30日(水)",
+				Phone:       "0166-76-2108",
+				Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
+				Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
+				IconPath:    "/static/img/campsiteflag.jpeg",
 			},
 			wantErr: fmt.Errorf("already exists"),
 		},
@@ -145,24 +131,114 @@ func TestSpotUseCase_SpotCreate(t *testing.T) {
 
 			usecase := NewSpotUseCase(sr, cr)
 
-			err := usecase.CreateSpot(
-				tt.arg.ctx,
-				tt.arg.category,
-				tt.arg.name,
-				tt.arg.address,
-				tt.arg.lat,
-				tt.arg.lng,
-				tt.arg.period,
-				tt.arg.phone,
-				tt.arg.price,
-				tt.arg.description,
-				tt.arg.iconPath,
-			)
+			err := usecase.CreateSpot(ctx, tt.params)
 
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("SpotCreate() error = %v, wantErr %v", err, tt.wantErr)
 			} else if err != nil && tt.wantErr != nil && err.Error() != tt.wantErr.Error() {
 				t.Errorf("SpotCreate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestSpotUseCase_BatchCreateSpots(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	patterns := []struct {
+		name  string
+		setup func(
+			m *mock.MockSpotRepository,
+		)
+		params  *BatchCreateSpotParams
+		wantErr error
+	}{
+		{
+			name: "success",
+			setup: func(m *mock.MockSpotRepository) {
+				m.EXPECT().BatchCreate(
+					gomock.Any(),
+					[]model.Spot{
+						{
+							Category:    "campsite",
+							Name:        "旭川市21世紀の森ふれあい広場",
+							Address:     "北海道旭川市東旭川町瑞穂4288",
+							Lat:         43.7172721,
+							Lng:         142.6674615,
+							Period:      "2022年5月1日(日)〜11月30日(水)",
+							Phone:       "0166-76-2108",
+							Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
+							Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
+							IconPath:    "/static/img/campsiteflag.jpeg",
+						},
+						{
+							Category:    "spa",
+							Name:        "奥の湯",
+							Address:     "北海道川上郡弟子屈町字屈斜路",
+							Lat:         43.566446,
+							Lng:         144.3091296,
+							Period:      "24時間",
+							Phone:       "-",
+							Price:       "無料",
+							Description: "奥の湯は、札幌市北34条駅から徒歩0分という便利なロケーションにある銭湯です。",
+							IconPath:    "/static/img/spaflag.jpeg",
+						},
+					},
+				).Return(nil)
+			},
+			params: &BatchCreateSpotParams{
+				Spots: []CreateSpotParams{
+					{
+						Category:    "campsite",
+						Name:        "旭川市21世紀の森ふれあい広場",
+						Address:     "北海道旭川市東旭川町瑞穂4288",
+						Lat:         43.7172721,
+						Lng:         142.6674615,
+						Period:      "2022年5月1日(日)〜11月30日(水)",
+						Phone:       "0166-76-2108",
+						Price:       "有料。ログハウス大人290円〜750円、高校生以下180〜460円",
+						Description: "旭川市21世紀の森ふれあい広場は、ペーパンダムの周辺に整備された多目的公園、旭川市21世紀の森に隣接するキャンプ場です。",
+						IconPath:    "/static/img/campsiteflag.jpeg",
+					},
+					{
+						Category:    "spa",
+						Name:        "奥の湯",
+						Address:     "北海道川上郡弟子屈町字屈斜路",
+						Lat:         43.566446,
+						Lng:         144.3091296,
+						Period:      "24時間",
+						Phone:       "-",
+						Price:       "無料",
+						Description: "奥の湯は、札幌市北34条駅から徒歩0分という便利なロケーションにある銭湯です。",
+						IconPath:    "/static/img/spaflag.jpeg",
+					},
+				},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range patterns {
+		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
+			ctrl := gomock.NewController(t)
+			sr := mock.NewMockSpotRepository(ctrl)
+			cr := mock.NewMockSpotsCacheRepository(ctrl)
+
+			if tt.setup != nil {
+				tt.setup(sr)
+			}
+
+			usecase := NewSpotUseCase(sr, cr)
+
+			err := usecase.BatchCreateSpots(ctx, tt.params)
+
+			if (err != nil) != (tt.wantErr != nil) {
+				t.Errorf("BatchCreateSpots() error = %v, wantErr %v", err, tt.wantErr)
+			} else if err != nil && tt.wantErr != nil && err.Error() != tt.wantErr.Error() {
+				t.Errorf("BatchCreateSpots() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
