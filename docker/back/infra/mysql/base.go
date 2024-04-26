@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"log"
 	"reflect"
 
 	"github.com/doug-martin/goqu/v9"
@@ -116,7 +115,6 @@ func (b *base[T]) Create(ctx context.Context, entity T) error {
 
 func (b *base[T]) BatchCreate(ctx context.Context, entitys []T) error {
 	query, _, err := b.dialect.Insert(b.tableName).Rows(entitys).ToSQL()
-	log.Print(query)
 	if err != nil {
 		return err
 	}

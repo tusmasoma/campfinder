@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 )
@@ -90,6 +91,7 @@ func (suc *spotUseCase) BatchCreateSpots(ctx context.Context, params *BatchCreat
 	var spots []model.Spot
 	for _, param := range params.Spots {
 		spot := model.Spot{
+			ID:          uuid.New(),
 			Category:    param.Category,
 			Name:        param.Name,
 			Address:     param.Address,
