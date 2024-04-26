@@ -34,6 +34,18 @@ func (m *MockSpotHandler) EXPECT() *MockSpotHandlerMockRecorder {
 	return m.recorder
 }
 
+// BatchCreateSpots mocks base method.
+func (m *MockSpotHandler) BatchCreateSpots(w http.ResponseWriter, r *http.Request) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "BatchCreateSpots", w, r)
+}
+
+// BatchCreateSpots indicates an expected call of BatchCreateSpots.
+func (mr *MockSpotHandlerMockRecorder) BatchCreateSpots(w, r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCreateSpots", reflect.TypeOf((*MockSpotHandler)(nil).BatchCreateSpots), w, r)
+}
+
 // CreateSpot mocks base method.
 func (m *MockSpotHandler) CreateSpot(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()

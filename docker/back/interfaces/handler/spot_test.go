@@ -254,6 +254,7 @@ func TestSpotHandler_BatchCreateSpots(t *testing.T) {
 		})
 	}
 }
+
 func TestSpotHandler_ListSpots(t *testing.T) {
 	t.Parallel()
 	patterns := []struct {
