@@ -46,6 +46,10 @@ func TestBase(t *testing.T) {
 		t.Errorf("Expected error containing '%s', got %v", wantErrMsg, err)
 	}
 
+	// batch create
+	err = repo.BatchCreate(ctx, []Item{items[1], items[2]})
+	ValidateErr(t, err, nil)
+
 	// get
 	item, err := repo.Get(ctx, items[0].ID)
 	ValidateErr(t, err, nil)
@@ -54,8 +58,6 @@ func TestBase(t *testing.T) {
 	}
 
 	// list
-	err = repo.Create(ctx, items[1])
-	ValidateErr(t, err, nil)
 	qcs := []repository.QueryCondition{
 		{
 			Field: "Text",

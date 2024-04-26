@@ -11,6 +11,7 @@ type SpotRepository interface {
 	List(ctx context.Context, qcs []QueryCondition) ([]model.Spot, error)
 	Get(ctx context.Context, id string) (*model.Spot, error)
 	Create(ctx context.Context, spot model.Spot) error
+	BatchCreate(ctx context.Context, spots []model.Spot) error
 	Update(ctx context.Context, id string, spot model.Spot) error
 	Delete(ctx context.Context, id string) error
 	CreateOrUpdate(ctx context.Context, id string, qcs []QueryCondition, spot model.Spot) error

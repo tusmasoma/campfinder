@@ -73,6 +73,7 @@ func InitRoute(serverConfig *config.ServerConfig) *chi.Mux {
 			r.Get("/", spotHandler.ListSpots)
 			r.Get("/{spotID}", spotHandler.GetSpot)
 			r.Post("/create", spotHandler.CreateSpot)
+			r.Post("/batchcreate", spotHandler.BatchCreateSpots)
 		})
 
 		r.Route("/comment", func(r chi.Router) {
