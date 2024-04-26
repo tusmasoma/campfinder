@@ -143,7 +143,6 @@ func TestSpotUseCase_CreateSpot(t *testing.T) {
 }
 
 func TestSpotUseCase_BatchCreateSpots(t *testing.T) {
-	t.Skip()
 	t.Parallel()
 	ctx := context.Background()
 
