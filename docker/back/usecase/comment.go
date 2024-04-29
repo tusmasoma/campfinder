@@ -15,6 +15,7 @@ import (
 type CommentUseCase interface {
 	ListComments(ctx context.Context, spotID string) ([]model.Comment, error)
 	CreateComment(ctx context.Context, spotID uuid.UUID, starRate float64, text string, user model.User) error
+	BatchCreateComments(ctx context.Context, params *BatchCreateCommentsParams) error
 	UpdateComment(
 		ctx context.Context,
 		id uuid.UUID,
@@ -52,6 +53,13 @@ func (cuc *commentUseCase) ListComments(ctx context.Context, spotID string) ([]m
 	return comments, nil
 }
 
+type CreateCommentParams struct {
+	SpotID   uuid.UUID
+	StarRate float64
+	Text     string
+	userID   uuid.UUID
+}
+
 func (cuc *commentUseCase) CreateComment(
 	ctx context.Context,
 	spotID uuid.UUID,
@@ -68,6 +76,28 @@ func (cuc *commentUseCase) CreateComment(
 
 	if err := cuc.cr.Create(ctx, comment); err != nil {
 		log.Printf("Failed to create comment: %v", err)
+		return err
+	}
+	return nil
+}
+
+type BatchCreateCommentsParams struct {
+	Comments []CreateCommentParams
+}
+
+func (cuc *commentUseCase) BatchCreateComments(ctx context.Context, params *BatchCreateCommentsParams) error {
+	var comments []model.Comment
+	for _, param := range params.Comments {
+		comment := model.Comment{
+			SpotID:   param.SpotID,
+			UserID:   param.userID,
+			StarRate: param.StarRate,
+			Text:     param.Text,
+		}
+		comments = append(comments, comment)
+	}
+	if err := cuc.cr.BatchCreate(ctx, comments); err != nil {
+		log.Printf("Failed to batch create comments: %v", err)
 		return err
 	}
 	return nil

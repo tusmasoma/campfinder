@@ -12,6 +12,7 @@ import (
 	uuid "github.com/google/uuid"
 
 	model "github.com/tusmasoma/campfinder/docker/back/domain/model"
+	usecase "github.com/tusmasoma/campfinder/docker/back/usecase"
 )
 
 // MockCommentUseCase is a mock of CommentUseCase interface.
@@ -35,6 +36,20 @@ func NewMockCommentUseCase(ctrl *gomock.Controller) *MockCommentUseCase {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockCommentUseCase) EXPECT() *MockCommentUseCaseMockRecorder {
 	return m.recorder
+}
+
+// BatchCreateComments mocks base method.
+func (m *MockCommentUseCase) BatchCreateComments(ctx context.Context, params *usecase.BatchCreateCommentsParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BatchCreateComments", ctx, params)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BatchCreateComments indicates an expected call of BatchCreateComments.
+func (mr *MockCommentUseCaseMockRecorder) BatchCreateComments(ctx, params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCreateComments", reflect.TypeOf((*MockCommentUseCase)(nil).BatchCreateComments), ctx, params)
 }
 
 // CreateComment mocks base method.
