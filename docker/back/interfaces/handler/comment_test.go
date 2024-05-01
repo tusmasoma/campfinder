@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/tusmasoma/campfinder/docker/back/domain/model"
+	"github.com/tusmasoma/campfinder/docker/back/usecase"
 	"github.com/tusmasoma/campfinder/docker/back/usecase/mock"
 )
 
@@ -103,10 +104,12 @@ func TestCommentHandler_CreateComment(t *testing.T) {
 				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
 				m.EXPECT().CreateComment(
 					gomock.Any(),
-					uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
-					3.0,
-					"いいスポットでした！",
-					user,
+					&usecase.CreateCommentParams{
+						UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+						SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+						StarRate: 3.0,
+						Text:     "いいスポットでした！",
+					},
 				).Return(nil)
 			},
 			in: func() *http.Request {
@@ -163,6 +166,123 @@ func TestCommentHandler_CreateComment(t *testing.T) {
 			recorder := httptest.NewRecorder()
 
 			handler.CreateComment(recorder, tt.in())
+
+			if status := recorder.Code; status != tt.wantStatus {
+				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)
+			}
+		})
+	}
+}
+
+func TestCommentHandler_BatchCreateComments(t *testing.T) {
+	t.Parallel()
+	patterns := []struct {
+		name  string
+		setup func(
+			m *mock.MockCommentUseCase,
+			m1 *mock.MockAuthUseCase,
+		)
+		in         func() *http.Request
+		wantStatus int
+	}{
+		{
+			name: "success",
+			setup: func(m *mock.MockCommentUseCase, m1 *mock.MockAuthUseCase) {
+				user := model.User{
+					ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+					Name:     "test",
+					Email:    "",
+					Password: "",
+					IsAdmin:  false,
+				}
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+				m.EXPECT().BatchCreateComments(
+					gomock.Any(),
+					&usecase.BatchCreateCommentsParams{
+						Comments: []usecase.CreateCommentParams{
+							{
+								UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+								SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+								StarRate: 5.0,
+								Text:     "最高なスポットでした！",
+							},
+							{
+								UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+								SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+								StarRate: 3.0,
+								Text:     "いいスポットでした！",
+							},
+						},
+					},
+				).Return(nil)
+			},
+			in: func() *http.Request {
+				commentCreateReq := BatchCreateCommentsRequest{
+					Comments: []CreateCommentRequest{
+						{
+							SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+							StarRate: 5.0,
+							Text:     "最高なスポットでした！",
+						},
+						{
+							SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+							StarRate: 3.0,
+							Text:     "いいスポットでした！",
+						},
+					},
+				}
+				reqBody, _ := json.Marshal(commentCreateReq)
+				req, _ := http.NewRequest(http.MethodPost, "/api/comment/batch_create", bytes.NewBuffer(reqBody))
+				req.Header.Set("Content-Type", "application/json")
+				return req
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name: "Fail: invalid request",
+			setup: func(m *mock.MockCommentUseCase, m1 *mock.MockAuthUseCase) {
+				user := model.User{
+					ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+					Name:     "test",
+					Email:    "",
+					Password: "",
+					IsAdmin:  false,
+				}
+				m1.EXPECT().GetUserFromContext(gomock.Any()).Return(&user, nil)
+			},
+			in: func() *http.Request {
+				commentCreateReq := BatchCreateCommentsRequest{
+					Comments: []CreateCommentRequest{
+						{
+							SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+							StarRate: 3.0,
+						},
+					},
+				}
+				reqBody, _ := json.Marshal(commentCreateReq)
+				req, _ := http.NewRequest(http.MethodPost, "/api/comment/batch_create", bytes.NewBuffer(reqBody))
+				req.Header.Set("Content-Type", "application/json")
+				return req
+			},
+			wantStatus: http.StatusBadRequest,
+		},
+	}
+	for _, tt := range patterns {
+		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
+			ctrl := gomock.NewController(t)
+			cuc := mock.NewMockCommentUseCase(ctrl)
+			auc := mock.NewMockAuthUseCase(ctrl)
+
+			if tt.setup != nil {
+				tt.setup(cuc, auc)
+			}
+
+			handler := NewCommentHandler(cuc, auc)
+			recorder := httptest.NewRecorder()
+
+			handler.BatchCreateComments(recorder, tt.in())
 
 			if status := recorder.Code; status != tt.wantStatus {
 				t.Fatalf("handler returned wrong status code: got %v want %v", status, tt.wantStatus)

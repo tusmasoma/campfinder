@@ -15,14 +15,6 @@ import (
 	"github.com/tusmasoma/campfinder/docker/back/domain/repository/mock"
 )
 
-type CommentCreateArg struct {
-	ctx      context.Context
-	spotID   uuid.UUID
-	starRate float64
-	text     string
-	user     model.User
-}
-
 type CommentUpdateArg struct {
 	ctx      context.Context
 	id       uuid.UUID
@@ -160,12 +152,14 @@ func TestCommentUseCase_ListComments(t *testing.T) {
 
 func TestCommentUseCase_CreateComment(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
+
 	patterns := []struct {
 		name  string
 		setup func(
 			m *mock.MockCommentRepository,
 		)
-		arg     CommentCreateArg
+		params  *CreateCommentParams
 		wantErr error
 	}{
 		{
@@ -179,18 +173,11 @@ func TestCommentUseCase_CreateComment(t *testing.T) {
 				}
 				m.EXPECT().Create(gomock.Any(), comment).Return(nil)
 			},
-			arg: CommentCreateArg{
-				ctx:      context.Background(),
-				spotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
-				starRate: 5.0,
-				text:     "いいスポットでした！!!",
-				user: model.User{
-					ID:       uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
-					Name:     "test",
-					Email:    "test@gmail.com",
-					Password: "password123",
-					IsAdmin:  false,
-				},
+			params: &CreateCommentParams{
+				UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+				SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
+				StarRate: 5.0,
+				Text:     "いいスポットでした！!!",
 			},
 			wantErr: nil,
 		},
@@ -209,7 +196,7 @@ func TestCommentUseCase_CreateComment(t *testing.T) {
 
 			usecase := NewCommentUseCase(cr, cc)
 
-			err := usecase.CreateComment(tt.arg.ctx, tt.arg.spotID, tt.arg.starRate, tt.arg.text, tt.arg.user)
+			err := usecase.CreateComment(ctx, tt.params)
 
 			if (err != nil) != (tt.wantErr != nil) {
 				t.Errorf("CommentCreate() error = %v, wantErr %v", err, tt.wantErr)
@@ -258,13 +245,13 @@ func TestCommentuseCase_BatchCreateComments(t *testing.T) {
 						SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b8b5052"),
 						StarRate: 5.0,
 						Text:     "いいスポットでした！!!",
-						userID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
+						UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec2"),
 					},
 					{
 						SpotID:   uuid.MustParse("fb816fc7-ddcf-4fa0-9be0-d1fd0b505312"),
 						StarRate: 4.0,
 						Text:     "最高のスポットでした！!!",
-						userID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec3"),
+						UserID:   uuid.MustParse("f6db2530-cd9b-4ac1-8dc1-38c795e6eec3"),
 					},
 				},
 			},

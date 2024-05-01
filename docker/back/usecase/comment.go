@@ -14,7 +14,7 @@ import (
 
 type CommentUseCase interface {
 	ListComments(ctx context.Context, spotID string) ([]model.Comment, error)
-	CreateComment(ctx context.Context, spotID uuid.UUID, starRate float64, text string, user model.User) error
+	CreateComment(ctx context.Context, params *CreateCommentParams) error
 	BatchCreateComments(ctx context.Context, params *BatchCreateCommentsParams) error
 	UpdateComment(
 		ctx context.Context,
@@ -54,24 +54,18 @@ func (cuc *commentUseCase) ListComments(ctx context.Context, spotID string) ([]m
 }
 
 type CreateCommentParams struct {
+	UserID   uuid.UUID
 	SpotID   uuid.UUID
 	StarRate float64
 	Text     string
-	userID   uuid.UUID
 }
 
-func (cuc *commentUseCase) CreateComment(
-	ctx context.Context,
-	spotID uuid.UUID,
-	starRate float64,
-	text string,
-	user model.User,
-) error {
+func (cuc *commentUseCase) CreateComment(ctx context.Context, params *CreateCommentParams) error {
 	comment := model.Comment{
-		SpotID:   spotID,
-		UserID:   user.ID,
-		StarRate: starRate,
-		Text:     text,
+		SpotID:   params.SpotID,
+		UserID:   params.UserID,
+		StarRate: params.StarRate,
+		Text:     params.Text,
 	}
 
 	if err := cuc.cr.Create(ctx, comment); err != nil {
@@ -89,8 +83,8 @@ func (cuc *commentUseCase) BatchCreateComments(ctx context.Context, params *Batc
 	var comments []model.Comment
 	for _, param := range params.Comments {
 		comment := model.Comment{
+			UserID:   param.UserID,
 			SpotID:   param.SpotID,
-			UserID:   param.userID,
 			StarRate: param.StarRate,
 			Text:     param.Text,
 		}
