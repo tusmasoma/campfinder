@@ -12,6 +12,7 @@ import (
 	uuid "github.com/google/uuid"
 
 	model "github.com/tusmasoma/campfinder/docker/back/domain/model"
+	usecase "github.com/tusmasoma/campfinder/docker/back/usecase"
 )
 
 // MockCommentUseCase is a mock of CommentUseCase interface.
@@ -37,18 +38,32 @@ func (m *MockCommentUseCase) EXPECT() *MockCommentUseCaseMockRecorder {
 	return m.recorder
 }
 
-// CreateComment mocks base method.
-func (m *MockCommentUseCase) CreateComment(ctx context.Context, spotID uuid.UUID, starRate float64, text string, user model.User) error {
+// BatchCreateComments mocks base method.
+func (m *MockCommentUseCase) BatchCreateComments(ctx context.Context, params *usecase.BatchCreateCommentsParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateComment", ctx, spotID, starRate, text, user)
+	ret := m.ctrl.Call(m, "BatchCreateComments", ctx, params)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BatchCreateComments indicates an expected call of BatchCreateComments.
+func (mr *MockCommentUseCaseMockRecorder) BatchCreateComments(ctx, params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCreateComments", reflect.TypeOf((*MockCommentUseCase)(nil).BatchCreateComments), ctx, params)
+}
+
+// CreateComment mocks base method.
+func (m *MockCommentUseCase) CreateComment(ctx context.Context, params *usecase.CreateCommentParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateComment", ctx, params)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateComment indicates an expected call of CreateComment.
-func (mr *MockCommentUseCaseMockRecorder) CreateComment(ctx, spotID, starRate, text, user interface{}) *gomock.Call {
+func (mr *MockCommentUseCaseMockRecorder) CreateComment(ctx, params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockCommentUseCase)(nil).CreateComment), ctx, spotID, starRate, text, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockCommentUseCase)(nil).CreateComment), ctx, params)
 }
 
 // DeleteComment mocks base method.
