@@ -34,6 +34,18 @@ func (m *MockCommentHandler) EXPECT() *MockCommentHandlerMockRecorder {
 	return m.recorder
 }
 
+// BatchCreateComments mocks base method.
+func (m *MockCommentHandler) BatchCreateComments(w http.ResponseWriter, r *http.Request) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "BatchCreateComments", w, r)
+}
+
+// BatchCreateComments indicates an expected call of BatchCreateComments.
+func (mr *MockCommentHandlerMockRecorder) BatchCreateComments(w, r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BatchCreateComments", reflect.TypeOf((*MockCommentHandler)(nil).BatchCreateComments), w, r)
+}
+
 // CreateComment mocks base method.
 func (m *MockCommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	m.ctrl.T.Helper()
