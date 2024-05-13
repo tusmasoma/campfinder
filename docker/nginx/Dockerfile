@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 nginx:1.18.0-alpine
+FROM --platform=linux/amd64 nginx:alpine
 
 # デフォルトのconfを消して、別の設定を追加
 WORKDIR /app
