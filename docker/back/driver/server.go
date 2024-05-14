@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/go-chi/chi/v5"
+
 	"github.com/tusmasoma/campfinder/docker/back/config"
 )
 
@@ -19,10 +20,16 @@ func Run() {
 	flag.StringVar(&addr, "addr", ":8083", "tcp host:port to connect")
 	flag.Parse()
 
-	container := BuildContainer()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	container, err := BuildContainer(ctx)
+	if err != nil {
+		log.Fatalf("Failed to build container: %v", err)
+	}
 
 	/* ===== サーバの設定 ===== */
-	err := container.Invoke(func(router *chi.Mux, config *config.ServerConfig) {
+	err = container.Invoke(func(router *chi.Mux, config *config.ServerConfig) {
 		srv := &http.Server{
 			Addr:         addr,
 			Handler:      router,
@@ -38,7 +45,7 @@ func Run() {
 		defer stop()
 
 		go func() {
-			if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			if err = srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				log.Fatalf("Server failed: %v", err)
 			}
 		}()
@@ -49,7 +56,7 @@ func Run() {
 		tctx, cancel := context.WithTimeout(context.Background(), config.GracefulShutdownTimeout)
 		defer cancel()
 
-		if err := srv.Shutdown(tctx); err != nil {
+		if err = srv.Shutdown(tctx); err != nil {
 			log.Println("failed to shutdown http server", err)
 		}
 		log.Println("Server exited")

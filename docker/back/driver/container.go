@@ -1,6 +1,8 @@
 package driver
 
 import (
+	"context"
+
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -14,86 +16,107 @@ import (
 	"github.com/tusmasoma/campfinder/docker/back/usecase"
 )
 
-func BuildContainer() *dig.Container {
+func BuildContainer(ctx context.Context) (*dig.Container, error) {
 	container := dig.New()
 
-	container.Provide(config.NewServerConfig)
-	container.Provide(config.NewDB)
-	container.Provide(config.NewClient)
-	container.Provide(goqu.Dialect("mysql"))
+	if err := container.Provide(func() context.Context {
+		return ctx
+	}); err != nil {
+		return nil, err
+	}
 
-	container.Provide(mysql.NewUserRepository)
-	container.Provide(mysql.NewSpotRepository)
-	container.Provide(mysql.NewCommentRepository)
-	container.Provide(mysql.NewImageRepository)
-	container.Provide(redis.NewSpotsRepository)
-	container.Provide(redis.NewUserRepository)
-	container.Provide(redis.NewCommentsRepository)
-	container.Provide(redis.NewImagesRepository)
+	providers := []interface{}{
+		config.NewServerConfig,
+		config.NewDB,
+		config.NewClient,
+		provideMySQLDialect,
+		mysql.NewUserRepository,
+		mysql.NewSpotRepository,
+		mysql.NewCommentRepository,
+		mysql.NewImageRepository,
+		redis.NewSpotsRepository,
+		redis.NewUserRepository,
+		redis.NewCommentsRepository,
+		redis.NewImagesRepository,
+		usecase.NewUserUseCase,
+		usecase.NewSpotUseCase,
+		usecase.NewCommentUseCase,
+		usecase.NewImageUseCase,
+		usecase.NewAuthUseCase,
+		handler.NewUserHandler,
+		handler.NewSpotHandler,
+		handler.NewCommentHandler,
+		handler.NewImageHandler,
+		middleware.NewAuthMiddleware,
+		func(
+			serverConfig *config.ServerConfig,
+			userHandler handler.UserHandler,
+			spotHandler handler.SpotHandler,
+			commentHandler handler.CommentHandler,
+			imgHandler handler.ImageHandler,
+			authMiddleware middleware.AuthMiddleware,
+		) *chi.Mux {
+			r := chi.NewRouter()
+			r.Use(cors.Handler(cors.Options{
+				AllowedOrigins:   []string{"https://*", "http://*"},
+				AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Origin"},
+				ExposedHeaders:   []string{"Link", "Authorization"},
+				AllowCredentials: false,
+				MaxAge:           serverConfig.PreflightCacheDurationSec,
+			}))
+			r.Use(middleware.Logging)
 
-	container.Provide(usecase.NewUserUseCase)
-	container.Provide(usecase.NewSpotUseCase)
-	container.Provide(usecase.NewCommentUseCase)
-	container.Provide(usecase.NewImageUseCase)
-	container.Provide(usecase.NewAuthUseCase)
+			r.Route("/api", func(r chi.Router) {
+				r.Route("/user", func(r chi.Router) {
+					r.Post("/create", userHandler.CreateUser)
+					r.Post("/login", userHandler.Login)
+					r.Group(func(r chi.Router) {
+						r.Use(authMiddleware.Authenticate)
+						r.Get("/api/user/logout", userHandler.Logout)
+					})
+				})
 
-	container.Provide(handler.NewUserHandler)
-	container.Provide(handler.NewSpotHandler)
-	container.Provide(handler.NewCommentHandler)
-	container.Provide(handler.NewImageHandler)
+				r.Route("/spot", func(r chi.Router) {
+					r.Get("/", spotHandler.ListSpots)
+					r.Get("/{spotID}", spotHandler.GetSpot)
+					r.Post("/create", spotHandler.CreateSpot)
+					r.Post("/batchcreate", spotHandler.BatchCreateSpots)
+				})
 
-	container.Provide(middleware.NewAuthMiddleware)
+				r.Route("/comment", func(r chi.Router) {
+					r.Get("/", commentHandler.ListComments)
+					r.Group(func(r chi.Router) {
+						r.Use(authMiddleware.Authenticate)
+						r.Post("/create", commentHandler.CreateComment)
+						r.Post("/update", commentHandler.UpdateComment)
+						r.Delete("/delete", commentHandler.DeleteComment)
+					})
+				})
 
-	container.Provide(func(serverConfig config.ServerConfig, userHandler handler.UserHandler, spotHandler handler.SpotHandler, commentHandler handler.CommentHandler, imgHandler handler.ImageHandler, authMiddleware middleware.AuthMiddleware) *chi.Mux {
-		r := chi.NewRouter()
-		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"https://*", "http://*"},
-			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Origin"},
-			ExposedHeaders:   []string{"Link", "Authorization"},
-			AllowCredentials: false,
-			MaxAge:           serverConfig.PreflightCacheDurationSec,
-		}))
-		r.Use(middleware.Logging)
-
-		r.Route("/api", func(r chi.Router) {
-			r.Route("/user", func(r chi.Router) {
-				r.Post("/create", userHandler.CreateUser)
-				r.Post("/login", userHandler.Login)
-				r.Group(func(r chi.Router) {
-					r.Use(authMiddleware.Authenticate)
-					r.Get("/api/user/logout", userHandler.Logout)
+				r.Route("/img", func(r chi.Router) {
+					r.Get("/", imgHandler.ListImages)
+					r.Group(func(r chi.Router) {
+						r.Use(authMiddleware.Authenticate)
+						r.Post("/create", imgHandler.CreateImage)
+						r.Post("/delete", imgHandler.DeleteImage)
+					})
 				})
 			})
+			return r
+		},
+	}
 
-			r.Route("/spot", func(r chi.Router) {
-				r.Get("/", spotHandler.ListSpots)
-				r.Get("/{spotID}", spotHandler.GetSpot)
-				r.Post("/create", spotHandler.CreateSpot)
-				r.Post("/batchcreate", spotHandler.BatchCreateSpots)
-			})
+	for _, provider := range providers {
+		if err := container.Provide(provider); err != nil {
+			return nil, err
+		}
+	}
 
-			r.Route("/comment", func(r chi.Router) {
-				r.Get("/", commentHandler.ListComments)
-				r.Group(func(r chi.Router) {
-					r.Use(authMiddleware.Authenticate)
-					r.Post("/create", commentHandler.CreateComment)
-					r.Post("/update", commentHandler.UpdateComment)
-					r.Delete("/delete", commentHandler.DeleteComment)
-				})
-			})
+	return container, nil
+}
 
-			r.Route("/img", func(r chi.Router) {
-				r.Get("/", imgHandler.ListImages)
-				r.Group(func(r chi.Router) {
-					r.Use(authMiddleware.Authenticate)
-					r.Post("/create", imgHandler.CreateImage)
-					r.Post("/delete", imgHandler.DeleteImage)
-				})
-			})
-		})
-		return r
-	})
-
-	return container
+func provideMySQLDialect() *goqu.DialectWrapper {
+	dialect := goqu.Dialect("mysql")
+	return &dialect
 }
