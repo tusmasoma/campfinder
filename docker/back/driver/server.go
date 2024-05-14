@@ -20,12 +20,13 @@ func Run() {
 	flag.StringVar(&addr, "addr", ":8083", "tcp host:port to connect")
 	flag.Parse()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	mainCtx, cancelMain := context.WithCancel(context.Background())
+	defer cancelMain()
 
-	container, err := BuildContainer(ctx)
+	container, err := BuildContainer(mainCtx)
 	if err != nil {
-		log.Fatalf("Failed to build container: %v", err)
+		log.Printf("Failed to build container: %v", err)
+		return
 	}
 
 	/* ===== サーバの設定 ===== */
@@ -41,20 +42,21 @@ func Run() {
 		log.SetFlags(0)
 		log.Println("Server running...")
 
-		ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt, os.Kill)
+		signalCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt, os.Kill)
 		defer stop()
 
 		go func() {
 			if err = srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				log.Fatalf("Server failed: %v", err)
+				log.Printf("Server failed: %v", err)
+				return
 			}
 		}()
 
-		<-ctx.Done()
+		<-signalCtx.Done()
 		log.Println("Server stopping...")
 
-		tctx, cancel := context.WithTimeout(context.Background(), config.GracefulShutdownTimeout)
-		defer cancel()
+		tctx, cancelShutdown := context.WithTimeout(context.Background(), config.GracefulShutdownTimeout)
+		defer cancelShutdown()
 
 		if err = srv.Shutdown(tctx); err != nil {
 			log.Println("failed to shutdown http server", err)
@@ -62,6 +64,7 @@ func Run() {
 		log.Println("Server exited")
 	})
 	if err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		log.Printf("Failed to start server: %v", err)
+		return
 	}
 }
