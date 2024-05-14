@@ -9,6 +9,7 @@ import (
 	"go.uber.org/dig"
 
 	"github.com/tusmasoma/campfinder/docker/back/config"
+	"github.com/tusmasoma/campfinder/docker/back/domain/repository"
 	"github.com/tusmasoma/campfinder/docker/back/infra/mysql"
 	"github.com/tusmasoma/campfinder/docker/back/infra/redis"
 	"github.com/tusmasoma/campfinder/docker/back/interfaces/handler"
@@ -27,7 +28,7 @@ func BuildContainer(ctx context.Context) (*dig.Container, error) {
 
 	providers := []interface{}{
 		config.NewServerConfig,
-		config.NewDB,
+		providerSQLExecutor,
 		config.NewClient,
 		provideMySQLDialect,
 		mysql.NewUserRepository,
@@ -119,4 +120,8 @@ func BuildContainer(ctx context.Context) (*dig.Container, error) {
 func provideMySQLDialect() *goqu.DialectWrapper {
 	dialect := goqu.Dialect("mysql")
 	return &dialect
+}
+
+func providerSQLExecutor() (repository.SQLExecutor, error) {
+	return config.NewDB()
 }
