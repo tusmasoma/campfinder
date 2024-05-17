@@ -6,6 +6,8 @@ GOARCH := $(shell $(GO) env GOARCH)
 BIN := $(abspath ./bin/$(GOOS)_$(GOARCH))
 GO_ENV ?= GOPRIVATE=github.com/tusmasoma GOBIN=$(BIN)
 
+DB_CONNECTION := "root:campfinder@tcp(localhost:3306)/campfinderdb"
+
 # tools
 $(shell mkdir -p $(BIN))
 
@@ -36,6 +38,13 @@ $(BIN)/gofumpt-$(GOFUMPT_VERSION):
 	$(GO_ENV) ${GO} install mvdan.cc/gofumpt@$(GOFUMPT_VERSION)
 	mv $(BIN)/gofumpt $(BIN)/gofumpt-$(GOFUMPT_VERSION)
 	ln -s $(BIN)/gofumpt-$(GOFUMPT_VERSION) $(BIN)/gofumpt
+
+GOOSE_VERSION := v3.20.0
+$(BIN)/goose-$(GOOSE_VERSION):
+	unlink $(BIN)/goose || true
+	$(GO_ENV) ${GO} install github.com/pressly/goose/v3/cmd/goose@$(GOOSE_VERSION)
+	mv $(BIN)/goose $(BIN)/goose-$(GOOSE_VERSION)
+	ln -s $(BIN)/goose-$(GOOSE_VERSION) $(BIN)/goose
 
 # テストターゲット: テストを実行
 .PHONY: test
@@ -89,3 +98,32 @@ build:
 .PHONY: bin-clean
 bin-clean:
 	$(RM) -r ./bin
+
+.PHONY: docker-up
+docker-up:
+	docker-compose up -d
+
+.PHONY: docker-down
+docker-down:
+	docker-compose down
+
+.PHONY: wait-for-mysql
+wait-for-mysql:
+	@echo "Waiting for MySQL to start..."
+	@while ! docker exec campfinder_db mysqladmin ping -h"localhost" --silent; do sleep 1; done
+	@echo "MySQL started"
+
+.PHONY: migration-up
+migration-up: $(BIN)/goose-$(GOOSE_VERSION) docker-up wait-for-mysql
+	cd docker/db && $(BIN)/goose -dir ./migrations mysql $(DB_CONNECTION) up
+	$(MAKE) docker-down
+
+.PHONY: migration-down
+migration-down: $(BIN)/goose-$(GOOSE_VERSION) docker-up wait-for-mysql
+	cd docker/db && $(BIN)/goose -dir ./migrations mysql $(DB_CONNECTION) down
+	$(MAKE) docker-down
+
+.PHONY: migration-create
+migration-create: $(BIN)/goose-$(GOOSE_VERSION)
+	@read -p "Enter migration name: " name; \
+	cd docker/db && $(BIN)/goose -dir ./migrations create $(name) sql
