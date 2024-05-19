@@ -1,4 +1,5 @@
-USE `campfinderdb` ;
+CREATE DATABASE IF NOT EXISTS `testdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `testdb` ;
 
 DROP TABLE IF EXISTS TestItems CASCADE;
 
