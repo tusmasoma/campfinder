@@ -86,8 +86,8 @@ func (uuc *userUseCase) LoginAndGenerateToken(ctx context.Context, email string,
 		user = users[0]
 	}
 	// 既にログイン済みかどうか確認する
-	isAuthenticate := uuc.cr.Exists(ctx, user.ID.String())
-	if isAuthenticate {
+	session, _ := uuc.cr.GetUserSession(ctx, user.ID.String())
+	if session != "" {
 		log.Printf("Already logged in")
 		return "", fmt.Errorf("user id in cache")
 	}

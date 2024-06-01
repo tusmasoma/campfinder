@@ -123,10 +123,10 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 						},
 					}, nil,
 				)
-				m1.EXPECT().Exists(
+				m1.EXPECT().GetUserSession(
 					gomock.Any(),
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
-				).Return(false)
+				).Return("", nil)
 				m1.EXPECT().SetUserSession(
 					gomock.Any(),
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
@@ -158,10 +158,10 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 						},
 					}, nil,
 				)
-				m1.EXPECT().Exists(
+				m1.EXPECT().GetUserSession(
 					gomock.Any(),
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
-				).Return(true)
+				).Return("session", nil)
 			},
 			arg: CreateUserAndGenerateTokenArg{
 				ctx:      context.Background(),
@@ -188,10 +188,10 @@ func TestUserUseCase_LoginAndGenerateToken(t *testing.T) {
 						},
 					}, nil,
 				)
-				m1.EXPECT().Exists(
+				m1.EXPECT().GetUserSession(
 					gomock.Any(),
 					"f6db2530-cd9b-4ac1-8dc1-38c795e6eec2",
-				).Return(false)
+				).Return("", nil)
 			},
 			arg: CreateUserAndGenerateTokenArg{
 				ctx:      context.Background(),
