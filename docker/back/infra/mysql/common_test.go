@@ -56,7 +56,7 @@ func startMySQL() (*sql.DB, func(), error) {
 		Env: []string{
 			"MYSQL_ROOT_USERNAME=root",
 			"MYSQL_ROOT_PASSWORD=campfinder",
-			"MYSQL_DATABASE=campfinderdb",
+			"MYSQL_DATABASE=testdb",
 		},
 		Cmd: []string{
 			"--character-set-server=utf8mb4",
@@ -72,16 +72,6 @@ func startMySQL() (*sql.DB, func(), error) {
 				Name: "no",
 			}
 			hc.Mounts = []docker.HostMount{
-				{
-					Type:   "bind",
-					Source: pwd + "/../../../db/init/ddl.sql",
-					Target: "/docker-entrypoint-initdb.d/ddl.sql",
-				},
-				{
-					Type:   "bind",
-					Source: pwd + "/init/dml.test.sql",
-					Target: "/docker-entrypoint-initdb.d/dml.test.sql",
-				},
 				{
 					Type:   "bind",
 					Source: pwd + "/init/ddl.test.sql",
@@ -104,7 +94,7 @@ func startMySQL() (*sql.DB, func(), error) {
 
 	// データベース接続が成功するまで定期的に接続試行を行うことを試みる(待機)
 	err = pool.Retry(func() error {
-		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/campfinderdb?charset=utf8mb4&parseTime=true", port)
+		dsn := fmt.Sprintf("root:campfinder@(localhost:%s)/testdb?charset=utf8mb4&parseTime=true", port)
 		db, err = sql.Open("mysql", dsn)
 		if err != nil {
 			return err
